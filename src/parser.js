@@ -10,9 +10,9 @@
 
 export class Playlist {
 	constructor(data){
-		let percentEncoded = /.*?irealb:\/\/([^"]*)/.exec(data);
-		let percentDecoded = decodeURIComponent(percentEncoded[1]);
-		let parts = percentDecoded.split("===");  //songs are separated by ===
+		const percentEncoded = /.*?irealb:\/\/([^"]*)/.exec(data);
+		const percentDecoded = decodeURIComponent(percentEncoded[1]);
+		const parts = percentDecoded.split("===");  //songs are separated by ===
 		if (parts.length > 1) this.name = parts.pop();  //playlist name
 		this.songs = parts.map(x => new Song(x));
 	}
@@ -52,18 +52,18 @@ export class Song {
 			this.music = "";
 			return;
 		}
-		let parts = data.split("="); //split on one sign, remove the blanks
-		let musicPrefix = "1r34LbKcu7";
-		this.title = parts[0];
-		this.composer = parts[1];
-		this.style = parts[3];
+		const parts = data.split("="); //split on one sign, remove the blanks
+		this.title = parts[0].trim();
+		this.composer = this.parseComposer(parts[1].trim());
+		this.style = parts[3].trim();
 		this.key = parts[4];
-		this.transpose = +parts[5] || 0;
+		this.transpose = +parts[5] || 0; // TODO
 		this.exStyle = parts[7];
 		this.bpm = +parts[8];
 		this.repeats = +parts[9] || 3;
-		parts = parts[6].split(musicPrefix);
-    this.music = this.unscramble(parts[1]);
+		const musicPrefix = "1r34LbKcu7";
+		const music = parts[6].split(musicPrefix);
+    this.music = this.unscramble(music[1]);
     this.cells = this.parse();
   }
 
@@ -123,20 +123,17 @@ export class Song {
 	 * @returns [Cell]
 	 */
 	parse() {
-		var text = this.music;
-		var arr = [], headers = [], comments = [];
-		var i;
-		text = text.trimRight();
-		while(text) {
-			var found = false;
-			for (i = 0; i < Song.regExps.length; i++) {
-				var match = Song.regExps[i].exec(text);
+		let text = this.music.trim();
+		const arr = [], headers = [], comments = [];
+		while (text) {
+			let found = false;
+			for (let i = 0; i < Song.regExps.length; i++) {
+				const match = Song.regExps[i].exec(text);
 				if (match) {
 					found = true;
 					if (match.length <= 2) {
-						match = match[0];
-						arr.push(match);
-						text = text.substr(match.length);
+						arr.push(match[0]);
+						text = text.substr(match[0].length);
 					}
 					else {
 						// a chord
@@ -155,11 +152,11 @@ export class Song {
 		}
 
     // pass 2: extract prefixes, suffixes, annotations and comments
-		var out = [];
-		var obj = this.newCell(out);
-		var prevobj = null;
-		for (i = 0; i < arr.length; i++) {
-			var cell = arr[i];
+		const cells = [];
+		let obj = this.newCell(cells);
+		let prevobj = null;
+		for (let i = 0; i < arr.length; i++) {
+			let cell = arr[i];
 			if (cell instanceof Array) {
 				obj.chord = this.parseChord(cell);
 				cell = " ";
@@ -203,10 +200,21 @@ export class Song {
 			}
 			if (cell && i < arr.length-1) {
 				prevobj = obj;		// so we can add any closing barline later
-				obj = this.newCell(out);
+				obj = this.newCell(cells);
 			}
 		}
-		return out;
+		return cells;
+	}
+
+	/**
+	 * The composer is reversed (last first) if it only has 2 names :shrug:
+	 */
+	parseComposer(match) {
+		const parts = match.split(/(\s+)/); // match and return spaces too
+		if (parts.length == 3) { // [last, spaces, first]
+			return parts[2] + parts[1] + parts[0]
+		}
+		return match;
 	}
 
 	parseChord(match) {
@@ -245,14 +253,14 @@ export class Song {
 		return obj;
 	}
 
-	//unscrambling hints from https://github.com/ironss/accompaniser/blob/master/irealb_parser.lua
-	//strings are broken up in 50 character segments. each segment undergoes character substitution addressed by obfusc50()
-	//note that a final part of length 50 or 51 is not scrambled.
-	//finally need to substitute for Kcl, LZ and XyQ.
+	// Unscrambling hints from https://github.com/ironss/accompaniser/blob/master/irealb_parser.lua
+	// Strings are broken up in 50 character segments. each segment undergoes character substitution addressed by obfusc50()
+	// Note that a final part of length 50 or 51 is not scrambled.
+	// Finally need to substitute for Kcl, LZ and XyQ.
 	unscramble(s) {
 		let r = '', p;
 
-		while(s.length > 51){
+		while (s.length > 51){
 			p = s.substring(0, 50);
 			s = s.substring(50);
 			r = r + this.obfusc50(p);
@@ -264,14 +272,14 @@ export class Song {
 	}
 
 	obfusc50(s) {
-		//the first 5 characters are switched with the last 5
+		// the first 5 characters are switched with the last 5
 		let newString = s.split('');
-		for(let i = 0; i < 5; i++){
+		for (let i = 0; i < 5; i++){
 			newString[49 - i] = s[i];
 			newString[i] = s[49 - i];
 		}
-		//characters 10-24 are also switched
-		for(let i = 10; i < 24; i++){
+		// characters 10-24 are also switched
+		for (let i = 10; i < 24; i++){
 			newString[49 - i] = s[i];
 			newString[i] = s[49 - i];
 		}
