@@ -20,4 +20,4 @@ npm run build
 npm run test
 ```
 
-`xmllint` is required to run tests (but NOT at runtime). It is used to ensure the the generated MusicXML is valid.
+`xmllint` is required to run tests (but NOT at runtime). It is used to ensure that the generated MusicXML is valid.
