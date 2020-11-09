@@ -6,7 +6,7 @@
   "scripts": {
     "build": "webpack",
     "test": "npm run test:lint && npm run test:spec",
-    "test:spec": "mocha",
+    "test:spec": "nyc mocha",
     "test:lint": "eslint src"
   },
   "author": "",
@@ -22,6 +22,7 @@
     "eslint": "^7.13.0",
     "eslint-webpack-plugin": "^2.2.1",
     "mocha": "^8.2.1",
+    "nyc": "^15.1.0",
     "regenerator-runtime": "^0.13.7",
     "validate-with-xmllint": "^1.2.0",
     "webpack": "^5.4.0",
