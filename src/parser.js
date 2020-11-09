@@ -1,5 +1,5 @@
 /**
- * The parser is derived from
+ * The iReal Pro parser is derived from
  * https://github.com/daumling/ireal-renderer
  * which is itself derived from
  * https://github.com/pianosnake/ireal-reader
@@ -76,7 +76,7 @@ export class Song {
    * 5 - the top chord as (chord)
    * @type RegExp
    */
-  static chordRegex = /^([A-G][b#]?)((?:sus|alt|add|[\+\-\^\dhob#])*)(\*.+?\*)*(\/[A-G][#b]?)?(\(.*?\))?/;
+  static chordRegex = /^([A-G][b#]?)((?:sus|alt|add|[+\-^\dhob#])*)(\*.+?\*)*(\/[A-G][#b]?)?(\(.*?\))?/;
   static chordRegex2 = /^([ Wp])()()(\/[A-G][#b]?)?(\(.*?\))?/;	// need the empty captures to match chordRegex
 
   static regExps = [
@@ -124,7 +124,7 @@ export class Song {
 	 */
 	parse() {
 		let text = this.music.trim();
-		const arr = [], headers = [], comments = [];
+		const arr = [];
 		while (text) {
 			let found = false;
 			for (let i = 0; i < Song.regExps.length; i++) {
