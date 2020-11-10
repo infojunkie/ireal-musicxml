@@ -10,7 +10,7 @@ export class MusicXML {
         <creator type="lyricist">${song.style}</creator>
         <encoding>
           <software>scalextric</software>
-          <encoding-date>${new Date().toLocaleDateString()}</encoding-date>
+          <encoding-date>${MusicXML.convertDate()}</encoding-date>
           <supports element="accidental" type="no"/>
           <supports element="transpose" type="no"/>
           <supports attribute="new-page" element="print" type="yes" value="yes"/>
@@ -64,13 +64,20 @@ export class MusicXML {
       </part-list>
         <!--=========================================================-->
       <part id="P1">
-      ${MusicXML.measures(song)}
+      ${MusicXML.convertMeasures(song)}
       </part>
     </score-partwise>
     `.trim();
   }
 
-  static measures(song) {
+  static convertDate() {
+    const date = new Date();
+    const offset = date.getTimezoneOffset();
+    const adjustedDate = new Date(date.getTime() - (offset*60*1000))
+    return adjustedDate.toISOString().split('T')[0]
+  }
+
+  static convertMeasures(song) {
     return song.cells.reduce( (measures) => {
       // TODO
       return measures;
