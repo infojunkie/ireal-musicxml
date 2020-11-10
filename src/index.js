@@ -4,15 +4,13 @@ import {MusicXML} from './musicxml';
 export default class iReal2MusicXML {
   static convert(ireal) {
     const playlist = new Playlist(ireal);
-    const converted = playlist.songs.map(song => {
-      return {
-        song,
-        musicxml: MusicXML.convert(song)
-      }
+    const songs = playlist.songs.map(song => {
+      song.musicxml = MusicXML.convert(song);
+      return song;
     });
     return {
       playlist: playlist.name,
-      songs: converted,
+      songs,
     }
   }
 }
