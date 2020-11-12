@@ -1,86 +1,127 @@
+import {toXML} from 'jstoxml';
+
 export class MusicXML {
-  static convert(song) {
-    return `
-    <?xml version="1.0" encoding="UTF-8"?>
-    <!DOCTYPE score-partwise PUBLIC "-//Recordare//DTD MusicXML 2.0 Partwise//EN" "http://www.musicxml.org/dtds/partwise.dtd">
-    <score-partwise version="2.0">
-      <movement-title>${song.title}</movement-title>
-      <identification>
-        <creator type="composer">${song.composer}</creator>
-        <creator type="lyricist">${song.style}</creator>
-        <encoding>
-          <software>scalextric</software>
-          <encoding-date>${MusicXML.convertDate()}</encoding-date>
-          <supports element="accidental" type="no"/>
-          <supports element="transpose" type="no"/>
-          <supports attribute="new-page" element="print" type="yes" value="yes"/>
-          <supports attribute="new-system" element="print" type="yes" value="yes"/>
-        </encoding>
-      </identification>
-      <defaults>
-        <scaling>
-          <millimeters>7</millimeters>
-          <tenths>40</tenths>
-        </scaling>
-        <page-layout>
-          <page-height>1700</page-height>
-          <page-width>1200</page-width>
-          <page-margins type="both">
-            <left-margin>72</left-margin>
-            <right-margin>72</right-margin>
-            <top-margin>72</top-margin>
-            <bottom-margin>72</bottom-margin>
-          </page-margins>
-        </page-layout>
-        <system-layout>
-          <system-margins>
-            <left-margin>22</left-margin>
-            <right-margin>0</right-margin>
-          </system-margins>
-          <system-distance>100</system-distance>
-          <top-system-distance>73</top-system-distance>
-        </system-layout>
-        <appearance>
-          <line-width type="beam">5</line-width>
-          <line-width type="heavy barline">5</line-width>
-          <line-width type="leger">1.5625</line-width>
-          <line-width type="light barline">1.5625</line-width>
-          <line-width type="slur middle">2.1875</line-width>
-          <line-width type="slur tip">0.625</line-width>
-          <line-width type="staff">0.9375</line-width>
-          <line-width type="stem">0.9375</line-width>
-          <line-width type="tie middle">2.1875</line-width>
-          <line-width type="tie tip">0.625</line-width>
-          <note-size type="grace">60</note-size>
-          <note-size type="cue">75</note-size>
-        </appearance>
-        <music-font font-family="Opus,music"/>
-        <word-font font-family="Times New Roman"/>
-      </defaults>
-      <part-list>
-        <score-part id="P1">
-          <part-name print-object="no">Lead sheet</part-name>
-        </score-part>
-      </part-list>
-        <!--=========================================================-->
-      <part id="P1">
-      ${MusicXML.convertMeasures(song)}
-      </part>
-    </score-partwise>
-    `.trim();
+  static defaultOptions = {
+    'divisions': 768, // divisions of the quarter note: 2^8 * 3^1
+    'notehead': 'slash'
   }
 
-  static convertDate() {
-    const date = new Date();
-    const offset = date.getTimezoneOffset();
-    const adjustedDate = new Date(date.getTime() - (offset*60*1000))
-    return adjustedDate.toISOString().split('T')[0]
+  static convert(song, options = {}) {
+    const realOptions = Object.assign({}, this.defaultOptions, options);
+    return new MusicXML(song, realOptions).musicxml;
   }
 
-  static convertMeasures(song) {
-    return song.cells.reduce( (measures) => {
-      // TODO
+  constructor(song, options) {
+    this.song = song;
+    this.options = options;
+    this.musicxml = toXML(this.convert(), {
+      header: `
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE score-partwise PUBLIC "-//Recordare//DTD MusicXML 3.1 Partwise//EN" "http://www.musicxml.org/dtds/partwise.dtd">
+      `.trim(),
+      indent: '  '
+    });
+  }
+
+  convert() {
+    return {
+      'score-partwise': [{
+        'movement-title': this.song.title
+      }, {
+        'identification': [{
+          _name: 'creator',
+          _attrs: { 'type': 'composer' },
+          _content: this.song.composer
+        }, {
+          _name: 'creator',
+          _attrs: { 'type': 'lyricist' },
+          _content: this.song.style
+        }, {
+          'encoding': [{
+            'software': '@infojunkie/ireal-musicxml'
+          }, {
+            'encoding-date': this.convertDate(new Date())
+          }, {
+            _name: 'supports',
+            _attrs: { 'element': 'accidental', 'type': 'no' }
+          }, {
+            _name: 'supports',
+            _attrs: { 'element': 'transpose', 'type': 'no' }
+          }, {
+            _name: 'supports',
+            _attrs: { 'attribute': 'new-page', 'element': 'print', 'type': 'yes', 'value': 'yes' }
+          }, {
+            _name: 'supports',
+            _attrs: { 'attribute': 'new-system', 'element': 'print', 'type': 'yes', 'value': 'yes' }
+          }]
+        }]
+      }, {
+        'part-list': {
+          _name: 'score-part',
+          _attrs: { 'id': 'P1' },
+          _content: {
+            _name: 'part-name',
+            _attrs: { 'print-object': 'no' },
+            _content: 'Lead sheet'
+          }
+        }
+      }, {
+        _name: 'part',
+        _attrs: { 'id': 'P1' },
+        _content: this.convertMeasures()
+      }]
+    }
+  }
+
+  // Date in yyyy-mm-dd
+  // https://stackoverflow.com/a/50130338/209184
+  convertDate(date) {
+    return new Date(date.getTime() - (date.getTimezoneOffset() * 60000 ))
+      .toISOString()
+      .split("T")[0];
+  }
+
+  convertMeasures() {
+    let measure = null;
+    let attributes = null;
+    const measures = this.song.cells.reduce( (measures, cell) => {
+      console.log(cell);
+      // Start a new measure if needed.
+      if (cell.bars.match(/(\(|\{|\[)/)) {
+        attributes = [];
+        measure = {
+          _name: 'measure',
+          _attrs: { 'number': measures.length+1 },
+          _content: []
+        }
+        // Very first bar: add note division.
+        if (!measures.length) {
+          attributes.push({
+            'divisions': this.options.divisions
+          });
+        }
+      }
+
+      // TODO Other attributes and chords.
+
+      // Close and insert the measure if needed.
+      // It can happen that `measure` is still null in case there were "empty" measures
+      // e.g. Girl From Ipanema in tests.
+      if (measure && cell.bars.match(/(\)|\}|\]|Z)/)) {
+        if (attributes.length) {
+          measure['_content'].push({
+            'attributes': attributes
+          });
+        }
+        if (!measure['_content'].length) {
+          delete(measure['_content']);
+        }
+        measures.push(measure);
+        measure = null;
+        attributes = null;
+      }
       return measures;
-    }, []).join('');
+    }, []);
+    return measures;
   }
 }

@@ -1,0 +1,14 @@
+{
+  "presets": [
+    [
+      "@babel/preset-env",
+      {
+        "useBuiltIns": false
+      }
+    ]
+  ],
+  "plugins": [
+    ["@babel/plugin-proposal-class-properties"]
+  ],
+  "sourceMaps": "both"
+}

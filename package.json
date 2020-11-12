@@ -29,5 +29,8 @@
     "webpack-cli": "^4.2.0",
     "xmldom": "^0.4.0",
     "xpath.js": "^1.1.0"
+  },
+  "dependencies": {
+    "jstoxml": "^2.0.1"
   }
 }
