@@ -14,6 +14,7 @@ export class MusicXML {
   constructor(song, options) {
     this.song = song;
     this.options = options;
+    this.tempo = { beats: 4, type: 4 };
     this.musicxml = toXML(this.convert(), {
       header: `
 <?xml version="1.0" encoding="UTF-8"?>
@@ -35,7 +36,7 @@ export class MusicXML {
         }, {
           _name: 'creator',
           _attrs: { 'type': 'lyricist' },
-          _content: this.song.style
+          _content: this.song.exStyle || this.song.style
         }, {
           'encoding': [{
             'software': '@infojunkie/ireal-musicxml'
@@ -81,14 +82,90 @@ export class MusicXML {
       .split("T")[0];
   }
 
+  convertSection(annot) {
+    let section = annot.slice(1);
+    if (section === 'i') section = "Intro";
+    return {
+      _name: 'direction',
+      _attrs: { 'placement': 'above' },
+      _content: {
+        'direction-type': {
+          'rehearsal': section
+        }
+      }
+    }
+  }
+
+  convertTime(annot) {
+    let beats = annot[1];
+    let beatType = annot[2];
+    if (annot.slice(1) === '12') {
+      beats = 12;
+      beatType = 8;
+    }
+    return {
+      'time': [{
+        'beats': beats
+      }, {
+        'beat-type': beatType
+      }]
+    }
+  }
+
+  // Create a chord structure made of harmony and base (dummy) note
+  convertChord(chord) {
+    // TODO Handle chord.note == 'n' => N.C.
+    // TODO Handle alternate chord
+    const rootStep = chord.note[0];
+    const alterMap = { '#': 1, 'b': -1 };
+    const rootAlter = chord.note[1] && chord.note[1] in alterMap ? alterMap[chord.note[1]] : undefined;
+    if (chord.note[1] && !rootAlter) {
+      console.warn(`[MusicXML::convertChord] Unknown accidental in chord "${chord.note}"`);
+    }
+    console.log(rootAlter);
+    const chordKind = 'major'; // TODO
+    const chordText = `${chord.note}${chord.modifiers}` + (chord.over ? `/${chord.over.note}` : '');
+    const beats = 1; // TODO
+    const noteType = 'quarter'; // TODO
+    const noteDuration = beats * this.options.divisions / this.tempo.beats; // TODO
+
+    const harmony = [{
+      'root': [{
+        'root-step': rootStep
+      }, {
+        'root-alter': rootAlter
+      }],
+    }, {
+      _name: 'kind',
+      _attrs: { 'text': chordText },
+      _content: chordKind,
+    }];
+    const note = [{
+      'pitch': [{
+        'step': 'B'
+      }, {
+        'octave': 4,
+      }]
+    }, {
+      'duration': noteDuration
+    }, {
+      'type': noteType
+    }, {
+      'notehead': this.options.notehead
+    }];
+    return { harmony, note };
+  }
+
   convertMeasures() {
     let measure = null;
     let attributes = null;
+    let chords = null;
+
     const measures = this.song.cells.reduce( (measures, cell) => {
-      console.log(cell);
       // Start a new measure if needed.
       if (cell.bars.match(/(\(|\{|\[)/)) {
         attributes = [];
+        chords = [];
         measure = {
           _name: 'measure',
           _attrs: { 'number': measures.length+1 },
@@ -102,23 +179,58 @@ export class MusicXML {
         }
       }
 
-      // TODO Other attributes and chords.
+      // Short-circuit loop if no measure exists.
+      // It can happen that `measure` is still blank in case of empty cells in iReal layout.
+      // e.g. Girl From Ipanema in tests.
+      if (!measure) return measures;
+
+      // Other attributes.
+      cell.annots.forEach(annot => {
+        switch(annot[0]) {
+          case '*': measure['_content'].push(this.convertSection(annot)); break;
+          case 'T': attributes.push(this.convertTime(annot)); break;
+          // TODO Other attributes
+          default: console.warn(`[MusicXML::convertMeasures] Unrecognized annotation "${annot}"`);
+        }
+      });
+
+      // Chords.
+      if (cell.chord) {
+        if (cell.chord.note == 'x') {
+          // TODO Handle bar repeat.
+        } else if (cell.chord.note == 'r') {
+          // TODO Handle Handle double bar repeat.
+        } else if (cell.chord.note == 'W') {
+          // TODO Handle invisible root.
+        } else {
+          // Process new chord. It may change the full `chords` array.
+          chords.push(this.convertChord(cell.chord));
+        }
+      } else {
+        // TODO In case of blank chord, add a beat to last chord if any.
+      }
 
       // Close and insert the measure if needed.
-      // It can happen that `measure` is still null in case there were "empty" measures
-      // e.g. Girl From Ipanema in tests.
-      if (measure && cell.bars.match(/(\)|\}|\]|Z)/)) {
+      if (cell.bars.match(/(\)|\}|\]|Z)/)) {
         if (attributes.length) {
           measure['_content'].push({
             'attributes': attributes
           });
         }
+        chords.forEach(chord => {
+          measure['_content'].push({
+            'harmony': chord.harmony
+          }, {
+            'note': chord.note
+          })
+        });
         if (!measure['_content'].length) {
           delete(measure['_content']);
         }
         measures.push(measure);
         measure = null;
         attributes = null;
+        chords = null;
       }
       return measures;
     }, []);
