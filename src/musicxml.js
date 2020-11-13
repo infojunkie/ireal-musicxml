@@ -3,7 +3,11 @@ import {toXML} from 'jstoxml';
 export class MusicXML {
   static defaultOptions = {
     'divisions': 768, // divisions of the quarter note: 2^8 * 3^1
-    'notehead': 'slash'
+    'note': {
+      'step': 'B',
+      'octave': 4,
+      'notehead': 'slash'
+    }
   }
 
   static convert(song, options = {}) {
@@ -14,7 +18,7 @@ export class MusicXML {
   constructor(song, options) {
     this.song = song;
     this.options = options;
-    this.tempo = { beats: 4, type: 4 };
+    this.time = { beats: 4, type: 4 };
     this.musicxml = toXML(this.convert(), {
       header: `
 <?xml version="1.0" encoding="UTF-8"?>
@@ -103,6 +107,7 @@ export class MusicXML {
       beats = 12;
       beatType = 8;
     }
+    this.time = { beats, type: beatType };
     return {
       'time': [{
         'beats': beats
@@ -122,9 +127,12 @@ export class MusicXML {
     if (chord.note[1] && !rootAlter) {
       console.warn(`[MusicXML::convertChord] Unknown accidental in chord "${chord.note}"`);
     }
-    // To map iReal chord modifiers to a MusicXML structure, enumerate all the possibilities
+    // To map iReal chord modifiers to a MusicXML structure, enumerate all the possibilities.
+    // Maybe there's a way to parse based on actual understanding of the chord naming practice,
+    // but it's _very_ complicated :-)
     // https://github.com/felixroos/jazzband/blob/master/src/harmony/Harmony.ts#L12-L73
     // https://usermanuals.musicxml.com/MusicXML/Content/ST-MusicXML-kind-value.htm
+    // TODO Configure output nomenclature (in `text`), e.g. minor => '-' vs. 'm' vs 'MI' vs 'min'
     const mapChord = {
       '': { text: '', kind: 'major' },
       '^': { text: '', kind: 'major' },
@@ -214,32 +222,33 @@ export class MusicXML {
 
     const beats = 1; // TODO
     const noteType = 'quarter'; // TODO
-    const noteDuration = beats * this.options.divisions / this.tempo.beats; // TODO
+    const noteDuration = beats * this.options.divisions / this.time.beats; // TODO
 
     const harmony = [{
       'root': [{
         'root-step': rootStep
-      }, rootAlter ? {
-        'root-alter': rootAlter
-      } : undefined],
+      }],
     }, {
       _name: 'kind',
       _attrs: { 'text': chordText },
       _content: chordKind,
     }].concat(chordDegrees);
+    if (rootAlter) {
+      harmony[0]['root'].push({ 'root-alter': rootAlter });
+    }
 
     const note = [{
       'pitch': [{
-        'step': 'B'
+        'step': this.options.note.step
       }, {
-        'octave': 4,
+        'octave': this.options.note.octave
       }]
     }, {
       'duration': noteDuration
     }, {
       'type': noteType
     }, {
-      'notehead': this.options.notehead
+      'notehead': this.options.note.notehead
     }];
     return { harmony, note };
   }
@@ -285,11 +294,19 @@ export class MusicXML {
       // Chords.
       if (cell.chord) {
         if (cell.chord.note == 'x') {
-          // TODO Handle bar repeat.
+          // Handle bar repeat.
+          // Copy last measure, but delete attributes and empty out intermediate objects.
+          attributes = [];
+          chords = [];
+          measure = JSON.parse(JSON.stringify(measures[measures.length-1]));
+          measure['_content'] = measure['_content'].filter(c => 'harmony' in c || 'note' in c);
+          measure['_attrs']['number']++;
         } else if (cell.chord.note == 'r') {
           // TODO Handle Handle double bar repeat.
         } else if (cell.chord.note == 'W') {
           // TODO Handle invisible root.
+        } else if (cell.chord.note == ' ') {
+          // TODO Handle alternate chord only.
         } else {
           // Process new chord. It may change the full `chords` array.
           chords.push(this.convertChord(cell.chord));

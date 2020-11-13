@@ -33,7 +33,7 @@ describe('MusicXML', function() {
     assert.strictEqual(composer[0].toString(), "Cedar Walton");
   });
 
-  it('should create a valid MusicXML for an iReal song', async function() {
+  it('should create a valid, complete and correct MusicXML for an iReal song', async function() {
     const playlist = new Playlist(fs.readFileSync('test/data/playlist.html', 'utf-8'));
     const musicxml = MusicXML.convert(playlist.songs[0]);
     console.log(musicxml);
@@ -43,7 +43,13 @@ describe('MusicXML', function() {
     assert.strictEqual(composer[0].toString(), "Cedar Extra Name Walton");
     const firstMeasureDivisions = select(doc, '//measure/attributes/divisions/text()');
     assert.strictEqual(firstMeasureDivisions[0].toString(), "768");
-    const firstChord = select(doc, '//harmony/root/root-step/text()');
+    const firstChord = select(doc, '//measure/harmony/root/root-step/text()');
     assert.strictEqual(firstChord[0].toString(), "G");
+    const keyFifths = select(doc, '//measure/attributes/key/fifths/text()');
+    assert.strictEqual(keyFifths[0].toString(), "2");
+    const clefSign = select(doc, '//measure/attributes/clef/sign/text()');
+    assert.strictEqual(clefSign[0].toString(), "G");
+    const barlineRepeat = select(doc, '//measure/barline/repeat/@direction');
+    assert.strictEqual(barlineRepeat[0].toString(), "forward");
   });
 });
