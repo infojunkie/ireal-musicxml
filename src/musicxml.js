@@ -219,24 +219,21 @@ export class MusicXML {
     } else {
       console.warn(`[MusicXML::convertChord] Unknown modifiers in chord "${chord.modifiers}"`);
     }
-
-    const beats = 1; // TODO
-    const noteType = 'quarter'; // TODO
-    const noteDuration = beats * this.options.divisions / this.time.beats; // TODO
-
     const harmony = [{
       'root': [{
         'root-step': rootStep
-      }],
+      }, { ...(rootAlter && { // Don't generate the root-alter entry if rootAlter is blank
+        'root-alter': rootAlter
+      })}],
     }, {
       _name: 'kind',
       _attrs: { 'text': chordText },
       _content: chordKind,
     }].concat(chordDegrees);
-    if (rootAlter) {
-      harmony[0]['root'].push({ 'root-alter': rootAlter });
-    }
 
+    const beats = 1; // TODO
+    const noteType = 'quarter'; // TODO
+    const noteDuration = beats * this.options.divisions / this.time.beats; // TODO
     const note = [{
       'pitch': [{
         'step': this.options.note.step
@@ -251,6 +248,37 @@ export class MusicXML {
       'notehead': this.options.note.notehead
     }];
     return { harmony, note };
+  }
+
+  convertKey() {
+    const mapKeys = {
+      'C': 0,
+      'G': 1,
+      'D': 2,
+      'A': 3,
+      'E': 4,
+      'B': 5,
+      'F#': 6,
+      'C#': 7,
+      'F': -1,
+      'Bb': -2,
+      'Eb': -3,
+      'Ab': -4,
+      'Db': -5,
+      'Gb': -6,
+      'Cb': -7
+    }
+    if (!(this.song.key in mapKeys)) {
+      console.warn(`[MusicXML::convertKey] Unrecognized song key "${this.song.key}"`);
+      return null;
+    }
+    return {
+      'key': [{
+        'fifths': mapKeys[this.song.key]
+      }, {
+        'mode': 'major'
+      }]
+    }
   }
 
   convertMeasures() {
@@ -268,10 +296,16 @@ export class MusicXML {
           _attrs: { 'number': measures.length+1 },
           _content: []
         }
-        // Very first bar: add note division.
+        // Very first bar: add defaults.
         if (!measures.length) {
           attributes.push({
             'divisions': this.options.divisions
+          }, this.convertKey(), {
+            'clef': [{
+              'sign': 'G'
+            }, {
+              'line': 2
+            }]
           });
         }
       }
