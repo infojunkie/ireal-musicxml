@@ -18,6 +18,7 @@ export class MusicXML {
   constructor(song, options) {
     this.song = song;
     this.options = options;
+    this.alter = 0; // Alteration of the dummy note, based on current key
     this.time = { beats: 4, type: 4 };
     this.musicxml = toXML(this.convert(), {
       header: `
@@ -118,14 +119,13 @@ export class MusicXML {
   }
 
   convertChord(chord) {
-    // TODO Handle chord.note == 'n' => N.C.
     // TODO Handle alternate chord
     // TODO Handle slash chord
     const rootStep = chord.note[0];
     const mapRootAlter = { '#': 1, 'b': -1 };
     const rootAlter = chord.note[1] && chord.note[1] in mapRootAlter ? mapRootAlter[chord.note[1]] : undefined;
     if (chord.note[1] && !rootAlter) {
-      console.warn(`[MusicXML::convertChord] Unknown accidental in chord "${chord.note}"`);
+      console.warn(`[MusicXML::convertChord] Unrecognized accidental in chord "${chord.note}"`);
     }
     // To map iReal chord modifiers to a MusicXML structure, enumerate all the possibilities.
     // Maybe there's a way to parse based on actual understanding of the chord naming practice,
@@ -217,12 +217,23 @@ export class MusicXML {
         });
       }
     } else {
-      console.warn(`[MusicXML::convertChord] Unknown modifiers in chord "${chord.modifiers}"`);
+      console.warn(`[MusicXML::convertChord] Unrecognized chord modifiers "${chord.modifiers}"`);
     }
+
+    // Special case: 'n' for no chord
+    if (rootStep == 'n') {
+      chordKind = 'none';
+      chordText = 'N.C.';
+    }
+
     const harmony = [{
-      'root': [{
+      'root': [{ ...(rootStep !== 'n' && { // Regular chord
         'root-step': rootStep
-      }, { ...(rootAlter && { // Don't generate the root-alter entry if rootAlter is blank
+      })}, { ...(rootStep === 'n' && { // No chord
+        _name: 'root-step',
+        _attrs: { 'text': '' },
+        _content: this.options.note.step
+      })}, { ...(rootAlter && { // Don't generate the root-alter entry if rootAlter is blank
         'root-alter': rootAlter
       })}],
     }, {
@@ -238,6 +249,8 @@ export class MusicXML {
       'pitch': [{
         'step': this.options.note.step
       }, {
+        'alter': this.alter
+      }, {
         'octave': this.options.note.octave
       }]
     }, {
@@ -252,31 +265,50 @@ export class MusicXML {
 
   convertKey() {
     const mapKeys = {
-      'C': 0,
-      'G': 1,
-      'D': 2,
-      'A': 3,
-      'E': 4,
-      'B': 5,
-      'F#': 6,
-      'C#': 7,
-      'F': -1,
-      'Bb': -2,
-      'Eb': -3,
-      'Ab': -4,
-      'Db': -5,
-      'Gb': -6,
-      'Cb': -7
+      'C': { f: 0, a: { 'C': 0, 'D': 0, 'E': 0, 'F': 0, 'G': 0, 'A': 0, 'B': 0 } },
+      'G': { f: 1, a: { 'C': 0, 'D': 0, 'E': 0, 'F': 1, 'G': 0, 'A': 0, 'B': 0 } },
+      'D': { f: 2, a: { 'C': 1, 'D': 0, 'E': 0, 'F': 1, 'G': 0, 'A': 0, 'B': 0 } },
+      'A': { f: 3, a: { 'C': 1, 'D': 0, 'E': 0, 'F': 1, 'G': 1, 'A': 0, 'B': 0 } },
+      'E': { f: 4, a: { 'C': 1, 'D': 1, 'E': 0, 'F': 1, 'G': 1, 'A': 0, 'B': 0 } },
+      'B': { f: 5, a: { 'C': 1, 'D': 1, 'E': 0, 'F': 1, 'G': 1, 'A': 1, 'B': 0 } },
+      'F#': { f: 6, a: { 'C': 1, 'D': 1, 'E': 1, 'F': 1, 'G': 1, 'A': 1, 'B': 0 } },
+      'C#': { f: 7, a: { 'C': 1, 'D': 1, 'E': 1, 'F': 1, 'G': 1, 'A': 1, 'B': 1 } },
+      'F': { f: -1, a: { 'C': 0, 'D': 0, 'E': 0, 'F': 0, 'G': 0, 'A': 0, 'B': -1 } },
+      'Bb': { f: -2, a: { 'C': 0, 'D': 0, 'E': -1, 'F': 0, 'G': 0, 'A': 0, 'B': -1 } },
+      'Eb': { f: -3, a: { 'C': 0, 'D': 0, 'E': -1, 'F': 0, 'G': 0, 'A': -1, 'B': -1 } },
+      'Ab': { f: -4, a: { 'C': 0, 'D': -1, 'E': -1, 'F': 0, 'G': 0, 'A': -1, 'B': -1 } },
+      'Db': { f: -5, a: { 'C': 0, 'D': -1, 'E': -1, 'F': 0, 'G': -1, 'A': -1, 'B': -1 } },
+      'Gb': { f: -6, a: { 'C': -1, 'D': -1, 'E': -1, 'F': 0, 'G': -1, 'A': -1, 'B': -1 } },
+      'Cb': { f: -7, a: { 'C': -1, 'D': -1, 'E': -1, 'F': -1, 'G': -1, 'A': -1, 'B': -1 } },
+      'A-': { f: 0, a: { 'C': 0, 'D': 0, 'E': 0, 'F': 0, 'G': 0, 'A': 0, 'B': 0 } },
+      'E-': { f: 1, a: { 'C': 0, 'D': 0, 'E': 0, 'F': 1, 'G': 0, 'A': 0, 'B': 0 } },
+      'B-': { f: 2, a: { 'C': 1, 'D': 0, 'E': 0, 'F': 1, 'G': 0, 'A': 0, 'B': 0 } },
+      'F#-': { f: 3, a: { 'C': 1, 'D': 0, 'E': 0, 'F': 1, 'G': 1, 'A': 0, 'B': 0 } },
+      'C#-': { f: 4, a: { 'C': 1, 'D': 1, 'E': 0, 'F': 1, 'G': 1, 'A': 0, 'B': 0 } },
+      'G#-': { f: 5, a: { 'C': 1, 'D': 1, 'E': 0, 'F': 1, 'G': 1, 'A': 1, 'B': 0 } },
+      'D#-': { f: 6, a: { 'C': 1, 'D': 1, 'E': 1, 'F': 1, 'G': 1, 'A': 1, 'B': 0 } },
+      'A#-': { f: 7, a: { 'C': 1, 'D': 1, 'E': 1, 'F': 1, 'G': 1, 'A': 1, 'B': 1 } },
+      'D-': { f: -1, a: { 'C': 0, 'D': 0, 'E': 0, 'F': 0, 'G': 0, 'A': 0, 'B': -1 } },
+      'G-': { f: -2, a: { 'C': 0, 'D': 0, 'E': -1, 'F': 0, 'G': 0, 'A': 0, 'B': -1 } },
+      'C-': { f: -3, a: { 'C': 0, 'D': 0, 'E': -1, 'F': 0, 'G': 0, 'A': -1, 'B': -1 } },
+      'F-': { f: -4, a: { 'C': 0, 'D': -1, 'E': -1, 'F': 0, 'G': 0, 'A': -1, 'B': -1 } },
+      'Bb-': { f: -5, a: { 'C': 0, 'D': -1, 'E': -1, 'F': 0, 'G': -1, 'A': -1, 'B': -1 } },
+      'Eb-': { f: -6, a: { 'C': -1, 'D': -1, 'E': -1, 'F': 0, 'G': -1, 'A': -1, 'B': -1 } },
+      'Ab-': { f: -7, a: { 'C': -1, 'D': -1, 'E': -1, 'F': -1, 'G': -1, 'A': -1, 'B': -1 } }
     }
     if (!(this.song.key in mapKeys)) {
       console.warn(`[MusicXML::convertKey] Unrecognized song key "${this.song.key}"`);
       return null;
     }
+
+    // Adjust the dummy note alteration based on the key we're in.
+    this.alter = mapKeys[this.song.key].a[this.options.note.step];
+
     return {
       'key': [{
-        'fifths': mapKeys[this.song.key]
+        'fifths': mapKeys[this.song.key].f
       }, {
-        'mode': 'major'
+        'mode': this.song.key.slice(-1) === '-' ? 'minor' : 'major'
       }]
     }
   }
@@ -300,13 +332,13 @@ export class MusicXML {
         if (!measures.length) {
           attributes.push({
             'divisions': this.options.divisions
-          }, this.convertKey(), {
+          }, {
             'clef': [{
               'sign': 'G'
             }, {
               'line': 2
             }]
-          });
+          }, this.convertKey());
         }
       }
 
@@ -321,7 +353,7 @@ export class MusicXML {
           case '*': measure['_content'].push(this.convertSection(annot)); break;
           case 'T': attributes.push(this.convertTime(annot)); break;
           // TODO More attributes
-          default: console.warn(`[MusicXML::convertMeasures] Unknown annotation "${annot}"`);
+          default: console.warn(`[MusicXML::convertMeasures] Unrecognized annotation "${annot}"`);
         }
       });
 
@@ -329,7 +361,7 @@ export class MusicXML {
       if (cell.chord) {
         if (cell.chord.note == 'x') {
           // Handle bar repeat.
-          // Copy last measure, but delete attributes and empty out intermediate objects.
+          // Copy last measure, but on keep chords and empty out intermediate objects.
           attributes = [];
           chords = [];
           measure = JSON.parse(JSON.stringify(measures[measures.length-1]));
@@ -342,7 +374,7 @@ export class MusicXML {
         } else if (cell.chord.note == ' ') {
           // TODO Handle alternate chord only.
         } else {
-          // Process new chord. It may change the full `chords` array.
+          // Process new chord.
           chords.push(this.convertChord(cell.chord));
         }
       } else {
@@ -353,7 +385,31 @@ export class MusicXML {
       if (cell.bars.match(/(\)|\}|\]|Z)/)) {
         if (attributes.length) {
           measure['_content'].push({
-            'attributes': attributes
+            // Sort attributes according to their sequence in MusicXML.
+            'attributes': attributes.sort((a1, a2) => {
+              const k1 = Object.keys(a1)[0];
+              const k2 = Object.keys(a2)[0];
+              const attributeMap = {
+                'divisions': 1,
+                'key': 2,
+                'time': 3,
+                'staves': 4,
+                'part-symbol': 5,
+                'instruments': 6,
+                'clef': 7,
+                'staff-details': 8,
+                'transpose': 9,
+                'directive': 10,
+                'measure-style': 11
+              };
+              if (!(k1 in attributeMap)) {
+                console.warn(`[MusicXML::convertMeasure] Unrecognized attribute "${k1}"`);
+              }
+              if (!(k2 in attributeMap)) {
+                console.warn(`[MusicXML::convertMeasure] Unrecognized attribute "${k2}"`);
+              }
+              return attributeMap[k1] - attributeMap[k2];
+            })
           });
         }
         chords.forEach(chord => {

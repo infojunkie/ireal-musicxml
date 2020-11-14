@@ -33,12 +33,11 @@ describe('MusicXML', function() {
     assert.strictEqual(composer[0].toString(), "Cedar Walton");
   });
 
-  it('should create a valid, complete and correct MusicXML for an iReal song', async function() {
+  it('should create a valid, complete and correct MusicXML for Bolivia', async function() {
     const playlist = new Playlist(fs.readFileSync('test/data/playlist.html', 'utf-8'));
-    const musicxml = MusicXML.convert(playlist.songs[0]);
-    console.log(musicxml);
-    await validateXMLWithXSD(musicxml, 'test/data/musicxml.xsd');
-    const doc = new DOMParser().parseFromString(musicxml);
+    const bolivia = MusicXML.convert(playlist.songs[0]);
+    await validateXMLWithXSD(bolivia, 'test/data/musicxml.xsd');
+    const doc = new DOMParser().parseFromString(bolivia);
     const composer = select(doc, '//creator[@type="composer"]/text()');
     assert.strictEqual(composer[0].toString(), "Cedar Extra Name Walton");
     const firstMeasureDivisions = select(doc, '//measure/attributes/divisions/text()');
@@ -51,5 +50,43 @@ describe('MusicXML', function() {
     assert.strictEqual(clefSign[0].toString(), "G");
     const barlineRepeat = select(doc, '//measure/barline/repeat/@direction');
     assert.strictEqual(barlineRepeat[0].toString(), "forward");
+  });
+
+  it('should create a valid, complete and correct MusicXML for Moanin\'', async function() {
+    const playlist = new Playlist(fs.readFileSync('test/data/playlist.html', 'utf-8'));
+    const moanin = MusicXML.convert(playlist.songs[1]);
+    console.log(moanin);
+    await validateXMLWithXSD(moanin, 'test/data/musicxml.xsd');
+    const doc = new DOMParser().parseFromString(moanin);
+    const keyMode = select(doc, '//measure/attributes/key/mode/text()');
+    assert.strictEqual(keyMode[0].toString(), "minor");
+  });
+
+  it('should create a valid, complete and correct MusicXML for New Bolero', async function() {
+    const playlist = new Playlist(fs.readFileSync('test/data/playlist.html', 'utf-8'));
+    const bolero = MusicXML.convert(playlist.songs[2]);
+    await validateXMLWithXSD(bolero, 'test/data/musicxml.xsd');
+    const doc = new DOMParser().parseFromString(doc);
+  });
+
+  it('should create a valid, complete and correct MusicXML for Girl From Ipanema', async function() {
+    const playlist = new Playlist(fs.readFileSync('test/data/playlist.html', 'utf-8'));
+    const ipanema = MusicXML.convert(playlist.songs[3]);
+    await validateXMLWithXSD(ipanema, 'test/data/musicxml.xsd');
+    const doc = new DOMParser().parseFromString(ipanema);
+  });
+
+  it('should create a valid, complete and correct MusicXML for Song For My Father', async function() {
+    const playlist = new Playlist(fs.readFileSync('test/data/playlist.html', 'utf-8'));
+    const father = MusicXML.convert(playlist.songs[4]);
+    await validateXMLWithXSD(father, 'test/data/musicxml.xsd');
+    const doc = new DOMParser().parseFromString(father);
+  });
+
+  it('should create a valid, complete and correct MusicXML for All Blues', async function() {
+    const playlist = new Playlist(fs.readFileSync('test/data/playlist.html', 'utf-8'));
+    const blues = MusicXML.convert(playlist.songs[5]);
+    await validateXMLWithXSD(blues, 'test/data/musicxml.xsd');
+    const doc = new DOMParser().parseFromString(blues);
   });
 });
