@@ -2,7 +2,7 @@ import {toXML} from 'jstoxml';
 
 export class MusicXML {
   static defaultOptions = {
-    'divisions': 768, // divisions of the quarter note: 2^8 * 3^1
+    'divisions': 768, // as used by iReal
     'note': {
       'step': 'B',
       'octave': 4,
@@ -18,7 +18,6 @@ export class MusicXML {
   constructor(song, options) {
     this.song = song;
     this.options = options;
-    this.alter = 0; // Alteration of the dummy note, based on current key
     this.time = { beats: 4, type: 4 };
     this.musicxml = toXML(this.convert(), {
       header: `
@@ -118,6 +117,66 @@ export class MusicXML {
     }
   }
 
+  calculateChordDuration(beats) {
+    const mapDuration = {
+      '1': { t: 'eighth', d: 0 },
+      '2': { t: 'quarter', d: 0 },
+      '3': { t: 'quarter', d: 1 },
+      '4': { t: 'half', d: 0 },
+      '5': { t: null, d: null }, // TODO
+      '6': { t: 'half', d: 1 },
+      '7': { t: 'half', d: 2 },
+      '8': { t: 'whole', d: 0 },
+      '9': { t: null, d: null }, // TODO
+      '10': { t: null, d: null }, // TODO
+      '11': { t: null, d: null }, // TODO
+      '12': { t: 'whole', d: 1 }
+    };
+    const index = beats * 8 / this.time.type; // Lowest beat resolution is eighth-note (8)
+    if (!(index in mapDuration)) {
+      console.warn(`[MusicXML::calculateChordDuration] Unexpected beat count ${beats} for time signature ${this.time.beats}/${this.time.type}`);
+    }
+    const type = mapDuration[index].t;
+    if (!type) {
+      console.warn(`[MusicXML::calculateChordDuration] Unhandled beat count ${beats} for time signature ${this.time.beats}/${this.time.type}`);
+    }
+    const duration = beats * this.options.divisions / this.time.beats;
+    return { duration, type, dots: mapDuration[index].d };
+  }
+
+  convertChordNote(duration, type, dots) {
+    return [{
+      'unpitched': [{
+        'display-step': this.options.note.step
+      }, {
+        'display-octave': this.options.note.octave
+      }]
+    }, {
+      'duration': duration
+    }, {
+      'type': type
+    }, {
+      'notehead': this.options.note.notehead
+    }].concat(Array(dots).fill({ _name: 'dot' })).sort((a1, a2) => {
+      let k1 = Object.keys(a1)[0]; if (k1 == '_name') k1 = a1[k1];
+      let k2 = Object.keys(a2)[0]; if (k2 == '_name') k2 = a2[k2];
+      const attributeMap = {
+        'unpitched': 1,
+        'duration': 2,
+        'type': 3,
+        'dot': 4,
+        'notehead': 5
+      };
+      if (!(k1 in attributeMap)) {
+        console.warn(`[MusicXML::convertMeasure] Unrecognized attribute "${k1}"`);
+      }
+      if (!(k2 in attributeMap)) {
+        console.warn(`[MusicXML::convertMeasure] Unrecognized attribute "${k2}"`);
+      }
+      return attributeMap[k1] - attributeMap[k2];
+    });
+  }
+
   convertChord(chord) {
     // TODO Handle alternate chord
     // TODO Handle slash chord
@@ -131,14 +190,15 @@ export class MusicXML {
     // Maybe there's a way to parse based on actual understanding of the chord naming practice,
     // but it's _very_ complicated :-)
     // https://github.com/felixroos/jazzband/blob/master/src/harmony/Harmony.ts#L12-L73
+    // https://github.com/no-chris/chord-symbol
     // https://usermanuals.musicxml.com/MusicXML/Content/ST-MusicXML-kind-value.htm
     // TODO Configure output nomenclature (in `text`), e.g. minor => '-' vs. 'm' vs 'MI' vs 'min'
     const mapChord = {
       '': { text: '', kind: 'major' },
       '^': { text: '', kind: 'major' },
       '-': { text: 'm', kind: 'minor' },
-      '-♯5': { text: 'm♯5', kind: 'minor', degrees: [ { d: 5, a: 1, t: 'alter' } ] },
-      '-♭6': { text: 'm♭6', kind: 'minor', degrees: [ { d: 6, a: -1, t: 'add' } ] },
+      '-♯5': { text: 'm', kind: 'minor', degrees: [ { d: 5, a: 1, t: 'alter' } ] },
+      '-♭6': { text: 'm', kind: 'minor', degrees: [ { d: 6, a: -1, t: 'add' } ] },
       '+': { text: '+', kind: 'augmented' },
       'sus': { text: 'sus4', kind: 'suspended-fourth' },
       'sus4': { text: 'sus4', kind: 'suspended-fourth' },
@@ -146,8 +206,8 @@ export class MusicXML {
       'sus2': { text: 'sus2', kind: 'suspended-second' },
       'o': { text: 'o', kind: 'diminished' },
       '^7': { text: '△7', kind: 'major-seventh' },
-      '^7♯5': { text: '△7♯5', kind: 'major-seventh', degrees: [ { d: 5, a: 1, t: 'alter' } ] },
-      '^7♯11': { text: '△7♯11', kind: 'major-seventh', degrees: [ { d: 11, a: 1, t: 'add' } ] },
+      '^7♯5': { text: '△7', kind: 'major-seventh', degrees: [ { d: 5, a: 1, t: 'alter' } ] },
+      '^7♯11': { text: '△7', kind: 'major-seventh', degrees: [ { d: 11, a: 1, t: 'add' } ] },
       '-^7': { text: 'm△7', kind: 'major-minor' },
       '-7': { text: 'm7', kind: 'minor-seventh' },
       '-7♭5': { text: 'm7♭5', kind: 'half-diminished' },
@@ -155,36 +215,36 @@ export class MusicXML {
       'h': { text: 'ø7', kind: 'half-diminished' },
       'o7': { text: 'o7', kind: 'diminished-seventh' },
       '7': { text: '7', kind: 'dominant' },
-      '7♯5': { text: '7♯5', kind: 'dominant', degrees: [ { d: 5, a: 1, t: 'alter' } ] },
-      '7+': { text: '7♯5', kind: 'dominant', degrees: [ { d: 5, a: 1, t: 'alter' } ] },
-      '7♭5': { text: '7♭5', kind: 'dominant', degrees: [ { d: 5, a: -1, t: 'alter' } ]},
+      '7♯5': { text: '7', kind: 'dominant', degrees: [ { d: 5, a: 1, t: 'alter' } ] },
+      '7+': { text: '7', kind: 'dominant', degrees: [ { d: 5, a: 1, t: 'alter' } ] },
+      '7♭5': { text: '7', kind: 'dominant', degrees: [ { d: 5, a: -1, t: 'alter' } ]},
       '7sus': { text: '7sus4', kind: 'dominant', degrees: [ { d: 3, a: 1, t: 'alter' } ] },
-      '7♭9': { text: '7♭9', kind: 'dominant', degrees: [ { d: 9, a: -1, t: 'add' } ] },
-      '7♭9♭5': { text: '7♭9♭5', kind: 'dominant', degrees: [ { d: 5, a: -1, t: 'alter' }, { d: 9, a: -1, t: 'add' } ] },
-      '7♭9sus': { text: '7♭9sus4', kind: 'dominant', degrees: [ { d: 7, a: -1, t: 'add' }, { d: 9, a: -1, t: 'add' } ] },
-      '7♭9♯5': { text: '7♭9♯5', kind: 'dominant', degrees: [ { d: 5, a: 1, t: 'alter' }, { d: 9, a: -1, t: 'add' } ] },
-      '7♭9♯9': { text: '7♭9♯9', kind: 'dominant', degrees: [ { d: 9, a: -1, t: 'add' }, { d: 9, a: 1, t: 'add' } ] },
-      '7♭9b13': { text: '7♭9♭13', kind: 'dominant', degrees: [ { d: 9, a: -1, t: 'add' }, { d: 13, a: -1, t: 'add' } ] },
-      '7♭9♯11': { text: '7♭9♯11', kind: 'dominant', degrees: [ { d: 9, a: -1, t: 'add' }, { d: 11, a: 1, t: 'add' } ] },
-      '7♯9': { text: '7♯9', kind: 'dominant', degrees: [ { d: 9, a: 1, t: 'add' } ] },
-      '7♯9♭5': { text: '7♯9♭5', kind: 'dominant', degrees: [ { d: 5, a: -1, t: 'alter' }, { d: 9, a: 1, t: 'add' } ] },
-      '7♯9♯5': { text: '7♯9♯5', kind: 'dominant', degrees: [ { d: 5, a: 1, t: 'alter' }, { d: 9, a: 1, t: 'add' } ] },
-      '7♯9♯11': { text: '7♯9♯11', kind: 'dominant', degrees: [ { d: 9, a: 1, t: 'alter' }, { d: 11, a: 1, t: 'add' } ] },
-      '7♯11': { text: '7♯11', kind: 'dominant', degrees: [ { d: 11, a: 1, t: 'add' }] },
-      '7♭13': { text: '7♭13', kind: 'dominant', degrees: [ { d: 13, a: -1, t: 'add' } ] },
+      '7♭9': { text: '7', kind: 'dominant', degrees: [ { d: 9, a: -1, t: 'add' } ] },
+      '7♭9♭5': { text: '7', kind: 'dominant', degrees: [ { d: 5, a: -1, t: 'alter' }, { d: 9, a: -1, t: 'add' } ] },
+      '7♭9sus': { text: '7', kind: 'dominant', degrees: [ { d: 7, a: -1, t: 'add' }, { d: 9, a: -1, t: 'add' } ] },
+      '7♭9♯5': { text: '7', kind: 'dominant', degrees: [ { d: 5, a: 1, t: 'alter' }, { d: 9, a: -1, t: 'add' } ] },
+      '7♭9♯9': { text: '7', kind: 'dominant', degrees: [ { d: 9, a: -1, t: 'add' }, { d: 9, a: 1, t: 'add' } ] },
+      '7♭9b13': { text: '7', kind: 'dominant', degrees: [ { d: 9, a: -1, t: 'add' }, { d: 13, a: -1, t: 'add' } ] },
+      '7♭9♯11': { text: '', kind: 'dominant', degrees: [ { d: 9, a: -1, t: 'add' }, { d: 11, a: 1, t: 'add' } ] },
+      '7♯9': { text: '7', kind: 'dominant', degrees: [ { d: 9, a: 1, t: 'add' } ] },
+      '7♯9♭5': { text: '7', kind: 'dominant', degrees: [ { d: 5, a: -1, t: 'alter' }, { d: 9, a: 1, t: 'add' } ] },
+      '7♯9♯5': { text: '7', kind: 'dominant', degrees: [ { d: 5, a: 1, t: 'alter' }, { d: 9, a: 1, t: 'add' } ] },
+      '7♯9♯11': { text: '7', kind: 'dominant', degrees: [ { d: 9, a: 1, t: 'alter' }, { d: 11, a: 1, t: 'add' } ] },
+      '7♯11': { text: '7', kind: 'dominant', degrees: [ { d: 11, a: 1, t: 'add' }] },
+      '7♭13': { text: '7', kind: 'dominant', degrees: [ { d: 13, a: -1, t: 'add' } ] },
       '6': { text: '6', kind: 'major-sixth' },
       '69': { text: '6/9', kind: 'major-sixth', degrees: [ { d: 9, a: null, t: 'add' } ] },
       '-6': { text: 'm6', kind: 'minor-sixth' },
       '-69': { text: 'm6/9', kind: 'minor-sixth', degrees: [ { d: 9, a: null, t: 'add' } ] },
       '^9': { text: '△9', kind: 'major-ninth' },
-      '^9♯11': { text: '△9♯11', kind: 'major-ninth', degrees: [ { d: 11, a: 1, t: 'add' } ] },
+      '^9♯11': { text: '△9', kind: 'major-ninth', degrees: [ { d: 11, a: 1, t: 'add' } ] },
       '-9': { text: 'm9', kind: 'minor-ninth' },
       '-^9': { text: 'm△9', kind: 'major-minor', degrees: [ { d: 9, a: null, t: 'add' } ] },
       '9': { text: '9', kind: 'dominant-ninth' },
       '9sus': { text: '9sus4', kind: 'dominant-ninth', degrees: [ { d: 3, a: 1, t: 'alter' } ] },
-      '9♯5': { text: '9♯5', kind: 'dominant-ninth', degrees: [ { d: 5, a: 1, t: 'alter' } ] },
-      '9♭5': { text: '9♭5', kind: 'dominant-ninth', degrees: [ { d: 5, a: -1, t: 'alter' } ] },
-      '9♯11': { text: '9♯11', kind: 'dominant-ninth', degrees: [ { d: 11, a: 1, t: 'add' } ] },
+      '9♯5': { text: '9', kind: 'dominant-ninth', degrees: [ { d: 5, a: 1, t: 'alter' } ] },
+      '9♭5': { text: '9', kind: 'dominant-ninth', degrees: [ { d: 5, a: -1, t: 'alter' } ] },
+      '9♯11': { text: '9', kind: 'dominant-ninth', degrees: [ { d: 11, a: 1, t: 'add' } ] },
       '^11': { text: '△11', kind: 'major-11th' },
       '-11': { text: 'm11', kind: 'minor-11th' },
       '11': { text: '11', kind: 'dominant-11th' },
@@ -192,9 +252,9 @@ export class MusicXML {
       '-13': { text: 'm13', kind: 'minor-13th' },
       '13': { text: '13', kind: 'dominant-13th' },
       '13sus': { text: '13sus4', kind: 'dominant-13th', degrees: [ { d: 3, a: 1, t: 'alter' } ] },
-      '13♭9': { text: '13♭9', kind: 'dominant-13th', degrees: [ { d: 9, a: -1, t: 'alter' } ] },
-      '13♯9': { text: '13♯9', kind: 'dominant-13th', degrees: [ { d: 9, a: 1, t: 'alter' } ] },
-      '13♯11': { text: '13♯11', kind: 'dominant-13th', degrees: [ { d: 11, a: 1, t: 'alter' } ] }
+      '13♭9': { text: '13', kind: 'dominant-13th', degrees: [ { d: 9, a: -1, t: 'alter' } ] },
+      '13♯9': { text: '13', kind: 'dominant-13th', degrees: [ { d: 9, a: 1, t: 'alter' } ] },
+      '13♯11': { text: '13', kind: 'dominant-13th', degrees: [ { d: 11, a: 1, t: 'alter' } ] }
     };
     let chordKind = null;
     let chordText = null;
@@ -242,71 +302,51 @@ export class MusicXML {
       _content: chordKind,
     }].concat(chordDegrees);
 
-    const beats = 1; // TODO
-    const noteType = 'quarter'; // TODO
-    const noteDuration = beats * this.options.divisions / this.time.beats; // TODO
-    const note = [{
-      'pitch': [{
-        'step': this.options.note.step
-      }, {
-        'alter': this.alter
-      }, {
-        'octave': this.options.note.octave
-      }]
-    }, {
-      'duration': noteDuration
-    }, {
-      'type': noteType
-    }, {
-      'notehead': this.options.note.notehead
-    }];
-    return { harmony, note };
+    const { duration, type, dots } = this.calculateChordDuration(1); // Every new chord starts as 1 beat
+    return { harmony, note: this.convertChordNote(duration, type, dots) };
   }
 
   convertKey() {
     const mapKeys = {
-      'C': { f: 0, a: { 'C': 0, 'D': 0, 'E': 0, 'F': 0, 'G': 0, 'A': 0, 'B': 0 } },
-      'G': { f: 1, a: { 'C': 0, 'D': 0, 'E': 0, 'F': 1, 'G': 0, 'A': 0, 'B': 0 } },
-      'D': { f: 2, a: { 'C': 1, 'D': 0, 'E': 0, 'F': 1, 'G': 0, 'A': 0, 'B': 0 } },
-      'A': { f: 3, a: { 'C': 1, 'D': 0, 'E': 0, 'F': 1, 'G': 1, 'A': 0, 'B': 0 } },
-      'E': { f: 4, a: { 'C': 1, 'D': 1, 'E': 0, 'F': 1, 'G': 1, 'A': 0, 'B': 0 } },
-      'B': { f: 5, a: { 'C': 1, 'D': 1, 'E': 0, 'F': 1, 'G': 1, 'A': 1, 'B': 0 } },
-      'F#': { f: 6, a: { 'C': 1, 'D': 1, 'E': 1, 'F': 1, 'G': 1, 'A': 1, 'B': 0 } },
-      'C#': { f: 7, a: { 'C': 1, 'D': 1, 'E': 1, 'F': 1, 'G': 1, 'A': 1, 'B': 1 } },
-      'F': { f: -1, a: { 'C': 0, 'D': 0, 'E': 0, 'F': 0, 'G': 0, 'A': 0, 'B': -1 } },
-      'Bb': { f: -2, a: { 'C': 0, 'D': 0, 'E': -1, 'F': 0, 'G': 0, 'A': 0, 'B': -1 } },
-      'Eb': { f: -3, a: { 'C': 0, 'D': 0, 'E': -1, 'F': 0, 'G': 0, 'A': -1, 'B': -1 } },
-      'Ab': { f: -4, a: { 'C': 0, 'D': -1, 'E': -1, 'F': 0, 'G': 0, 'A': -1, 'B': -1 } },
-      'Db': { f: -5, a: { 'C': 0, 'D': -1, 'E': -1, 'F': 0, 'G': -1, 'A': -1, 'B': -1 } },
-      'Gb': { f: -6, a: { 'C': -1, 'D': -1, 'E': -1, 'F': 0, 'G': -1, 'A': -1, 'B': -1 } },
-      'Cb': { f: -7, a: { 'C': -1, 'D': -1, 'E': -1, 'F': -1, 'G': -1, 'A': -1, 'B': -1 } },
-      'A-': { f: 0, a: { 'C': 0, 'D': 0, 'E': 0, 'F': 0, 'G': 0, 'A': 0, 'B': 0 } },
-      'E-': { f: 1, a: { 'C': 0, 'D': 0, 'E': 0, 'F': 1, 'G': 0, 'A': 0, 'B': 0 } },
-      'B-': { f: 2, a: { 'C': 1, 'D': 0, 'E': 0, 'F': 1, 'G': 0, 'A': 0, 'B': 0 } },
-      'F#-': { f: 3, a: { 'C': 1, 'D': 0, 'E': 0, 'F': 1, 'G': 1, 'A': 0, 'B': 0 } },
-      'C#-': { f: 4, a: { 'C': 1, 'D': 1, 'E': 0, 'F': 1, 'G': 1, 'A': 0, 'B': 0 } },
-      'G#-': { f: 5, a: { 'C': 1, 'D': 1, 'E': 0, 'F': 1, 'G': 1, 'A': 1, 'B': 0 } },
-      'D#-': { f: 6, a: { 'C': 1, 'D': 1, 'E': 1, 'F': 1, 'G': 1, 'A': 1, 'B': 0 } },
-      'A#-': { f: 7, a: { 'C': 1, 'D': 1, 'E': 1, 'F': 1, 'G': 1, 'A': 1, 'B': 1 } },
-      'D-': { f: -1, a: { 'C': 0, 'D': 0, 'E': 0, 'F': 0, 'G': 0, 'A': 0, 'B': -1 } },
-      'G-': { f: -2, a: { 'C': 0, 'D': 0, 'E': -1, 'F': 0, 'G': 0, 'A': 0, 'B': -1 } },
-      'C-': { f: -3, a: { 'C': 0, 'D': 0, 'E': -1, 'F': 0, 'G': 0, 'A': -1, 'B': -1 } },
-      'F-': { f: -4, a: { 'C': 0, 'D': -1, 'E': -1, 'F': 0, 'G': 0, 'A': -1, 'B': -1 } },
-      'Bb-': { f: -5, a: { 'C': 0, 'D': -1, 'E': -1, 'F': 0, 'G': -1, 'A': -1, 'B': -1 } },
-      'Eb-': { f: -6, a: { 'C': -1, 'D': -1, 'E': -1, 'F': 0, 'G': -1, 'A': -1, 'B': -1 } },
-      'Ab-': { f: -7, a: { 'C': -1, 'D': -1, 'E': -1, 'F': -1, 'G': -1, 'A': -1, 'B': -1 } }
+      'C': 0,
+      'G': 1,
+      'D': 2,
+      'A': 3,
+      'E': 4,
+      'B': 5,
+      'F#': 6,
+      'C#': 7,
+      'F': -1,
+      'Bb': -2,
+      'Eb': -3,
+      'Ab': -4,
+      'Db': -5,
+      'Gb': -6,
+      'Cb': -7,
+      'A-': 0,
+      'E-': 1,
+      'B-': 2,
+      'F#-': 3,
+      'C#-': 4,
+      'G#-': 5,
+      'D#-': 6,
+      'A#-': 7,
+      'D-': -1,
+      'G-': -2,
+      'C-': -3,
+      'F-': -4,
+      'Bb-': -5,
+      'Eb-': -6,
+      'Ab-': -7
     }
     if (!(this.song.key in mapKeys)) {
       console.warn(`[MusicXML::convertKey] Unrecognized song key "${this.song.key}"`);
       return null;
     }
 
-    // Adjust the dummy note alteration based on the key we're in.
-    this.alter = mapKeys[this.song.key].a[this.options.note.step];
-
     return {
       'key': [{
-        'fifths': mapKeys[this.song.key].f
+        'fifths': mapKeys[this.song.key]
       }, {
         'mode': this.song.key.slice(-1) === '-' ? 'minor' : 'major'
       }]
@@ -378,7 +418,14 @@ export class MusicXML {
           chords.push(this.convertChord(cell.chord));
         }
       } else {
-        // TODO In case of blank chord, add a beat to last chord if any.
+        // In case of blank chord, add a beat to last chord if any.
+        let lastChord = chords.pop();
+        if (lastChord) {
+          const beats = lastChord['note'].filter(e => 'duration' in e)[0]['duration'] * this.time.beats / this.options.divisions;
+          const { duration, type, dots } = this.calculateChordDuration(beats + 1);
+          lastChord.note = this.convertChordNote(duration, type, dots);
+          chords.push(lastChord);
+        }
       }
 
       // Close and insert the measure if needed.
