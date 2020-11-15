@@ -86,6 +86,24 @@ export class MusicXML {
       .split('T')[0];
   }
 
+  // Fix order of elements according to sequence as specified by an xs:sequence.
+  // @param {array<object>} elements - Array of elements to adjust.
+  // @param {object} sequence - Map of element name to its order in xs:sequence.
+  // @return {array<object>} Sorted elements.
+  adjustSequence(elements, sequence) {
+    return elements.sort((a1, a2) => {
+      let k1 = Object.keys(a1)[0]; if (k1 == '_name') k1 = a1[k1];
+      let k2 = Object.keys(a2)[0]; if (k2 == '_name') k2 = a2[k2];
+      if (!(k1 in sequence)) {
+        console.warn(`[MusicXML::convertMeasure] Unrecognized element "${k1}"`);
+      }
+      if (!(k2 in sequence)) {
+        console.warn(`[MusicXML::convertMeasure] Unrecognized element "${k2}"`);
+      }
+      return sequence[k1] - sequence[k2];
+    });
+  }
+
   convertSection(annot) {
     let section = annot.slice(1);
     if (section === 'i') section = 'Intro';
@@ -145,7 +163,7 @@ export class MusicXML {
   }
 
   convertChordNote(duration, type, dots) {
-    return [{
+    return this.adjustSequence([{
       'unpitched': [{
         'display-step': this.options.note.step
       }, {
@@ -157,23 +175,12 @@ export class MusicXML {
       'type': type
     }, {
       'notehead': this.options.note.notehead
-    }].concat(Array(dots).fill({ _name: 'dot' })).sort((a1, a2) => {
-      let k1 = Object.keys(a1)[0]; if (k1 == '_name') k1 = a1[k1];
-      let k2 = Object.keys(a2)[0]; if (k2 == '_name') k2 = a2[k2];
-      const attributeMap = {
-        'unpitched': 1,
-        'duration': 2,
-        'type': 3,
-        'dot': 4,
-        'notehead': 5
-      };
-      if (!(k1 in attributeMap)) {
-        console.warn(`[MusicXML::convertMeasure] Unrecognized attribute "${k1}"`);
-      }
-      if (!(k2 in attributeMap)) {
-        console.warn(`[MusicXML::convertMeasure] Unrecognized attribute "${k2}"`);
-      }
-      return attributeMap[k1] - attributeMap[k2];
+    }].concat(Array(dots).fill({ _name: 'dot' })), {
+      'unpitched': 1,
+      'duration': 2,
+      'type': 3,
+      'dot': 4,
+      'notehead': 5
     });
   }
 
@@ -432,30 +439,18 @@ export class MusicXML {
       if (cell.bars.match(/(\)|\}|\]|Z)/)) {
         if (attributes.length) {
           measure['_content'].push({
-            // Sort attributes according to their sequence in MusicXML.
-            'attributes': attributes.sort((a1, a2) => {
-              const k1 = Object.keys(a1)[0];
-              const k2 = Object.keys(a2)[0];
-              const attributeMap = {
-                'divisions': 1,
-                'key': 2,
-                'time': 3,
-                'staves': 4,
-                'part-symbol': 5,
-                'instruments': 6,
-                'clef': 7,
-                'staff-details': 8,
-                'transpose': 9,
-                'directive': 10,
-                'measure-style': 11
-              };
-              if (!(k1 in attributeMap)) {
-                console.warn(`[MusicXML::convertMeasure] Unrecognized attribute "${k1}"`);
-              }
-              if (!(k2 in attributeMap)) {
-                console.warn(`[MusicXML::convertMeasure] Unrecognized attribute "${k2}"`);
-              }
-              return attributeMap[k1] - attributeMap[k2];
+            'attributes': this.adjustSequence(attributes, {
+              'divisions': 1,
+              'key': 2,
+              'time': 3,
+              'staves': 4,
+              'part-symbol': 5,
+              'instruments': 6,
+              'clef': 7,
+              'staff-details': 8,
+              'transpose': 9,
+              'directive': 10,
+              'measure-style': 11
             })
           });
         }
@@ -466,9 +461,12 @@ export class MusicXML {
             'note': chord.note
           })
         });
+
+        // Remove empty content.
         if (!measure['_content'].length) {
           delete(measure['_content']);
         }
+
         measures.push(measure);
         measure = null;
         attributes = null;
