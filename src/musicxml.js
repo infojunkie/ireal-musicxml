@@ -167,17 +167,13 @@ export class MusicXML {
 
   convertChordNote(duration, type, dots) {
     return this.adjustSequence([{
-      'unpitched': [{
-        'display-step': this.options.note.step
-      }, {
-        'display-octave': this.options.note.octave
-      }]
+      _name: 'rest'
     }, {
       'duration': duration
     }, {
-      'type': type
+      'voice': 1,
     }, {
-      'notehead': this.options.note.notehead
+      'type': type
     }].concat(Array(dots).fill({ _name: 'dot' })), [
       // Expected order of note elements.
       // https://usermanuals.musicxml.com/MusicXML/Content/CT-MusicXML-note.htm
@@ -185,6 +181,7 @@ export class MusicXML {
       'rest',
       'unpitched',
       'duration',
+      'voice',
       'type',
       'dot',
       'notehead'
@@ -394,6 +391,11 @@ export class MusicXML {
             }, {
               'line': 2
             }]
+          }, {
+            'measure-style': [{
+              _name: 'slash',
+              _attrs: { 'type': 'start', 'use-stems': 'no' }
+            }]
           }, this.convertKey());
         }
       }
@@ -432,13 +434,16 @@ export class MusicXML {
           attributes = null;
           chords = null;
           measure = null;
-          const repeat1 = JSON.parse(JSON.stringify(measures[measures.length-2]));
-          repeat1['_content'] = repeat1['_content'].filter(c => 'harmony' in c || 'note' in c);
-          repeat1['_attrs']['number']++;
-          const repeat2 = JSON.parse(JSON.stringify(measures[measures.length-1]));
-          repeat2['_content'] = repeat2['_content'].filter(c => 'harmony' in c || 'note' in c);
-          repeat2['_attrs']['number']++;
-          measures.push(repeat1, repeat2);
+          // Loop on the last 2 measures:
+          // First, the next-to-last.
+          // Then we push a measure.
+          // Then we get the _new_ next-to-last, which is really the last measure before we started.
+          [2, 2].forEach(i => {
+            const repeat = JSON.parse(JSON.stringify(measures[measures.length-i]));
+            repeat['_content'] = repeat['_content'].filter(c => 'harmony' in c || 'note' in c);
+            repeat['_attrs']['number']++;
+            measures.push(repeat);
+          });
           return measures;
         } else if (cell.chord.note === 'W') {
           // TODO Handle invisible root.
