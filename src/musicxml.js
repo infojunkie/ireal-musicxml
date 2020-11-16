@@ -87,20 +87,23 @@ export class MusicXML {
   }
 
   // Fix order of elements according to sequence as specified by an xs:sequence.
-  // @param {array<object>} elements - Array of elements to adjust.
-  // @param {object} sequence - Map of element name to its order in xs:sequence.
-  // @return {array<object>} Sorted elements.
+  // @param {array<element>} elements - Array of elements to sort.
+  // @param {array<string>} sequence - Array of element names in order of xs:sequence.
+  // @return {array<element>} Ordered array of elements.
   adjustSequence(elements, sequence) {
     return elements.sort((a1, a2) => {
-      let k1 = Object.keys(a1)[0]; if (k1 == '_name') k1 = a1[k1];
-      let k2 = Object.keys(a2)[0]; if (k2 == '_name') k2 = a2[k2];
-      if (!(k1 in sequence)) {
-        console.warn(`[MusicXML::convertMeasure] Unrecognized element "${k1}"`);
+      let k1 = Object.keys(a1)[0]; if (k1 === '_name') k1 = a1[k1];
+      let k2 = Object.keys(a2)[0]; if (k2 === '_name') k2 = a2[k2];
+      // TODO indexOf() needs to search every time. Make it faster with memoize?
+      const i1 = sequence.indexOf(k1);
+      const i2 = sequence.indexOf(k2);
+      if (i1 === -1) {
+        console.warn(`[MusicXML::adjustSequence] Unrecognized element "${k1}"`);
       }
-      if (!(k2 in sequence)) {
-        console.warn(`[MusicXML::convertMeasure] Unrecognized element "${k2}"`);
+      if (i2 === -1) {
+        console.warn(`[MusicXML::adjustSequence] Unrecognized element "${k2}"`);
       }
-      return sequence[k1] - sequence[k2];
+      return i1 - i2;
     });
   }
 
@@ -158,7 +161,7 @@ export class MusicXML {
     if (!type) {
       console.warn(`[MusicXML::calculateChordDuration] Unhandled beat count ${beats} for time signature ${this.time.beats}/${this.time.type}`);
     }
-    const duration = beats * this.options.divisions / this.time.beats;
+    const duration = beats * this.options.divisions;
     return { duration, type, dots: mapDuration[index].d };
   }
 
@@ -175,13 +178,17 @@ export class MusicXML {
       'type': type
     }, {
       'notehead': this.options.note.notehead
-    }].concat(Array(dots).fill({ _name: 'dot' })), {
-      'unpitched': 1,
-      'duration': 2,
-      'type': 3,
-      'dot': 4,
-      'notehead': 5
-    });
+    }].concat(Array(dots).fill({ _name: 'dot' })), [
+      // Expected order of note elements.
+      // https://usermanuals.musicxml.com/MusicXML/Content/CT-MusicXML-note.htm
+      'pitch',
+      'rest',
+      'unpitched',
+      'duration',
+      'type',
+      'dot',
+      'notehead'
+    ]);
   }
 
   convertChord(chord) {
@@ -288,7 +295,7 @@ export class MusicXML {
     }
 
     // Special case: 'n' for no chord
-    if (rootStep == 'n') {
+    if (rootStep === 'n') {
       chordKind = 'none';
       chordText = 'N.C.';
     }
@@ -315,6 +322,7 @@ export class MusicXML {
 
   convertKey() {
     const mapKeys = {
+      // Major keys
       'C': 0,
       'G': 1,
       'D': 2,
@@ -330,6 +338,7 @@ export class MusicXML {
       'Db': -5,
       'Gb': -6,
       'Cb': -7,
+      // Minor keys
       'A-': 0,
       'E-': 1,
       'B-': 2,
@@ -406,19 +415,34 @@ export class MusicXML {
 
       // Chords.
       if (cell.chord) {
-        if (cell.chord.note == 'x') {
+        if (cell.chord.note === 'x') {
           // Handle bar repeat.
-          // Copy last measure, but on keep chords and empty out intermediate objects.
-          attributes = [];
-          chords = [];
-          measure = JSON.parse(JSON.stringify(measures[measures.length-1]));
-          measure['_content'] = measure['_content'].filter(c => 'harmony' in c || 'note' in c);
-          measure['_attrs']['number']++;
-        } else if (cell.chord.note == 'r') {
-          // TODO Handle Handle double bar repeat.
-        } else if (cell.chord.note == 'W') {
+          // Copy last measure, only keeping chords and empty out intermediate objects.
+          attributes = null;
+          chords = null;
+          measure = null;
+          const repeat = JSON.parse(JSON.stringify(measures[measures.length-1]));
+          repeat['_content'] = repeat['_content'].filter(c => 'harmony' in c || 'note' in c);
+          repeat['_attrs']['number']++;
+          measures.push(repeat);
+          return measures;
+        } else if (cell.chord.note === 'r') {
+          // Handle double bar repeat.
+          // Copy last 2 measures, only keeping chords and empty out intermediate objects.
+          attributes = null;
+          chords = null;
+          measure = null;
+          const repeat1 = JSON.parse(JSON.stringify(measures[measures.length-2]));
+          repeat1['_content'] = repeat1['_content'].filter(c => 'harmony' in c || 'note' in c);
+          repeat1['_attrs']['number']++;
+          const repeat2 = JSON.parse(JSON.stringify(measures[measures.length-1]));
+          repeat2['_content'] = repeat2['_content'].filter(c => 'harmony' in c || 'note' in c);
+          repeat2['_attrs']['number']++;
+          measures.push(repeat1, repeat2);
+          return measures;
+        } else if (cell.chord.note === 'W') {
           // TODO Handle invisible root.
-        } else if (cell.chord.note == ' ') {
+        } else if (cell.chord.note === ' ') {
           // TODO Handle alternate chord only.
         } else {
           // Process new chord.
@@ -428,7 +452,7 @@ export class MusicXML {
         // In case of blank chord, add a beat to last chord if any.
         let lastChord = chords.pop();
         if (lastChord) {
-          const beats = lastChord['note'].filter(e => 'duration' in e)[0]['duration'] * this.time.beats / this.options.divisions;
+          const beats = lastChord['note'].filter(e => 'duration' in e)[0]['duration'] / this.options.divisions;
           const { duration, type, dots } = this.calculateChordDuration(beats + 1);
           lastChord.note = this.convertChordNote(duration, type, dots);
           chords.push(lastChord);
@@ -439,19 +463,21 @@ export class MusicXML {
       if (cell.bars.match(/(\)|\}|\]|Z)/)) {
         if (attributes.length) {
           measure['_content'].push({
-            'attributes': this.adjustSequence(attributes, {
-              'divisions': 1,
-              'key': 2,
-              'time': 3,
-              'staves': 4,
-              'part-symbol': 5,
-              'instruments': 6,
-              'clef': 7,
-              'staff-details': 8,
-              'transpose': 9,
-              'directive': 10,
-              'measure-style': 11
-            })
+            'attributes': this.adjustSequence(attributes, [
+              // Expected order of attribute elements.
+              // https://usermanuals.musicxml.com/MusicXML/Content/EL-MusicXML-attributes.htm
+              'divisions',
+              'key',
+              'time',
+              'staves',
+              'part-symbol',
+              'instruments',
+              'clef',
+              'staff-details',
+              'transpose',
+              'directive',
+              'measure-style'
+            ])
           });
         }
         chords.forEach(chord => {
@@ -462,12 +488,12 @@ export class MusicXML {
           })
         });
 
-        // Remove empty content.
-        if (!measure['_content'].length) {
-          delete(measure['_content']);
+        // No content: ignore measure.
+        // This can happen after a 2-bar repeat.
+        if (measure['_content'].length) {
+          measures.push(measure);
         }
 
-        measures.push(measure);
         measure = null;
         attributes = null;
         chords = null;
