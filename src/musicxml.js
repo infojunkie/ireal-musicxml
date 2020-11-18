@@ -38,6 +38,8 @@ export class MusicXML {
           _attrs: { 'type': 'composer' },
           _content: this.song.composer
         }, {
+          // TODO Find better MusicXML element
+          // https://github.com/w3c/musicxml/issues/347
           _name: 'creator',
           _attrs: { 'type': 'lyricist' },
           _content: this.song.exStyle || this.song.style
@@ -45,7 +47,7 @@ export class MusicXML {
           'encoding': [{
             'software': '@infojunkie/ireal-musicxml'
           }, {
-            'encoding-date': this.convertDate(new Date())
+            'encoding-date': MusicXML.convertDate(new Date())
           }, {
             _name: 'supports',
             _attrs: { 'element': 'accidental', 'type': 'no' }
@@ -80,17 +82,179 @@ export class MusicXML {
 
   // Date in yyyy-mm-dd
   // https://stackoverflow.com/a/50130338/209184
-  convertDate(date) {
+  static convertDate(date) {
     return new Date(date.getTime() - (date.getTimezoneOffset() * 60000 ))
       .toISOString()
       .split('T')[0];
+  }
+
+  static Measure = class {
+    constructor(number) {
+      this.body = {
+        _name: 'measure',
+        _attrs: { 'number': number },
+        _content: []
+      };
+      this.attributes = [];
+      this.chords = [];
+      this.barlines = [];
+    }
+
+    assemble() {
+      if (this.attributes.length) {
+        this.body['_content'].push({
+          'attributes': MusicXML.adjustSequence(this.attributes, [
+            // Expected order of attribute elements.
+            // https://usermanuals.musicxml.com/MusicXML/Content/EL-MusicXML-attributes.htm
+            'divisions',
+            'key',
+            'time',
+            'staves',
+            'part-symbol',
+            'instruments',
+            'clef',
+            'staff-details',
+            'transpose',
+            'directive',
+            'measure-style'
+          ])
+        });
+      }
+      this.chords.forEach(chord => {
+        this.body['_content'].push({
+          'harmony': chord.harmony
+        }, {
+          'note': chord.note
+        })
+      });
+
+      // No content: ignore measure.
+      // This can happen after a 2-bar repeat.
+      if (!this.body['_content'].length) return false;
+
+      // Insert barlines in their correct place.
+      if (this.barlines[0] && '_name' in this.barlines[0]) {
+        this.body['_content'].splice(1, 0, this.barlines[0]);
+      }
+      if (this.barlines[1] && '_name' in this.barlines[1]) {
+        this.body['_content'].push(this.barlines[1]);
+      }
+
+      return true;
+    }
+  }
+
+  convertMeasures() {
+    let measure = null;
+
+    // Loop on cells. Each cell is one beat.
+    const measures = this.song.cells.reduce( (measures, cell) => {
+      // Start a new measure if needed.
+      if (cell.bars.match(/\(|\{|\[/)) {
+        measure = new MusicXML.Measure(measures.length+1);
+
+        // Very first bar: add defaults.
+        if (!measures.length) {
+          measure.attributes.push({
+            'divisions': this.options.divisions
+          }, {
+            'clef': [{
+              'sign': 'G'
+            }, {
+              'line': 2
+            }]
+          }, {
+            'measure-style': [{
+              _name: 'slash',
+              _attrs: { 'type': 'start', 'use-stems': 'no' }
+            }]
+          }, this.convertKey());
+        }
+
+        // Add starting barline.
+        measure.barlines.push(this.convertBarline(cell.bars, 'left'));
+      }
+
+      // Short-circuit loop if no measure exists.
+      // It can happen that `measure` is still blank in case of empty cells in iReal layout.
+      // e.g. Girl From Ipanema in tests.
+      if (!measure) return measures;
+
+      // Other attributes.
+      cell.annots.forEach(annot => {
+        switch(annot[0]) {
+          case '*': measure.body['_content'].push(this.convertSection(annot)); break;
+          case 'T': measure.attributes.push(this.convertTime(annot)); break;
+          // TODO More attributes
+          default: console.warn(`[MusicXML::convertMeasures] Unrecognized annotation "${annot}"`);
+        }
+      });
+
+      // Chords.
+      if (cell.chord) {
+        if (cell.chord.note === 'x') {
+          // Handle bar repeat.
+          // Copy last measure, only keeping chords and empty out intermediate objects.
+          measure = null;
+          const repeat = JSON.parse(JSON.stringify(measures[measures.length-1]));
+          repeat['_content'] = repeat['_content'].filter(c => 'harmony' in c || 'note' in c);
+          repeat['_attrs']['number']++;
+          measures.push(repeat);
+          return measures;
+        } else if (cell.chord.note === 'r') {
+          // Handle double bar repeat.
+          // Copy last 2 measures, only keeping chords and empty out intermediate objects.
+          measure = null;
+          // First, the next-to-last.
+          // Then we push a measure.
+          // Then we get the _new_ next-to-last, which is really the last measure before we started.
+          [2, 2].forEach(i => {
+            const repeat = JSON.parse(JSON.stringify(measures[measures.length-i]));
+            repeat['_content'] = repeat['_content'].filter(c => 'harmony' in c || 'note' in c);
+            repeat['_attrs']['number']++;
+            measures.push(repeat);
+          });
+          return measures;
+        } else if (cell.chord.note === 'W') {
+          // TODO Handle invisible root.
+        } else if (cell.chord.note === ' ') {
+          // TODO Handle alternate chord only.
+        } else {
+          // Process new chord.
+          measure.chords.push(this.convertChord(cell.chord));
+        }
+      } else {
+        // In case of blank chord, add a beat to last chord if any.
+        let lastChord = measure.chords.pop();
+        if (lastChord) {
+          const beats = lastChord['note'].filter(e => 'duration' in e)[0]['duration'] / this.options.divisions;
+          const { duration, type, dots } = this.calculateChordDuration(beats + 1);
+          lastChord.note = this.convertChordNote(duration, type, dots);
+          measure.chords.push(lastChord);
+        }
+      }
+
+      // Close and insert the measure if needed.
+      if (cell.bars.match(/\)|\}|\]|Z/)) {
+        // Add closing barline.
+        measure.barlines.push(this.convertBarline(cell.bars, 'right'));
+
+        // `Measure.assemble()` puts all the parts in `Measure.body`.
+        if (measure.assemble()) {
+          measures.push(measure.body);
+        }
+        measure = null;
+      }
+      return measures;
+    }, []);
+    return measures;
   }
 
   // Fix order of elements according to sequence as specified by an xs:sequence.
   // @param {array<element>} elements - Array of elements to sort.
   // @param {array<string>} sequence - Array of element names in order of xs:sequence.
   // @return {array<element>} Ordered array of elements.
-  adjustSequence(elements, sequence) {
+  static adjustSequence(elements, sequence) {
     return elements.sort((a1, a2) => {
       let k1 = Object.keys(a1)[0]; if (k1 === '_name') k1 = a1[k1];
       let k2 = Object.keys(a2)[0]; if (k2 === '_name') k2 = a2[k2];
@@ -105,6 +269,33 @@ export class MusicXML {
       }
       return i1 - i2;
     });
+  }
+
+  convertBarline(bars, location) {
+    let style = 'regular';
+    let repeat = null;
+    if (bars.match(/\[|\]/)) {
+      style = 'light-light';
+    } else if (bars.match(/Z/)) {
+      style = 'light-heavy';
+    } else if (bars.match(/\{|\}/)) {
+      style = location === 'left' ? 'heavy-light' : 'light-heavy';
+      repeat = location === 'left' ? 'forward' : 'backward';
+    }
+
+    // Ignore regular barlines.
+    if (style === 'regular') return null;
+
+    return {
+      _name: 'barline',
+      _attrs: { 'location': location },
+      _content: [{
+        'bar-style': style
+      }, { ...(repeat && {
+        _name: 'repeat',
+        _attrs: { 'direction': repeat }
+      })}]
+    }
   }
 
   convertSection(annot) {
@@ -166,7 +357,7 @@ export class MusicXML {
   }
 
   convertChordNote(duration, type, dots) {
-    return this.adjustSequence([{
+    return MusicXML.adjustSequence([{
       _name: 'rest'
     }, {
       'duration': duration
@@ -364,147 +555,5 @@ export class MusicXML {
         'mode': this.song.key.slice(-1) === '-' ? 'minor' : 'major'
       }]
     }
-  }
-
-  convertMeasures() {
-    let measure = null;
-    let attributes = null;
-    let chords = null;
-
-    const measures = this.song.cells.reduce( (measures, cell) => {
-      // Start a new measure if needed.
-      if (cell.bars.match(/(\(|\{|\[)/)) {
-        attributes = [];
-        chords = [];
-        measure = {
-          _name: 'measure',
-          _attrs: { 'number': measures.length+1 },
-          _content: []
-        }
-        // Very first bar: add defaults.
-        if (!measures.length) {
-          attributes.push({
-            'divisions': this.options.divisions
-          }, {
-            'clef': [{
-              'sign': 'G'
-            }, {
-              'line': 2
-            }]
-          }, {
-            'measure-style': [{
-              _name: 'slash',
-              _attrs: { 'type': 'start', 'use-stems': 'no' }
-            }]
-          }, this.convertKey());
-        }
-      }
-
-      // Short-circuit loop if no measure exists.
-      // It can happen that `measure` is still blank in case of empty cells in iReal layout.
-      // e.g. Girl From Ipanema in tests.
-      if (!measure) return measures;
-
-      // Other attributes.
-      cell.annots.forEach(annot => {
-        switch(annot[0]) {
-          case '*': measure['_content'].push(this.convertSection(annot)); break;
-          case 'T': attributes.push(this.convertTime(annot)); break;
-          // TODO More attributes
-          default: console.warn(`[MusicXML::convertMeasures] Unrecognized annotation "${annot}"`);
-        }
-      });
-
-      // Chords.
-      if (cell.chord) {
-        if (cell.chord.note === 'x') {
-          // Handle bar repeat.
-          // Copy last measure, only keeping chords and empty out intermediate objects.
-          attributes = null;
-          chords = null;
-          measure = null;
-          const repeat = JSON.parse(JSON.stringify(measures[measures.length-1]));
-          repeat['_content'] = repeat['_content'].filter(c => 'harmony' in c || 'note' in c);
-          repeat['_attrs']['number']++;
-          measures.push(repeat);
-          return measures;
-        } else if (cell.chord.note === 'r') {
-          // Handle double bar repeat.
-          // Copy last 2 measures, only keeping chords and empty out intermediate objects.
-          attributes = null;
-          chords = null;
-          measure = null;
-          // Loop on the last 2 measures:
-          // First, the next-to-last.
-          // Then we push a measure.
-          // Then we get the _new_ next-to-last, which is really the last measure before we started.
-          [2, 2].forEach(i => {
-            const repeat = JSON.parse(JSON.stringify(measures[measures.length-i]));
-            repeat['_content'] = repeat['_content'].filter(c => 'harmony' in c || 'note' in c);
-            repeat['_attrs']['number']++;
-            measures.push(repeat);
-          });
-          return measures;
-        } else if (cell.chord.note === 'W') {
-          // TODO Handle invisible root.
-        } else if (cell.chord.note === ' ') {
-          // TODO Handle alternate chord only.
-        } else {
-          // Process new chord.
-          chords.push(this.convertChord(cell.chord));
-        }
-      } else {
-        // In case of blank chord, add a beat to last chord if any.
-        let lastChord = chords.pop();
-        if (lastChord) {
-          const beats = lastChord['note'].filter(e => 'duration' in e)[0]['duration'] / this.options.divisions;
-          const { duration, type, dots } = this.calculateChordDuration(beats + 1);
-          lastChord.note = this.convertChordNote(duration, type, dots);
-          chords.push(lastChord);
-        }
-      }
-
-      // Close and insert the measure if needed.
-      if (cell.bars.match(/(\)|\}|\]|Z)/)) {
-        if (attributes.length) {
-          measure['_content'].push({
-            'attributes': this.adjustSequence(attributes, [
-              // Expected order of attribute elements.
-              // https://usermanuals.musicxml.com/MusicXML/Content/EL-MusicXML-attributes.htm
-              'divisions',
-              'key',
-              'time',
-              'staves',
-              'part-symbol',
-              'instruments',
-              'clef',
-              'staff-details',
-              'transpose',
-              'directive',
-              'measure-style'
-            ])
-          });
-        }
-        chords.forEach(chord => {
-          measure['_content'].push({
-            'harmony': chord.harmony
-          }, {
-            'note': chord.note
-          })
-        });
-
-        // No content: ignore measure.
-        // This can happen after a 2-bar repeat.
-        if (measure['_content'].length) {
-          measures.push(measure);
-        }
-
-        measure = null;
-        attributes = null;
-        chords = null;
-      }
-      return measures;
-    }, []);
-    return measures;
   }
 }

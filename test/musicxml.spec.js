@@ -49,7 +49,7 @@ describe('MusicXML', function() {
     const clefSign = select(doc, '//measure/attributes/clef/sign/text()');
     assert.strictEqual(clefSign[0].toString(), "G");
     const barlineRepeat = select(doc, '//measure/barline/repeat/@direction');
-    assert.strictEqual(barlineRepeat[0].toString(), "forward");
+    assert.strictEqual(barlineRepeat[1].value, "backward");
   });
 
   it('should create a valid, complete and correct MusicXML for Moanin\'', async function() {
