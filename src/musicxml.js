@@ -159,11 +159,15 @@ export class MusicXML {
 
       // Finalize barlines:
       // - Insert them in their correct place
-      // - TODO Ignore regular barlines that have no other attributes
+      // - Ignore regular barlines that have no other attributes
       this.barlines[0]['_content'] = MusicXML.adjustSequence(this.barlines[0]['_content'], MusicXML.sequenceBarline);
-      this.body['_content'].splice(1, 0, this.barlines[0]);
+      if (!(this.barlines[0]['_content'].length == 1 && this.barlines[0]['_content'][0]['bar-style'] === 'regular')) {
+        this.body['_content'].splice(1, 0, this.barlines[0]);
+      }
       this.barlines[1]['_content'] = MusicXML.adjustSequence(this.barlines[1]['_content'], MusicXML.sequenceBarline);
-      this.body['_content'].push(this.barlines[1]);
+      if (!(this.barlines[1]['_content'].length == 1 && this.barlines[1]['_content'][0]['bar-style'] === 'regular')) {
+        this.body['_content'].push(this.barlines[1]);
+      }
 
       // TODO Use adjustSequence on the measure itself.
       return this.body;
