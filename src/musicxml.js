@@ -10,6 +10,49 @@ export class MusicXML {
     }
   }
 
+  static sequenceAttributes = [
+    // Expected order of attribute elements.
+    // https://usermanuals.musicxml.com/MusicXML/Content/EL-MusicXML-attributes.htm
+    'divisions',
+    'key',
+    'time',
+    'staves',
+    'part-symbol',
+    'instruments',
+    'clef',
+    'staff-details',
+    'transpose',
+    'directive',
+    'measure-style'
+  ]
+
+  static sequenceNote = [
+    // Expected order of note elements.
+    // https://usermanuals.musicxml.com/MusicXML/Content/CT-MusicXML-note.htm
+    'pitch',
+    'rest',
+    'unpitched',
+    'duration',
+    'voice',
+    'type',
+    'dot',
+    'notehead'
+  ]
+
+  static sequenceBarline = [
+    // Expected order of barline elements.
+    // https://usermanuals.musicxml.com/MusicXML/Content/CT-MusicXML-barline.htm
+    'bar-style',
+    'footnote',
+    'level',
+    'wavy-line',
+    'segno',
+    'coda',
+    'fermata',
+    'ending',
+    'repeat'
+  ]
+
   static convert(song, options = {}) {
     const realOptions = Object.assign({}, this.defaultOptions, options);
     return new MusicXML(song, realOptions).musicxml;
@@ -103,21 +146,7 @@ export class MusicXML {
     assemble() {
       if (this.attributes.length) {
         this.body['_content'].push({
-          'attributes': MusicXML.adjustSequence(this.attributes, [
-            // Expected order of attribute elements.
-            // https://usermanuals.musicxml.com/MusicXML/Content/EL-MusicXML-attributes.htm
-            'divisions',
-            'key',
-            'time',
-            'staves',
-            'part-symbol',
-            'instruments',
-            'clef',
-            'staff-details',
-            'transpose',
-            'directive',
-            'measure-style'
-          ])
+          'attributes': MusicXML.adjustSequence(this.attributes, MusicXML.sequenceAttributes)
         });
       }
       this.chords.forEach(chord => {
@@ -128,14 +157,15 @@ export class MusicXML {
         })
       });
 
-      // Insert barlines in their correct place.
-      if (this.barlines[0] && '_name' in this.barlines[0]) {
-        this.body['_content'].splice(1, 0, this.barlines[0]);
-      }
-      if (this.barlines[1] && '_name' in this.barlines[1]) {
-        this.body['_content'].push(this.barlines[1]);
-      }
+      // Finalize barlines:
+      // - Insert them in their correct place
+      // - TODO Ignore regular barlines that have no other attributes
+      this.barlines[0]['_content'] = MusicXML.adjustSequence(this.barlines[0]['_content'], MusicXML.sequenceBarline);
+      this.body['_content'].splice(1, 0, this.barlines[0]);
+      this.barlines[1]['_content'] = MusicXML.adjustSequence(this.barlines[1]['_content'], MusicXML.sequenceBarline);
+      this.body['_content'].push(this.barlines[1]);
 
+      // TODO Use adjustSequence on the measure itself.
       return this.body;
     }
   }
@@ -166,6 +196,8 @@ export class MusicXML {
               _attrs: { 'type': 'start', 'use-stems': 'no' }
             }]
           }, this.convertKey());
+
+          // TODO: Add bpm if any.
         }
 
         // Add starting barline.
@@ -182,11 +214,14 @@ export class MusicXML {
       // e.g. Girl From Ipanema in tests.
       if (!measure) return measures;
 
+      // TODO Comments.
+
       // Other attributes.
       cell.annots.forEach(annot => {
         switch(annot[0]) {
           case '*': measure.body['_content'].push(this.convertSection(annot)); break;
           case 'T': measure.attributes.push(this.convertTime(annot)); break;
+          case 'S': measure.body['_content'].push(this.convertSegno(annot)); break;
           // TODO More attributes
           default: console.warn(`[MusicXML.convertMeasures] Unrecognized annotation "${annot}"`);
         }
@@ -263,7 +298,7 @@ export class MusicXML {
   // @param {array<string>} sequence - Array of element names in order of xs:sequence.
   // @return {array<element>} Ordered array of elements.
   static adjustSequence(elements, sequence) {
-    return elements.sort((a1, a2) => {
+    return elements.filter(a => Object.keys(a).length).sort((a1, a2) => {
       let k1 = Object.keys(a1)[0]; if (k1 === '_name') k1 = a1[k1];
       let k2 = Object.keys(a2)[0]; if (k2 === '_name') k2 = a2[k2];
       // TODO indexOf() needs to search every time. Make it faster with memoize?
@@ -291,9 +326,6 @@ export class MusicXML {
       repeat = location === 'left' ? 'forward' : 'backward';
     }
 
-    // Ignore regular barlines.
-    if (style === 'regular') return null;
-
     return {
       _name: 'barline',
       _attrs: { 'location': location },
@@ -317,6 +349,21 @@ export class MusicXML {
           'rehearsal': section
         }
       }
+    }
+  }
+
+  convertSegno() {
+    return {
+      _name: 'direction',
+      _attrs: { 'placement': 'above' },
+      _content: [{
+        'direction-type': {
+          _name: 'segno'
+        }
+      }, {
+        _name: 'sound',
+        _attrs: { 'segno': 'segno' }
+      }]
     }
   }
 
@@ -373,18 +420,7 @@ export class MusicXML {
       'voice': 1,
     }, {
       'type': type
-    }].concat(Array(dots).fill({ _name: 'dot' })), [
-      // Expected order of note elements.
-      // https://usermanuals.musicxml.com/MusicXML/Content/CT-MusicXML-note.htm
-      'pitch',
-      'rest',
-      'unpitched',
-      'duration',
-      'voice',
-      'type',
-      'dot',
-      'notehead'
-    ]);
+    }].concat(Array(dots).fill({ _name: 'dot' })), MusicXML.sequenceNote);
   }
 
   convertChord(chord) {
