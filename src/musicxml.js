@@ -169,7 +169,6 @@ export class MusicXML {
         this.body['_content'].push(this.barlines[1]);
       }
 
-      // TODO Use adjustSequence on the measure itself.
       return this.body;
     }
   }
@@ -201,7 +200,10 @@ export class MusicXML {
             }]
           }, this.convertKey());
 
-          // TODO: Add bpm if any.
+          // Add bpm if any.
+          if (this.song.bpm) {
+            measure.body['_content'].push(this.convertTempo(this.song.bpm));
+          }
         }
 
         // Add starting barline.
@@ -367,6 +369,27 @@ export class MusicXML {
       }, {
         _name: 'sound',
         _attrs: { 'segno': 'segno' }
+      }]
+    }
+  }
+
+  convertTempo(bpm) {
+    return {
+      _name: 'direction',
+      _attrs: { 'placement': 'above' },
+      _content: [{
+        'direction-type': [{
+          _name: 'metronome',
+          _attrs: { 'parentheses': 'no' },
+          _content: [{
+            'beat-unit': this.calculateChordDuration(1).type
+          }, {
+            'per-minute': bpm
+          }]
+        }]
+      }, {
+        _name: 'sound',
+        _attrs: { 'tempo': bpm }
       }]
     }
   }

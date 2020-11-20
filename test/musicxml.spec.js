@@ -53,7 +53,7 @@ describe('MusicXML', function() {
     assert.strictEqual(barlineRepeat[3].value, 'forward');
     assert.strictEqual(barlineRepeat[2].value, 'backward');
     // TODO Fix this test which works with xmllint.
-    // const segno = select(doc, '//direction/sound/@segno');
+    // const segno = select(doc, '//measure/direction/sound/@segno');
     // assert.strictEqual(segno[0].value, 'segno');
     const words = select(doc, '//direction/direction-type/words/text()');
     assert.strictEqual(words[0].toString(), 'Fine');
