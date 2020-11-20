@@ -48,15 +48,6 @@ describe('MusicXML', function() {
     assert.strictEqual(keyFifths[0].toString(), "2");
     const clefSign = select(doc, '//measure/attributes/clef/sign/text()');
     assert.strictEqual(clefSign[0].toString(), "G");
-    const barlineRepeat = select(doc, '//measure/barline/repeat/@direction');
-    // xpath.js returns results in reverse order ??
-    assert.strictEqual(barlineRepeat[3].value, 'forward');
-    assert.strictEqual(barlineRepeat[2].value, 'backward');
-    // TODO Fix this test which works with xmllint.
-    // const segno = select(doc, '//measure/direction/sound/@segno');
-    // assert.strictEqual(segno[0].value, 'segno');
-    const words = select(doc, '//direction/direction-type/words/text()');
-    assert.strictEqual(words[0].toString(), 'Fine');
   });
 
   it('should create a valid, complete and correct MusicXML for Moanin\'', async function() {
@@ -67,6 +58,13 @@ describe('MusicXML', function() {
     const doc = new DOMParser().parseFromString(moanin);
     const keyMode = select(doc, '//measure/attributes/key/mode/text()');
     assert.strictEqual(keyMode[0].toString(), "minor");
+    const barlineRepeat = select(doc, '//measure/barline/repeat/@direction');
+    assert.strictEqual(barlineRepeat[3].value, 'forward');
+    assert.strictEqual(barlineRepeat[2].value, 'backward');
+    const segno = select(doc, '//measure/direction/sound/@segno');
+    assert.strictEqual(segno[0].value, 'segno');
+    const words = select(doc, '//direction/direction-type/words/text()');
+    assert.strictEqual(words[0].toString(), 'Fine');
   });
 
   it('should create a valid, complete and correct MusicXML for New Bolero', async function() {
