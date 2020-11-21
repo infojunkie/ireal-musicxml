@@ -117,3 +117,7 @@ dist
 
 # VSCode
 *.code-workspace
+
+# ireal-musicxml
+test/output/*
+!test/output/.gitkeep

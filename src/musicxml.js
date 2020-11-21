@@ -126,7 +126,7 @@ export class MusicXML {
   // Date in yyyy-mm-dd
   // https://stackoverflow.com/a/50130338/209184
   static convertDate(date) {
-    return new Date(date.getTime() - (date.getTimezoneOffset() * 60000 ))
+    return new Date(date.getTime() - (date.getTimezoneOffset() * 60000))
       .toISOString()
       .split('T')[0];
   }
@@ -141,6 +141,7 @@ export class MusicXML {
       this.attributes = [];
       this.chords = [];
       this.barlines = [];
+      this.barEnding = 0;
     }
 
     assemble() {
@@ -149,6 +150,7 @@ export class MusicXML {
           'attributes': MusicXML.adjustSequence(this.attributes, MusicXML.sequenceAttributes)
         });
       }
+
       this.chords.forEach(chord => {
         this.body['_content'].push({
           'harmony': chord.harmony
@@ -157,25 +159,19 @@ export class MusicXML {
         })
       });
 
-      // Finalize barlines:
-      // - Insert them in their correct place
-      // - Ignore regular barlines that have no other attributes
+      // Finalize barlines.
       this.barlines[0]['_content'] = MusicXML.adjustSequence(this.barlines[0]['_content'], MusicXML.sequenceBarline);
-      if (!(this.barlines[0]['_content'].length == 1 && this.barlines[0]['_content'][0]['bar-style'] === 'regular')) {
-        this.body['_content'].splice(1, 0, this.barlines[0]);
-      }
+      this.body['_content'].splice(1, 0, this.barlines[0]);
       this.barlines[1]['_content'] = MusicXML.adjustSequence(this.barlines[1]['_content'], MusicXML.sequenceBarline);
-      if (!(this.barlines[1]['_content'].length == 1 && this.barlines[1]['_content'][0]['bar-style'] === 'regular')) {
-        this.body['_content'].push(this.barlines[1]);
-      }
+      this.body['_content'].push(this.barlines[1]);
 
       return this.body;
     }
   }
 
   convertMeasures() {
-    let measure = null;
-    let barRepeat = 0;
+    let measure = null; // current measure (of class Measure) being built
+    let barRepeat = 0; // current bar number for single- and double-bar repeats
 
     // Loop on cells. Each cell is one beat.
     const measures = this.song.cells.reduce( (measures, cell) => {
@@ -211,7 +207,7 @@ export class MusicXML {
 
         // If we're still repeating bars, copy the previous bar now.
         if (barRepeat) {
-          measure.chords = this.copyChords(measures[measures.length-barRepeat-1]);
+          measure.chords = [...measures[measures.length-barRepeat-1].chords];
         }
       }
 
@@ -225,36 +221,87 @@ export class MusicXML {
       // Other attributes.
       cell.annots.forEach(annot => {
         switch(annot[0]) {
-          case '*': measure.body['_content'].push(this.convertSection(annot)); break;
-          case 'T': measure.attributes.push(this.convertTime(annot)); break;
-          case 'S': measure.body['_content'].push(this.convertSegno(annot)); break;
-          // TODO More attributes
+          case '*': { // section
+            const section = annot.slice(1);
+            measure.body['_content'].push(this.convertSection(section));
+            break;
+          }
+          case 'T': { // time
+            const time = annot.slice(1);
+            measure.attributes.push(this.convertTime(time));
+            break;
+          }
+          case 'S': { // segno
+            measure.body['_content'].push(this.convertSegno());
+            break;
+          }
+          case 'N': { // ending
+            // TODO This assumes a single ending at a time.
+            const ending = parseInt(annot.slice(1));
+            measure.barlines[0]['_content'].push(this.convertEnding(ending, 'start'));
+            // End the previous ending at the previous measure's right barline.
+            // Also, remove the 'discontinue' ending from its starting measure since we found an end to it.
+            if (ending > 1) {
+              measures[measures.length-1].barlines[1]['_content'].push(this.convertEnding(ending-1, 'stop'));
+              const startings = measures.filter(m => m.barEnding === ending-1);
+              if (!startings) {
+                console.warn(`[MusicXML.convertMeasures] Cannot find measure with ending ${ending-1}`);
+              } else {
+                // The last result is the good one: remove the 'discontinue' ending.
+                const index = startings[startings.length-1].barlines[1]['_content'].findIndex(b => b['_name'] === 'ending');
+                if (index === -1) {
+                  console.warn(`[MusicXML.convertMeasures] Cannot find ending ${ending-1} in right barline of measure ${startings[startings.length-1].body['_attrs']['number']}`)
+                } else {
+                  delete startings[startings.length-1].barlines[1]['_content'][index];
+                }
+              }
+            }
+            // We will add a 'discontinue' ending at this measure's right barline.
+            measure.barEnding = ending;
+            break;
+          }
+          // TODO More attributes: Q, U, f, l, s
           default: console.warn(`[MusicXML.convertMeasures] Unrecognized annotation "${annot}"`);
         }
       });
 
       // Chords.
       if (cell.chord) {
-        if (cell.chord.note === 'x') {
-          // Handle bar repeat.
-          measure.chords = this.copyChords(measures[measures.length-1]);
-          barRepeat = 1;
-        } else if (cell.chord.note === 'r') {
-          // Handle double bar repeat.
-          // We do this in 2 stages, because a blank measure occurs after 'r' (to keep the measure count correct)
-          // Here, we copy the next-to-last measure and set the repeat flag.
-          measure.chords = this.copyChords(measures[measures.length-2]);
-          barRepeat = 2;
-        } else if (cell.chord.note === 'W') {
-          // TODO Handle invisible root.
-        } else if (cell.chord.note === ' ') {
-          // TODO Handle alternate chord only.
-        } else {
-          // Process new chord.
-          measure.chords.push(this.convertChord(cell.chord));
+        switch (cell.chord.note) {
+          case 'x': {
+            // Handle single bar repeat.
+            barRepeat = 1;
+            measure.chords = [...measures[measures.length-barRepeat].chords];
+            break;
+          }
+          case 'r': {
+            // Handle double bar repeat.
+            // We do this in 2 stages, because a blank measure occurs after 'r' (to keep the measure count correct)
+            // Here, we copy the next-to-last measure and set the repeat flag.
+            // The next opening measure will pick up the remaining measure.
+            barRepeat = 2;
+            measure.chords = [...measures[measures.length-barRepeat].chords];
+            break;
+          }
+          case 'W': {
+            // TODO Handle invisible root.
+            break;
+          }
+          case ' ': {
+            // TODO Handle alternate chord only.
+            break;
+          }
+          case 'p': {
+            // TODO Handle "pause".
+            break;
+          }
+          default: {
+            // Process new chord.
+            measure.chords.push(this.convertChord(cell.chord));
+          }
         }
       } else if (!barRepeat) {
-        // In case of blank chord, add a beat to last chord if any.
+        // In case of blank chord, add a beat to last chord if any, unless we're repeating a previous bar.
         let lastChord = measure.chords.pop();
         if (lastChord) {
           const beats = lastChord['note'].filter(e => 'duration' in e)[0]['duration'] / this.options.divisions;
@@ -266,37 +313,23 @@ export class MusicXML {
 
       // Close and insert the measure if needed.
       if (cell.bars.match(/\)|\}|\]|Z/)) {
-        // Add closing barline.
+        // Add closing barline and ending if needed.
         measure.barlines.push(this.convertBarline(cell.bars, 'right'));
 
-        // `Measure.assemble()` puts all the parts in `Measure.body`.
-        measures.push(measure.assemble());
+        if (measure.barEnding) {
+          measure.barlines[1]['_content'].push(this.convertEnding(measure.barEnding, 'discontinue'));
+        }
 
         // Get ready for next measure.
+        measures.push(measure);
         measure = null;
         if (barRepeat) barRepeat--;
       }
       return measures;
     }, []);
-    return measures;
-  }
 
-  copyChords(measure) {
-    return measure['_content'].reduce((chords, c) => {
-      // As per `Measure.assemble()`, we push "harmony" and "chord" in this order.
-      if ('harmony' in c) {
-        chords.push({ harmony: c['harmony'] });
-      }
-      else if ('note' in c) {
-        const chord = chords.pop();
-        if (!chord) {
-          console.warn(`[MusicXML.copyChords] Unexpected orphan note in measure ${JSON.stringify(measure)}`);
-        }
-        chord.note = c['note'];
-        chords.push(chord);
-      }
-      return chords;
-    }, []);
+    // `Measure.assemble()` puts all the parts in `Measure.body`.
+    return measures.map(measure => measure.assemble());
   }
 
   // Fix order of elements according to sequence as specified by an xs:sequence.
@@ -320,8 +353,17 @@ export class MusicXML {
     });
   }
 
+  convertEnding(ending, type) {
+    // TODO This assumes a single ending.
+    return {
+      _name: 'ending',
+      _attrs: { 'number': ending, 'type': type },
+      _content: `${ending}.`
+    }
+  }
+
   convertBarline(bars, location) {
-    let style = 'regular';
+    let style = location === 'left' ? 'none' : 'regular';
     let repeat = null;
     if (bars.match(/\[|\]/)) {
       style = 'light-light';
@@ -344,8 +386,7 @@ export class MusicXML {
     }
   }
 
-  convertSection(annot) {
-    let section = annot.slice(1);
+  convertSection(section) {
     if (section === 'i') section = 'Intro';
     return {
       _name: 'direction',
@@ -394,10 +435,10 @@ export class MusicXML {
     }
   }
 
-  convertTime(annot) {
-    let beats = annot[1];
-    let beatType = annot[2];
-    if (annot.slice(1) === '12') {
+  convertTime(time) {
+    let beats = time[0];
+    let beatType = time[1];
+    if (time === '12') {
       beats = 12;
       beatType = 8;
     }
@@ -582,37 +623,11 @@ export class MusicXML {
   convertKey() {
     const mapKeys = {
       // Major keys
-      'C': 0,
-      'G': 1,
-      'D': 2,
-      'A': 3,
-      'E': 4,
-      'B': 5,
-      'F#': 6,
-      'C#': 7,
-      'F': -1,
-      'Bb': -2,
-      'Eb': -3,
-      'Ab': -4,
-      'Db': -5,
-      'Gb': -6,
-      'Cb': -7,
+      'C': 0, 'G': 1, 'D': 2, 'A': 3, 'E': 4, 'B': 5, 'F#': 6, 'C#': 7,
+      'F': -1, 'Bb': -2, 'Eb': -3, 'Ab': -4, 'Db': -5, 'Gb': -6, 'Cb': -7,
       // Minor keys
-      'A-': 0,
-      'E-': 1,
-      'B-': 2,
-      'F#-': 3,
-      'C#-': 4,
-      'G#-': 5,
-      'D#-': 6,
-      'A#-': 7,
-      'D-': -1,
-      'G-': -2,
-      'C-': -3,
-      'F-': -4,
-      'Bb-': -5,
-      'Eb-': -6,
-      'Ab-': -7
+      'A-': 0, 'E-': 1, 'B-': 2, 'F#-': 3, 'C#-': 4, 'G#-': 5, 'D#-': 6, 'A#-': 7,
+      'D-': -1, 'G-': -2, 'C-': -3, 'F-': -4, 'Bb-': -5, 'Eb-': -6, 'Ab-': -7
     }
     if (!(this.song.key in mapKeys)) {
       console.warn(`[MusicXML.convertKey] Unrecognized song key "${this.song.key}"`);
