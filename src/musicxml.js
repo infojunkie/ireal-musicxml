@@ -245,7 +245,7 @@ export class MusicXML {
               measures[measures.length-1].barlines[1]['_content'].push(this.convertEnding(ending-1, 'stop'));
               const startings = measures.filter(m => m.barEnding === ending-1);
               if (!startings) {
-                console.warn(`[MusicXML.convertMeasures] Cannot find measure with ending ${ending-1}`);
+                console.warn(`[MusicXML.convertMeasures] Cannot find ending ${ending-1} in right barline of any measure`);
               } else {
                 // The last result is the good one: remove the 'discontinue' ending.
                 const index = startings[startings.length-1].barlines[1]['_content'].findIndex(b => b['_name'] === 'ending');
@@ -260,7 +260,12 @@ export class MusicXML {
             measure.barEnding = ending;
             break;
           }
-          // TODO More attributes: Q, U, f, l, s
+          case 'Q': { // coda
+            measure.body['_content'].push(this.convertCoda());
+            break;
+          }
+
+          // TODO More attributes: U, f, l, s
           default: console.warn(`[MusicXML.convertMeasures] Unrecognized annotation "${annot}"`);
         }
       });
@@ -284,7 +289,7 @@ export class MusicXML {
             break;
           }
           case 'W': {
-            // TODO Handle invisible root.
+            // TODO Handle "invisible root".
             break;
           }
           case ' ': {
@@ -410,6 +415,21 @@ export class MusicXML {
       }, {
         _name: 'sound',
         _attrs: { 'segno': 'segno' }
+      }]
+    }
+  }
+
+  convertCoda() {
+    return {
+      _name: 'direction',
+      _attrs: { 'placement': 'above' },
+      _content: [{
+        'direction-type': {
+          _name: 'coda'
+        }
+      }, {
+        _name: 'sound',
+        _attrs: { 'coda': 'coda' }
       }]
     }
   }
@@ -630,7 +650,7 @@ export class MusicXML {
       'D-': -1, 'G-': -2, 'C-': -3, 'F-': -4, 'Bb-': -5, 'Eb-': -6, 'Ab-': -7
     }
     if (!(this.song.key in mapKeys)) {
-      console.warn(`[MusicXML.convertKey] Unrecognized song key "${this.song.key}"`);
+      console.warn(`[MusicXML.convertKey] Unrecognized key signature "${this.song.key}"`);
       return null;
     }
 

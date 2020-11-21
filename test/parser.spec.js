@@ -3,7 +3,7 @@ import fs from 'fs';
 import {Playlist} from '../src/parser';
 
 describe('Parser', function() {
-  it('should parse an iReal Pro playlist', function() {
+  it('should parse an iReal Pro exported playlist', function() {
     const playlist = new Playlist(fs.readFileSync('test/data/playlist.html', 'utf-8'));
     assert.strictEqual(playlist.name, "Jazz Combo");
     assert.strictEqual(playlist.songs.length, 6);
@@ -15,5 +15,10 @@ describe('Parser', function() {
       "Horace Silver",
       "Miles Davis"
     ]);
+  });
+
+  it('should parse the Jazz 1350 playlist', function() {
+    const playlist = new Playlist(fs.readFileSync('test/data/jazz1350.txt', 'utf-8'));
+    assert.strictEqual(playlist.songs.length, 1350);
   });
 });

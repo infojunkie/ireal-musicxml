@@ -53,7 +53,7 @@ export class Song {
       return;
     }
     const parts = data.split("="); //split on one sign, remove the blanks
-    this.title = parts[0].trim();
+    this.title = this.parseTitle(parts[0].trim());
     this.composer = this.parseComposer(parts[1].trim());
     this.style = parts[3].trim();
     this.key = parts[4];
@@ -204,6 +204,13 @@ export class Song {
       }
     }
     return cells;
+  }
+
+  /**
+   * The title had "A" and "The" at the back (e.g. "Gentle Rain, The")
+   */
+  parseTitle(match) {
+    return match.replace(/(.*)(, )(A|The)$/g, '$3 $1');
   }
 
   /**
