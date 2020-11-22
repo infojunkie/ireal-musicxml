@@ -97,10 +97,10 @@ I Got Rhythm, Like Someone In Love, On the Sunny Side of the Street, Misty)
 ### Roots
 "Cb", "C", "C#", "Db", "D", "D#", "Eb", "E", "F", "F#", "Gb", "G", "G#", "Ab", "A", "A#", "Bb", "B"
 
-### Inversion
+### Inversions
 "/Cb", "/C", "/C#", "/Db", "/D", "/D#", "/Eb", "/E", "/F", "/F#", "/Gb", "/G", "/G#", "/Ab", "/A", "/A#", "/Bb", "/B"
 
-### Other:
+### Other
 "W" - nothing (see Butterfly "ppsW/C")
 "n" - N.C (see Butterfly)
 "p" - slash
