@@ -105,7 +105,7 @@ I Got Rhythm, Like Someone In Love, On the Sunny Side of the Street, Misty)
 "3/2"
 ```
 
-## Chord and modifiers
+## Chords and modifiers
 ### Roots
 ```
 "Cb", "C", "C#", "Db", "D", "D#", "Eb", "E", "F", "F#", "Gb", "G", "G#", "Ab", "A", "A#", "Bb", "B"
