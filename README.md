@@ -15,15 +15,15 @@ const playlist = iReal2MusicXML.convert(ireal)
 //   songs: [{
 //     title: // Title
 //     composer: // Composer
-//     style = // Style as defined by iReal Pro
-//     exStyle = // Custom style if any
-//     key = // Key signature
-//     transpose = // Transposition semitones
-//     bpm = // Beats per minute
-//     repeats = // Repeat count
-//     music = // Raw song encoding
-//     cells = [{ Cell }] // Array of parsed cells
-//     musicxml = // MusicXML output
+//     style: // Style as defined by iReal Pro
+//     exStyle: // Custom style if any
+//     key: // Key signature
+//     transpose: // Transposition in semitones
+//     bpm: // Beats per minute
+//     repeats: // Repeat count
+//     music: // Raw song encoding
+//     cells: [{ Cell }] // Array of parsed cells
+//     musicxml: // MusicXML output
 //   }]
 // }
 ```
