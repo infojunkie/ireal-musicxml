@@ -1,5 +1,5 @@
 # iReal Pro notes
-Lots lifted from [`ireal-parse`](https://github.com/realtimerealbook/ireal-parse/blob/master/docs/legend.md)
+Lots lifted from [`ireal-parse`](https://github.com/realtimerealbook/ireal-parse/blob/master/docs/legend.md). The rest copied from the running iReal Pro app.
 
 ## Styles
 ```
