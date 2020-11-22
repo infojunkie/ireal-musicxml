@@ -243,18 +243,12 @@ export class MusicXML {
             // Also, remove the 'discontinue' ending from its starting measure since we found an end to it.
             if (ending > 1) {
               measures[measures.length-1].barlines[1]['_content'].push(this.convertEnding(ending-1, 'stop'));
-              const startings = measures.filter(m => m.barEnding === ending-1);
-              if (!startings) {
-                console.warn(`[MusicXML.convertMeasures] Cannot find ending ${ending-1} in right barline of any measure`);
-              } else {
-                // The last result is the good one: remove the 'discontinue' ending.
-                const index = startings[startings.length-1].barlines[1]['_content'].findIndex(b => b['_name'] === 'ending');
-                if (index === -1) {
-                  console.warn(`[MusicXML.convertMeasures] Cannot find ending ${ending-1} in right barline of measure ${startings[startings.length-1].body['_attrs']['number']}`)
-                } else {
-                  delete startings[startings.length-1].barlines[1]['_content'][index];
-                }
-              }
+              const target = measures.slice().reverse().find(m => m.barEnding === ending-1);
+              if (!target) console.error(`[MusicXML.convertMeasures] Cannot find ending ${ending-1} in right barline of any measure`);
+              // The last result is the good one: remove the 'discontinue' ending.
+              const index = target.barlines[1]['_content'].findIndex(b => b['_name'] === 'ending');
+              if (index === -1) console.error(`[MusicXML.convertMeasures] Cannot find ending ${ending-1} in right barline of measure ${target.body['_attrs']['number']}`)
+              delete target.barlines[1]['_content'][index];
             }
             // We will add a 'discontinue' ending at this measure's right barline.
             measure.barEnding = ending;
@@ -289,7 +283,17 @@ export class MusicXML {
             break;
           }
           case 'W': {
-            // TODO Handle "invisible root".
+            // Handle invisible root by copying previous chord.
+            // https://irealpro.com/dwkb/invisible-root/
+            let target = measure;
+            if (!target.chords.length) {
+              target = measures.slice().reverse().find(m => m.chords.length);
+              if (!target) console.error(`[MusicXML.convertMeasure] Cannot find any measure with chords prior to ${cell.chord}`);
+            }
+            const chord = target.chords[target.chords.length-1].ireal;
+            chord.over = cell.chord.over;
+            chord.alternate = cell.chord.alternate;
+            measure.chords.push(this.convertChord(chord));
             break;
           }
           case ' ': {
@@ -512,8 +516,6 @@ export class MusicXML {
   }
 
   convertChord(chord) {
-    // TODO Handle alternate chord
-    // TODO Handle slash chord
     const rootStep = chord.note[0];
     const mapRootAlter = { '#': 1, 'b': -1 };
     const rootAlter = chord.note[1] && chord.note[1] in mapRootAlter ? mapRootAlter[chord.note[1]] : undefined;
@@ -620,6 +622,16 @@ export class MusicXML {
       chordText = 'N.C.';
     }
 
+    // TODO Handle alternate chord
+    if (chord.alternate) {
+      console.warn(`[MusicXML.convertChord] Unhandled alternate chord ${JSON.stringify(chord.alternate)}`);
+    }
+
+    // TODO Handle slash chord
+    if (chord.over) {
+      console.warn(`[MusicXML.convertChord] Unhandled slash chord ${JSON.stringify(chord.over)}`);
+    }
+
     const harmony = [{
       'root': [{ ...(rootStep !== 'n' && { // Regular chord
         'root-step': rootStep
@@ -637,7 +649,7 @@ export class MusicXML {
     }].concat(chordDegrees);
 
     const { duration, type, dots } = this.calculateChordDuration(1); // Every new chord starts as 1 beat
-    return { harmony, note: this.convertChordNote(duration, type, dots) };
+    return { harmony, note: this.convertChordNote(duration, type, dots), ireal: chord };
   }
 
   convertKey() {

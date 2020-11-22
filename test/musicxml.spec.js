@@ -96,4 +96,13 @@ describe('MusicXML', function() {
     await validateXMLWithXSD(blues, 'test/data/musicxml.xsd');
     fs.writeFileSync('test/output/blues.musicxml', blues);
   });
+
+  it('should correctly handle invisible roots', async function() {
+    const playlist = new Playlist(fs.readFileSync('test/data/jazz1350.txt', 'utf-8'));
+    const song = playlist.songs.find(song => song.cells.some(cell => cell.chord && cell.chord.note === 'W'));
+    assert.notStrictEqual(song, undefined);
+    const musicxml = MusicXML.convert(song);
+    fs.writeFileSync(`test/output/${song.title}.musicxml`, musicxml);
+    await validateXMLWithXSD(musicxml, 'test/data/musicxml.xsd');
+  });
 });
