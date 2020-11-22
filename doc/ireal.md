@@ -2,6 +2,7 @@
 Lots lifted from [`ireal-parse`](https://github.com/realtimerealbook/ireal-parse/blob/master/docs/legend.md)
 
 ## Styles
+```
 "Afoxe"
 "Afro"
 "Baião"
@@ -26,12 +27,16 @@ Lots lifted from [`ireal-parse`](https://github.com/realtimerealbook/ireal-parse
 "Slow Swing"
 "Up Tempo Swing"
 "Waltz"
+```
 
 ## Key signatures
+```
 "C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"
 "A-", "Bb-", "B-", "C-", "C#-", "D-", "Eb-", "E-", "F-", "F#-", "G-", "G#-"
+```
 
 ## Barlines
+```
 "[" - start double barline
 "]" - end double barline
 "{" - start repeat
@@ -39,8 +44,10 @@ Lots lifted from [`ireal-parse`](https://github.com/realtimerealbook/ireal-parse
 "LZ" - normal barline
 "|" - also normal barline (see Au Privave, Stormy Weather)
 "Z" - end double barline (that has a bolded second line)
+```
 
 ## Bars
+```
 "T44" - time signature 44
 "(N1|N2|N3)chord" - first and second house (represents ONE BAR ONLY, see
 I Got Rhythm, Like Someone In Love, On the Sunny Side of the Street, Misty)
@@ -57,8 +64,10 @@ I Got Rhythm, Like Someone In Love, On the Sunny Side of the Street, Misty)
 "Q" - coda (see Butterfly)
 "Y" - vertical spacer (see Nearness of You, Night in Tunisia)
 "U" - ?? (see Mas Que Nada, Scrapple From The Apple, Triste, Wave)
+```
 
 ## Comments
+```
 "D.C. al Coda"
 "D.C. al Fine"
 "D.C. al 1st End."
@@ -76,8 +85,10 @@ I Got Rhythm, Like Someone In Love, On the Sunny Side of the Street, Misty)
 "6x"
 "7x"
 "8x"
+```
 
 ## Time signatures
+```
 "2/4"
 "3/4"
 "4/4"
@@ -92,23 +103,31 @@ I Got Rhythm, Like Someone In Love, On the Sunny Side of the Street, Misty)
 "12/8" (represented as "12")
 "2/2"
 "3/2"
+```
 
-## Chord and modifies
+## Chord and modifiers
 ### Roots
+```
 "Cb", "C", "C#", "Db", "D", "D#", "Eb", "E", "F", "F#", "Gb", "G", "G#", "Ab", "A", "A#", "Bb", "B"
+```
 
-### Inversions
+### Inversions (aka bass notes)
+```
 "/Cb", "/C", "/C#", "/Db", "/D", "/D#", "/Eb", "/E", "/F", "/F#", "/Gb", "/G", "/G#", "/Ab", "/A", "/A#", "/Bb", "/B"
+```
 
 ### Other
+```
 "W" - nothing (see Butterfly "ppsW/C")
 "n" - N.C (see Butterfly)
 "p" - slash
 "s" - small chord (eg sC^7)
 "l" - large chord (eg lC^7)
 "f" - pause (see Butterfly, Summer Serenade)
+```
 
 ### Quality
+```
 "^7", "-7", "7", "7sus"
 "^", "-", "7alt", "sus"
 "6", "-6", "o7", "ø7"
@@ -124,3 +143,4 @@ I Got Rhythm, Like Someone In Love, On the Sunny Side of the Street, Misty)
 "9b5", "9#5", "13b9", "13#9"
 "7b9b13", "7b9#5", "7b9b5", "7b9#9"
 "7#9#5", "7#9b5", "7#9#11", "7b9#11"
+```

@@ -173,7 +173,11 @@ export class MusicXML {
     let measure = null; // current measure (of class Measure) being built
     let barRepeat = 0; // current bar number for single- and double-bar repeats
 
-    // Loop on cells. Each cell is one beat.
+    // Loop on cells.
+    // There are 16 cells per row, regardless of time signature.
+    // Barlines can occur anywhere and the iReal Pro player accommodates the spaces to position the chords within the bar.
+    // https://technimo.helpshift.com/a/ireal-pro/?s=editor&f=chord-spacing-in-the-editor
+    // https://technimo.helpshift.com/a/ireal-pro/?s=editor&f=how-do-i-fit-more-than-48-measures-into-one-chart
     const measures = this.song.cells.reduce( (measures, cell) => {
       // Start a new measure if needed.
       if (cell.bars.match(/\(|\{|\[/)) {
@@ -259,7 +263,11 @@ export class MusicXML {
             break;
           }
 
-          // TODO More attributes: U, f, l, s
+          // Ignore small and large chord renderings.
+          case 'l':
+          case 's': break;
+
+          // TODO More attributes: U, f
           default: console.warn(`[MusicXML.convertMeasures] Unrecognized annotation "${annot}"`);
         }
       });

@@ -102,7 +102,14 @@ describe('MusicXML', function() {
     const song = playlist.songs.find(song => song.cells.some(cell => cell.chord && cell.chord.note === 'W'));
     assert.notStrictEqual(song, undefined);
     const musicxml = MusicXML.convert(song);
-    fs.writeFileSync(`test/output/${song.title}.musicxml`, musicxml);
     await validateXMLWithXSD(musicxml, 'test/data/musicxml.xsd');
+    fs.writeFileSync(`test/output/${song.title}.musicxml`, musicxml);
+  });
+
+  it('should correctly handle uneven bar spacings', async function() {
+    const playlist = new Playlist(fs.readFileSync('test/data/strange.html', 'utf-8'));
+    const strange = MusicXML.convert(playlist.songs[0]);
+    await validateXMLWithXSD(strange, 'test/data/musicxml.xsd');
+    fs.writeFileSync(`test/output/strange.musicxml`, strange);
   });
 });
