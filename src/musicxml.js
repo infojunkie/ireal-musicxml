@@ -200,6 +200,8 @@ export class MusicXML {
             }]
           }, this.convertKey());
 
+          // TODO Start new system every 16 cells.
+
           // Add bpm if any.
           if (this.song.bpm) {
             measure.body['_content'].push(this.convertTempo(this.song.bpm));
@@ -474,8 +476,8 @@ export class MusicXML {
   }
 
   convertTime(time) {
-    let beats = time[0];
-    let beatType = time[1];
+    let beats = parseInt(time[0]);
+    let beatType = parseInt(time[1]);
     if (time === '12') {
       beats = 12;
       beatType = 8;
@@ -505,12 +507,12 @@ export class MusicXML {
     // - Remaining beats are distributed evenly among chords from first to last
     //
     if (measure.chords.length > this.time.beats) {
-      console.error(`[MusicXML.adjustChordDuration] Too many chords (${measure.chords.length} out of ${this.time.beats}) in measure ${measure.number()}`);
+      console.error(`[MusicXML.adjustChordDuration] Too many chords (${measure.chords.length} out of ${this.time.beats}) in measure ${measure.number()}. Aborting.`);
       return;
     }
     let beats = measure.chords.reduce((beats, chord) => beats+1+chord.spaces, 0);
     if (beats > this.time.beats) {
-      console.warn(`[MusicXML.adjustChordDuration] Too many beats (${beats} out of ${this.time.beats}) in measure ${measure.number()}`);
+      console.warn(`[MusicXML.adjustChordDuration] Too many beats (${beats} out of ${this.time.beats}) in measure ${measure.number()}. Removing some spaces...`);
       // Reduce spaces.
       // We're guaranteed to end this loop because measure.chords.length <= this.time.beats
       let chordIndex = 0;
@@ -558,7 +560,7 @@ export class MusicXML {
 
     let index = beats * 8 / this.time.type; // Lowest beat resolution is eighth-note (8)
     // Special case: full bar always equals whole.
-    if (beats == this.time.beats) {
+    if (beats === this.time.beats) {
       index = 8;
     }
     if (!(index in mapDuration)) {
