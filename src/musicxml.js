@@ -144,10 +144,14 @@ export class MusicXML {
       this.barEnding = 0;
     }
 
+    number() {
+      return this.body['_attrs']['number'];
+    }
+
     assemble() {
       if (this.attributes.length) {
         this.body['_content'].push({
-          'attributes': MusicXML.adjustSequence(this.attributes, MusicXML.sequenceAttributes)
+          'attributes': MusicXML.reorderSequence(this.attributes, MusicXML.sequenceAttributes)
         });
       }
 
@@ -160,9 +164,9 @@ export class MusicXML {
       });
 
       // Finalize barlines.
-      this.barlines[0]['_content'] = MusicXML.adjustSequence(this.barlines[0]['_content'], MusicXML.sequenceBarline);
+      this.barlines[0]['_content'] = MusicXML.reorderSequence(this.barlines[0]['_content'], MusicXML.sequenceBarline);
       this.body['_content'].splice(1, 0, this.barlines[0]);
-      this.barlines[1]['_content'] = MusicXML.adjustSequence(this.barlines[1]['_content'], MusicXML.sequenceBarline);
+      this.barlines[1]['_content'] = MusicXML.reorderSequence(this.barlines[1]['_content'], MusicXML.sequenceBarline);
       this.body['_content'].push(this.barlines[1]);
 
       return this.body;
@@ -174,10 +178,6 @@ export class MusicXML {
     let barRepeat = 0; // current bar number for single- and double-bar repeats
 
     // Loop on cells.
-    // There are 16 cells per row, regardless of time signature.
-    // Barlines can occur anywhere and the iReal Pro player accommodates the spaces to position the chords within the bar.
-    // https://technimo.helpshift.com/a/ireal-pro/?s=editor&f=chord-spacing-in-the-editor
-    // https://technimo.helpshift.com/a/ireal-pro/?s=editor&f=how-do-i-fit-more-than-48-measures-into-one-chart
     const measures = this.song.cells.reduce( (measures, cell) => {
       // Start a new measure if needed.
       if (cell.bars.match(/\(|\{|\[/)) {
@@ -251,7 +251,7 @@ export class MusicXML {
               if (!target) console.error(`[MusicXML.convertMeasures] Cannot find ending ${ending-1} in right barline of any measure`);
               // The last result is the good one: remove the 'discontinue' ending.
               const index = target.barlines[1]['_content'].findIndex(b => b['_name'] === 'ending');
-              if (index === -1) console.error(`[MusicXML.convertMeasures] Cannot find ending ${ending-1} in right barline of measure ${target.body['_attrs']['number']}`)
+              if (index === -1) console.error(`[MusicXML.convertMeasures] Cannot find ending ${ending-1} in right barline of measure ${target.number()}`)
               delete target.barlines[1]['_content'][index];
             }
             // We will add a 'discontinue' ending at this measure's right barline.
@@ -309,7 +309,7 @@ export class MusicXML {
             break;
           }
           case 'p': {
-            // TODO Handle "pause".
+            // TODO Handle slash (repeat last chord).
             break;
           }
           default: {
@@ -318,13 +318,17 @@ export class MusicXML {
           }
         }
       } else if (!barRepeat) {
-        // In case of blank chord, add a beat to last chord if any, unless we're repeating a previous bar.
-        let lastChord = measure.chords.pop();
-        if (lastChord) {
-          const beats = lastChord['note'].filter(e => 'duration' in e)[0]['duration'] / this.options.divisions;
-          const { duration, type, dots } = this.calculateChordDuration(beats + 1);
-          lastChord.note = this.convertChordNote(duration, type, dots);
-          measure.chords.push(lastChord);
+        // There are 16 cells per row, regardless of time signature.
+        // Barlines can occur anywhere and the iReal Pro player uses an unknown algorithm
+        // to schedule the chords within a measure, using the empty cells as "hints" for scheduling.
+        // https://technimo.helpshift.com/a/ireal-pro/?s=editor&f=chord-spacing-in-the-editor
+        // https://technimo.helpshift.com/a/ireal-pro/?s=editor&f=how-do-i-fit-more-than-48-measures-into-one-chart
+        //
+        // Our approach to emulate the iReal Pro player is as follows:
+        // 1. Whenever we find an empty cell, attach it to the previous chord (or discard it if there's no previous chord)
+        // 2. At the end of the measure, adjust the chord durations based on existing empty cells across the measure
+        if (measure.chords.length) {
+          measure.chords[measure.chords.length-1].spaces++;
         }
       }
 
@@ -332,10 +336,12 @@ export class MusicXML {
       if (cell.bars.match(/\)|\}|\]|Z/)) {
         // Add closing barline and ending if needed.
         measure.barlines.push(this.convertBarline(cell.bars, 'right'));
-
         if (measure.barEnding) {
           measure.barlines[1]['_content'].push(this.convertEnding(measure.barEnding, 'discontinue'));
         }
+
+        // Adjust chord durations.
+        this.adjustChordsDuration(measure);
 
         // Get ready for next measure.
         measures.push(measure);
@@ -353,7 +359,7 @@ export class MusicXML {
   // @param {array<element>} elements - Array of elements to sort.
   // @param {array<string>} sequence - Array of element names in order of xs:sequence.
   // @return {array<element>} Ordered array of elements.
-  static adjustSequence(elements, sequence) {
+  static reorderSequence(elements, sequence) {
     return elements.filter(a => Object.keys(a).length).sort((a1, a2) => {
       let k1 = Object.keys(a1)[0]; if (k1 === '_name') k1 = a1[k1];
       let k2 = Object.keys(a2)[0]; if (k2 === '_name') k2 = a2[k2];
@@ -361,10 +367,10 @@ export class MusicXML {
       const i1 = sequence.indexOf(k1);
       const i2 = sequence.indexOf(k2);
       if (i1 === -1) {
-        console.warn(`[MusicXML.adjustSequence] Unrecognized element "${k1}"`);
+        console.warn(`[MusicXML.reorderSequence] Unrecognized element "${k1}"`);
       }
       if (i2 === -1) {
-        console.warn(`[MusicXML.adjustSequence] Unrecognized element "${k2}"`);
+        console.warn(`[MusicXML.reorderSequence] Unrecognized element "${k2}"`);
       }
       return i1 - i2;
     });
@@ -484,6 +490,56 @@ export class MusicXML {
     }
   }
 
+  adjustChordsDuration(measure) {
+    // Now that the measure is closed, we can adjust the chord durations, taking empty cells into consideration.
+    // https://www.irealb.com/forums/showthread.php?25161-Using-empty-cells-to-control-chord-duration
+    //
+    // Rules:
+    // - Minimum chord duration is 1 beat
+    // => Each chord starts as 1 beat
+    // => Count of chords <= beats per measure
+    // - Starting empty cells are discarded (already discarded during the cell loop)
+    // - Each remaining empty cell counts as 1 beat (already counted during cell loop)
+    // - Empty cell beats are added to their preceding chords (already added during the cell loop)
+    // => Total chord durations <= beats per measure
+    // - Remaining beats are distributed evenly among chords from first to last
+    //
+    if (measure.chords.length > this.time.beats) {
+      console.error(`[MusicXML.adjustChordDuration] Too many chords (${measure.chords.length} out of ${this.time.beats}) in measure ${measure.number()}`);
+      return;
+    }
+    let beats = measure.chords.reduce((beats, chord) => beats+1+chord.spaces, 0);
+    if (beats > this.time.beats) {
+      console.warn(`[MusicXML.adjustChordDuration] Too many beats (${beats} out of ${this.time.beats}) in measure ${measure.number()}`);
+      // Reduce spaces.
+      // We're guaranteed to end this loop because measure.chords.length <= this.time.beats
+      let chordIndex = 0;
+      while (beats > this.time.beats) {
+        if (measure.chords[chordIndex].spaces > 0) {
+          measure.chords[chordIndex].spaces--;
+          beats--;
+        }
+        chordIndex = (chordIndex + 1) % measure.chords.length;
+      }
+    }
+    else {
+      // Distribute free beats among the chords.
+      let chordIndex = 0;
+      while (beats < this.time.beats) {
+        measure.chords[chordIndex].spaces++;
+        beats++;
+        chordIndex = (chordIndex + 1) % measure.chords.length;
+      }
+    }
+
+    // Adjust actual chord durations.
+    measure.chords = measure.chords.map(chord => {
+      const { duration, type, dots } = this.calculateChordDuration(1+chord.spaces);
+      chord.note = this.convertChordNote(duration, type, dots);
+      return chord;
+    });
+  }
+
   calculateChordDuration(beats) {
     const mapDuration = {
       '1': { t: 'eighth', d: 0 },
@@ -499,7 +555,12 @@ export class MusicXML {
       '11': { t: null, d: null }, // TODO
       '12': { t: 'whole', d: 1 }
     };
-    const index = beats * 8 / this.time.type; // Lowest beat resolution is eighth-note (8)
+
+    let index = beats * 8 / this.time.type; // Lowest beat resolution is eighth-note (8)
+    // Special case: full bar always equals whole.
+    if (beats == this.time.beats) {
+      index = 8;
+    }
     if (!(index in mapDuration)) {
       console.warn(`[MusicXML.calculateChordDuration] Unexpected beat count ${beats} for time signature ${this.time.beats}/${this.time.type}`);
     }
@@ -512,7 +573,7 @@ export class MusicXML {
   }
 
   convertChordNote(duration, type, dots) {
-    return MusicXML.adjustSequence([{
+    return MusicXML.reorderSequence([{
       _name: 'rest'
     }, {
       'duration': duration
@@ -534,24 +595,23 @@ export class MusicXML {
     // Maybe there's a way to parse based on actual understanding of the chord naming practice,
     // but it's _very_ complicated :-)
     // https://github.com/felixroos/jazzband/blob/master/src/harmony/Harmony.ts#L12-L73
-    // https://github.com/no-chris/chord-symbol
     // https://usermanuals.musicxml.com/MusicXML/Content/ST-MusicXML-kind-value.htm
-    // TODO Configure output nomenclature (in `text`), e.g. minor => '-' vs. 'm' vs 'MI' vs 'min'
+    // TODO Replace with https://github.com/no-chris/chord-symbol
     const mapChord = {
       '': { text: '', kind: 'major' },
-      '^': { text: '', kind: 'major' },
       '-': { text: 'm', kind: 'minor' },
-      '-#5': { text: 'm', kind: 'minor', degrees: [ { d: 5, a: 1, t: 'alter' } ] },
-      '-b6': { text: 'm', kind: 'minor', degrees: [ { d: 6, a: -1, t: 'add' } ] },
+      '-#5': { text: 'm', kind: 'minor', degrees: [{ d: 5, a: 1, t: 'alter' }] },
+      '-b6': { text: 'm', kind: 'minor', degrees: [{ d: 6, a: -1, t: 'add' }] },
       '+': { text: '+', kind: 'augmented' },
       'sus': { text: 'sus4', kind: 'suspended-fourth' },
       'sus4': { text: 'sus4', kind: 'suspended-fourth' },
       '2': { text: 'sus2', kind: 'suspended-second' },
       'sus2': { text: 'sus2', kind: 'suspended-second' },
       'o': { text: 'o', kind: 'diminished' },
+      '^': { text: '△7', kind: 'major-seventh' },
       '^7': { text: '△7', kind: 'major-seventh' },
-      '^7#5': { text: '△7', kind: 'major-seventh', degrees: [ { d: 5, a: 1, t: 'alter' } ] },
-      '^7#11': { text: '△7', kind: 'major-seventh', degrees: [ { d: 11, a: 1, t: 'add' } ] },
+      '^7#5': { text: '△7', kind: 'major-seventh', degrees: [{ d: 5, a: 1, t: 'alter' }] },
+      '^7#11': { text: '△7', kind: 'major-seventh', degrees: [{ d: 11, a: 1, t: 'add' }] },
       '-^7': { text: 'm△7', kind: 'major-minor' },
       '-7': { text: 'm7', kind: 'minor-seventh' },
       '-7b5': { text: 'm7♭5', kind: 'half-diminished' },
@@ -559,46 +619,54 @@ export class MusicXML {
       'h': { text: 'ø7', kind: 'half-diminished' },
       'o7': { text: 'o7', kind: 'diminished-seventh' },
       '7': { text: '7', kind: 'dominant' },
-      '7#5': { text: '7', kind: 'dominant', degrees: [ { d: 5, a: 1, t: 'alter' } ] },
-      '7+': { text: '7', kind: 'dominant', degrees: [ { d: 5, a: 1, t: 'alter' } ] },
-      '7b5': { text: '7', kind: 'dominant', degrees: [ { d: 5, a: -1, t: 'alter' } ]},
-      '7sus': { text: '7sus4', kind: 'dominant', degrees: [ { d: 3, a: 1, t: 'alter' } ] },
-      '7b9': { text: '7', kind: 'dominant', degrees: [ { d: 9, a: -1, t: 'add' } ] },
-      '7b9b5': { text: '7', kind: 'dominant', degrees: [ { d: 5, a: -1, t: 'alter' }, { d: 9, a: -1, t: 'add' } ] },
-      '7b9sus': { text: '7', kind: 'dominant', degrees: [ { d: 7, a: -1, t: 'add' }, { d: 9, a: -1, t: 'add' } ] },
-      '7b9#5': { text: '7', kind: 'dominant', degrees: [ { d: 5, a: 1, t: 'alter' }, { d: 9, a: -1, t: 'add' } ] },
-      '7b9#9': { text: '7', kind: 'dominant', degrees: [ { d: 9, a: -1, t: 'add' }, { d: 9, a: 1, t: 'add' } ] },
-      '7b9b13': { text: '7', kind: 'dominant', degrees: [ { d: 9, a: -1, t: 'add' }, { d: 13, a: -1, t: 'add' } ] },
-      '7b9#11': { text: '', kind: 'dominant', degrees: [ { d: 9, a: -1, t: 'add' }, { d: 11, a: 1, t: 'add' } ] },
-      '7#9': { text: '7', kind: 'dominant', degrees: [ { d: 9, a: 1, t: 'add' } ] },
-      '7#9b5': { text: '7', kind: 'dominant', degrees: [ { d: 5, a: -1, t: 'alter' }, { d: 9, a: 1, t: 'add' } ] },
-      '7#9#5': { text: '7', kind: 'dominant', degrees: [ { d: 5, a: 1, t: 'alter' }, { d: 9, a: 1, t: 'add' } ] },
-      '7#9#11': { text: '7', kind: 'dominant', degrees: [ { d: 9, a: 1, t: 'alter' }, { d: 11, a: 1, t: 'add' } ] },
-      '7#11': { text: '7', kind: 'dominant', degrees: [ { d: 11, a: 1, t: 'add' }] },
-      '7b13': { text: '7', kind: 'dominant', degrees: [ { d: 13, a: -1, t: 'add' } ] },
+      '7#5': { text: '7', kind: 'dominant', degrees: [{ d: 5, a: 1, t: 'alter' }] },
+      '7+': { text: '7', kind: 'dominant', degrees: [{ d: 5, a: 1, t: 'alter' }] },
+      '7b5': { text: '7', kind: 'dominant', degrees: [{ d: 5, a: -1, t: 'alter' }]},
+      '7sus': { text: '7sus4', kind: 'dominant', degrees: [{ d: 3, a: 1, t: 'alter' }] },
+      '7b9': { text: '7', kind: 'dominant', degrees: [{ d: 9, a: -1, t: 'add' }] },
+      '7b9b5': { text: '7', kind: 'dominant', degrees: [{ d: 5, a: -1, t: 'alter' }, { d: 9, a: -1, t: 'add' }] },
+      '7b9sus': { text: '7', kind: 'dominant', degrees: [{ d: 7, a: -1, t: 'add' }, { d: 9, a: -1, t: 'add' }] },
+      '7b9#5': { text: '7', kind: 'dominant', degrees: [{ d: 5, a: 1, t: 'alter' }, { d: 9, a: -1, t: 'add' }] },
+      '7b9#9': { text: '7', kind: 'dominant', degrees: [{ d: 9, a: -1, t: 'add' }, { d: 9, a: 1, t: 'add' }] },
+      '7b9b13': { text: '7', kind: 'dominant', degrees: [{ d: 9, a: -1, t: 'add' }, { d: 13, a: -1, t: 'add' }] },
+      '7b9#11': { text: '', kind: 'dominant', degrees: [{ d: 9, a: -1, t: 'add' }, { d: 11, a: 1, t: 'add' }] },
+      '7#9': { text: '7', kind: 'dominant', degrees: [{ d: 9, a: 1, t: 'add' }] },
+      '7#9b5': { text: '7', kind: 'dominant', degrees: [{ d: 5, a: -1, t: 'alter' }, { d: 9, a: 1, t: 'add' }] },
+      '7#9#5': { text: '7', kind: 'dominant', degrees: [{ d: 5, a: 1, t: 'alter' }, { d: 9, a: 1, t: 'add' }] },
+      '7#9#11': { text: '7', kind: 'dominant', degrees: [{ d: 9, a: 1, t: 'alter' }, { d: 11, a: 1, t: 'add' }] },
+      '7#11': { text: '7', kind: 'dominant', degrees: [{ d: 11, a: 1, t: 'add' }] },
+      '7alt': { text: '7alt', kind: 'dominant', degrees: [
+        { d: 5, a: -1, t: 'alter' },
+        { d: 5, a: 1, t: 'add' },
+        { d: 9, a: -1, t: 'add' },
+        { d: 9, a: 1, t: 'add' },
+        { d: 11, a: 1, t: 'add' },
+        { d: 13, a: -1, t: 'add' }
+      ] },
+      '7b13': { text: '7', kind: 'dominant', degrees: [{ d: 13, a: -1, t: 'add' }] },
       '6': { text: '6', kind: 'major-sixth' },
-      '69': { text: '6/9', kind: 'major-sixth', degrees: [ { d: 9, a: null, t: 'add' } ] },
+      '69': { text: '6/9', kind: 'major-sixth', degrees: [{ d: 9, a: null, t: 'add' }] },
       '-6': { text: 'm6', kind: 'minor-sixth' },
-      '-69': { text: 'm6/9', kind: 'minor-sixth', degrees: [ { d: 9, a: null, t: 'add' } ] },
+      '-69': { text: 'm6/9', kind: 'minor-sixth', degrees: [{ d: 9, a: null, t: 'add' }] },
       '^9': { text: '△9', kind: 'major-ninth' },
-      '^9#11': { text: '△9', kind: 'major-ninth', degrees: [ { d: 11, a: 1, t: 'add' } ] },
+      '^9#11': { text: '△9', kind: 'major-ninth', degrees: [{ d: 11, a: 1, t: 'add' }] },
       '-9': { text: 'm9', kind: 'minor-ninth' },
-      '-^9': { text: 'm△9', kind: 'major-minor', degrees: [ { d: 9, a: null, t: 'add' } ] },
+      '-^9': { text: 'm△9', kind: 'major-minor', degrees: [{ d: 9, a: null, t: 'add' }] },
       '9': { text: '9', kind: 'dominant-ninth' },
-      '9sus': { text: '9sus4', kind: 'dominant-ninth', degrees: [ { d: 3, a: 1, t: 'alter' } ] },
-      '9#5': { text: '9', kind: 'dominant-ninth', degrees: [ { d: 5, a: 1, t: 'alter' } ] },
-      '9b5': { text: '9', kind: 'dominant-ninth', degrees: [ { d: 5, a: -1, t: 'alter' } ] },
-      '9#11': { text: '9', kind: 'dominant-ninth', degrees: [ { d: 11, a: 1, t: 'add' } ] },
+      '9sus': { text: '9sus4', kind: 'dominant-ninth', degrees: [{ d: 3, a: 1, t: 'alter' }] },
+      '9#5': { text: '9', kind: 'dominant-ninth', degrees: [{ d: 5, a: 1, t: 'alter' }] },
+      '9b5': { text: '9', kind: 'dominant-ninth', degrees: [{ d: 5, a: -1, t: 'alter' }] },
+      '9#11': { text: '9', kind: 'dominant-ninth', degrees: [{ d: 11, a: 1, t: 'add' }] },
       '^11': { text: '△11', kind: 'major-11th' },
       '-11': { text: 'm11', kind: 'minor-11th' },
       '11': { text: '11', kind: 'dominant-11th' },
       '^13': { text: '△13', kind: 'major-13th' },
       '-13': { text: 'm13', kind: 'minor-13th' },
       '13': { text: '13', kind: 'dominant-13th' },
-      '13sus': { text: '13sus4', kind: 'dominant-13th', degrees: [ { d: 3, a: 1, t: 'alter' } ] },
-      '13b9': { text: '13', kind: 'dominant-13th', degrees: [ { d: 9, a: -1, t: 'alter' } ] },
-      '13#9': { text: '13', kind: 'dominant-13th', degrees: [ { d: 9, a: 1, t: 'alter' } ] },
-      '13#11': { text: '13', kind: 'dominant-13th', degrees: [ { d: 11, a: 1, t: 'alter' } ] }
+      '13sus': { text: '13sus4', kind: 'dominant-13th', degrees: [{ d: 3, a: 1, t: 'alter' }] },
+      '13b9': { text: '13', kind: 'dominant-13th', degrees: [{ d: 9, a: -1, t: 'alter' }] },
+      '13#9': { text: '13', kind: 'dominant-13th', degrees: [{ d: 9, a: 1, t: 'alter' }] },
+      '13#11': { text: '13', kind: 'dominant-13th', degrees: [{ d: 11, a: 1, t: 'alter' }] }
     };
     let chordKind = null;
     let chordText = null;
@@ -635,9 +703,9 @@ export class MusicXML {
       console.warn(`[MusicXML.convertChord] Unhandled alternate chord ${JSON.stringify(chord.alternate)}`);
     }
 
-    // TODO Handle slash chord
+    // TODO Handle bass note
     if (chord.over) {
-      console.warn(`[MusicXML.convertChord] Unhandled slash chord ${JSON.stringify(chord.over)}`);
+      console.warn(`[MusicXML.convertChord] Unhandled bass note "${chord.over.note}"`);
     }
 
     const harmony = [{
@@ -657,7 +725,7 @@ export class MusicXML {
     }].concat(chordDegrees);
 
     const { duration, type, dots } = this.calculateChordDuration(1); // Every new chord starts as 1 beat
-    return { harmony, note: this.convertChordNote(duration, type, dots), ireal: chord };
+    return { harmony, note: this.convertChordNote(duration, type, dots), ireal: chord, spaces: 0 };
   }
 
   convertKey() {
