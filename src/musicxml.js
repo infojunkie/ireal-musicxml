@@ -178,7 +178,7 @@ export class MusicXML {
     let barRepeat = 0; // current bar number for single- and double-bar repeats
 
     // Loop on cells.
-    const measures = this.song.cells.reduce( (measures, cell) => {
+    const measures = this.song.cells.reduce( (measures, cell, cellIndex) => {
       // Start a new measure if needed.
       if (cell.bars.match(/\(|\{|\[/)) {
         measure = new MusicXML.Measure(measures.length+1);
@@ -200,8 +200,6 @@ export class MusicXML {
             }]
           }, this.convertKey());
 
-          // TODO Start new system every 16 cells.
-
           // Add bpm if any.
           if (this.song.bpm) {
             measure.body['_content'].push(this.convertTempo(this.song.bpm));
@@ -221,6 +219,11 @@ export class MusicXML {
       // It can happen that `measure` is still blank in case of empty cells in iReal layout.
       // e.g. Girl From Ipanema in tests.
       if (!measure) return measures;
+
+      // Start new system every 16 cells.
+      if (cellIndex % 16 === 0) {
+        measure.body['_content'].splice(0, 0, { _name: 'print', _attrs: { 'new-system': 'yes' } });
+      }
 
       // TODO Comments.
 
