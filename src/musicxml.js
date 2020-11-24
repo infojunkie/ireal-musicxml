@@ -634,10 +634,10 @@ export class MusicXML {
 
     const chordDegrees = [];
     if (parsedChord.normalized.isSuspended) {
-      // TODO I don't think this is the correct definition of a suspended chord.
-      // It should probably be omit 3rd, add 4th, but MusicXML does not support degree-type "omit".
       chordDegrees.push({
-        'degree': [{ 'degree-value': 3, 'degree-alter': 1, 'degree-type': 'alter' }]
+        'degree': [{ 'degree-value': 3, 'degree-alter': parsedChord.normalized.intents.major ? 0 : -1, 'degree-type': 'subtract' }]
+      }, {
+        'degree': [{ 'degree-value': 4, 'degree-alter': 0, 'degree-type': 'add' }]
       });
     }
     parsedChord.normalized.extensions.forEach(extension => {
@@ -675,8 +675,13 @@ export class MusicXML {
         'degree': [{ 'degree-value': degree, 'degree-alter': MusicXML.getMap(MusicXML.mapAlter, alteration, 0, `[MusicXML.convertChordSymbol] Unrecognized alter symbol in "${add}"`), 'degree-type': 'add' }]
       });
     });
-
-    // TODO parsedChord.normalized.omits: MusicXML does not support degree-type "omit"
+    parsedChord.normalized.omits.forEach(omit => {
+      const alteration = Object.keys(MusicXML.mapAlter).includes(omit[0]) ? omit[0] : null;
+      const degree = alteration ? omit.slice(1) : omit;
+      chordDegrees.push({
+        'degree': [{ 'degree-value': degree, 'degree-alter': MusicXML.getMap(MusicXML.mapAlter, alteration, 0, `[MusicXML.convertChordSymbol] Unrecognized alter symbol in "${omit}"`), 'degree-type': 'subtract' }]
+      });
+    });
 
     return { rootStep, rootAlter, chordKind, chordText, chordDegrees };
   }
