@@ -1,7 +1,18 @@
-# iReal Pro notes
-Lots lifted from [`ireal-parse`](https://github.com/realtimerealbook/ireal-parse/blob/master/docs/legend.md). The rest copied from the running iReal Pro app.
+# iReal Pro Features
 
-## Styles
+## Sources
+- iReal Pro [app](https://irealpro.com/), [forum](https://irealb.com/forums/) and [support docs](https://irealpro.com/support/)
+- [`ireal-parse`](https://github.com/realtimerealbook/ireal-parse/blob/master/docs/legend.md)
+- [`ireal-renderer`](https://github.com/daumling/ireal-renderer)
+
+## Application model and playback algorithm
+
+- iReal Pro sheets are made of rows of cells
+- Each cell can contain a chord and other music annotations such as barlines, time signature, repeats, etc.
+- A row contains exactly 16 cells and barlines can be placed on any cell - one cell does NOT correspond to one beat!
+- The iReal Pro sequencer generates a playback sequence and detects illegal input (e.g. too many chords in a bar)
+
+## Styles (for display)
 ```
 "Afoxe"
 "Afro"
@@ -29,24 +40,73 @@ Lots lifted from [`ireal-parse`](https://github.com/realtimerealbook/ireal-parse
 "Waltz"
 ```
 
+## Grooves (for playback)
+```
+"Jazz": [
+  "Afro 12/8"
+  "Ballad Double Time Feel"
+  "Ballad Even"
+  "Ballad Melodic"
+  "Ballad Swing"
+  "Blue Note"
+  "Bossa Nova"
+  "Doo Doo Cats"
+  "Double Time Swing"
+  "Even 8ths"
+  "Even 8ths Open"
+  "Even 16ths"
+  "Guitar Trio"
+  "Gypsy Jazz"
+  "Latin"
+  "Latin/Swing"
+  "Long Notes"
+  "Medium Swing"
+  "Medium Up Swing"
+  "Medium Up Swing 2"
+  "New Orleans Swing"
+  "Second Line"
+  "Slow Swing"
+  "Swing Two/Four"
+  "Trad Jazz"
+  "Up Tempo Swing"
+  "Up Tempo Swing 2"
+]
+"Latin": [
+  "Argentina: Tango"
+  "Brazil: Bossa Acoustic"
+  "Brazil: Bossa Electric"
+  "Brazil: Samba"
+  "Cuba: Bolero"
+  "Cuba: Cha Cha Cha"
+  "Cuba: Son Montuno 2-3"
+  "Cuba: Son montuno 3-2"
+]
+"Pop": [
+  "Bluegrass"
+  "Country"
+  "Disco"
+  "Funk"
+  "Glam Funk"
+  "Reggae"
+  "House"
+  "Rock"
+  "Rock 12/8"
+  "Shuffle"
+  "Slow Rock"
+  "Smooth"
+  "Soul"
+  "RnB"
+  "Virtual Funk"
+]
+```
+
 ## Key signatures
 ```
 "C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"
 "A-", "Bb-", "B-", "C-", "C#-", "D-", "Eb-", "E-", "F-", "F#-", "G-", "G#-"
 ```
 
-## Barlines
-```
-"[" - start double barline
-"]" - end double barline
-"{" - start repeat
-"}" - end repeat
-"LZ" - normal barline
-"|" - also normal barline (see Au Privave, Stormy Weather)
-"Z" - end double barline (that has a bolded second line)
-```
-
-## Bars
+## Cells
 ```
 "T44" - time signature 44
 "(N1|N2|N3)chord" - first and second house (represents ONE BAR ONLY, see
@@ -66,7 +126,18 @@ I Got Rhythm, Like Someone In Love, On the Sunny Side of the Street, Misty)
 "U" - ?? (see Mas Que Nada, Scrapple From The Apple, Triste, Wave)
 ```
 
-## Comments
+## Barlines
+```
+"[" - start double barline
+"]" - end double barline
+"{" - start repeat
+"}" - end repeat
+"LZ" - normal barline
+"|" - also normal barline (see Au Privave, Stormy Weather)
+"Z" - end double barline (that has a bolded second line)
+```
+
+## Comments and free text
 ```
 "D.C. al Coda"
 "D.C. al Fine"
@@ -116,16 +187,6 @@ I Got Rhythm, Like Someone In Love, On the Sunny Side of the Street, Misty)
 "/Cb", "/C", "/C#", "/Db", "/D", "/D#", "/Eb", "/E", "/F", "/F#", "/Gb", "/G", "/G#", "/Ab", "/A", "/A#", "/Bb", "/B"
 ```
 
-### Other
-```
-"W" - nothing (see Butterfly "ppsW/C")
-"n" - N.C (see Butterfly)
-"p" - slash
-"s" - small chord (eg sC^7)
-"l" - large chord (eg lC^7)
-"f" - pause (see Butterfly, Summer Serenade)
-```
-
 ### Quality
 ```
 "^7", "-7", "7", "7sus"
@@ -143,4 +204,14 @@ I Got Rhythm, Like Someone In Love, On the Sunny Side of the Street, Misty)
 "9b5", "9#5", "13b9", "13#9"
 "7b9b13", "7b9#5", "7b9b5", "7b9#9"
 "7#9#5", "7#9b5", "7#9#11", "7b9#11"
+```
+
+### Other
+```
+"W" - nothing (see Butterfly "ppsW/C")
+"n" - N.C (see Butterfly)
+"p" - slash
+"s" - small chord (eg sC^7)
+"l" - large chord (eg lC^7)
+"f" - pause (see Butterfly, Summer Serenade)
 ```

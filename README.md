@@ -15,27 +15,31 @@ const playlist = iReal2MusicXML.convert(ireal)
 //   songs: [{
 //     title: // Title
 //     composer: // Composer
-//     style: // Style as defined by iReal Pro
-//     exStyle: // Custom style if any
+//     style: // Song style for display
+//     groove: // Song style for playback
 //     key: // Key signature
 //     transpose: // Transposition in semitones
 //     bpm: // Beats per minute
 //     repeats: // Repeat count
 //     music: // Raw song encoding
 //     cells: [{ Cell }] // Array of parsed cells
-//     musicxml: // MusicXML output
+//     musicXml: // MusicXML output
 //   }]
 // }
 ```
 
 # Development
 
+`xmllint` is required to run tests (but NOT at runtime). It is used to ensure that the generated MusicXML is valid.
+
 ```
 npm install
 npm run test
 ```
 
-`xmllint` is required to run tests (but NOT at runtime). It is used to ensure that the generated MusicXML is valid.
+# Documentation
+- More information [about the iReal Pro format](doc/ireal.md).
+- More information [about the MusicXML format](http://usermanuals.musicxml.com/MusicXML/MusicXML.htm).
 
 # Known issues
 - No chord (N.C.) MusicXML spec [needs a `root/root-step`](https://forums.makemusic.com/viewtopic.php?f=12&t=2476#p9099), which [confuses MuseScore](https://musescore.org/en/node/313008).

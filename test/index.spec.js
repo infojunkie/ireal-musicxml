@@ -7,6 +7,6 @@ describe('iReal2MusicXML', function() {
     const result = iReal2MusicXML.convert(fs.readFileSync('test/data/playlist.html', 'utf-8'));
     assert.strictEqual(result.name, 'Jazz Combo')
     assert.strictEqual(result.songs.length, 6);
-    assert.notStrictEqual(result.songs[0].musicxml, '');
+    assert.notStrictEqual(result.songs[0].musicXml, '');
   });
 });

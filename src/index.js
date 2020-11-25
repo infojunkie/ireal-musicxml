@@ -5,7 +5,7 @@ export default class iReal2MusicXML {
   static convert(ireal) {
     const playlist = new Playlist(ireal);
     playlist.songs.forEach(song => {
-      song.musicxml = MusicXML.convert(song);
+      song.musicXml = MusicXML.convert(song);
     });
     return playlist;
   }

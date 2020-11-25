@@ -101,17 +101,24 @@ describe('MusicXML', function() {
     const playlist = new Playlist(fs.readFileSync('test/data/jazz1350.txt', 'utf-8'));
     const song = playlist.songs.find(song => song.cells.some(cell => cell.chord && cell.chord.note === 'W'));
     assert.notStrictEqual(song, undefined);
-    const musicxml = MusicXML.convert(song);
-    await validateXMLWithXSD(musicxml, 'test/data/musicxml.xsd');
-    fs.writeFileSync(`test/output/${song.title}.musicxml`, musicxml);
+    const musicXml = MusicXML.convert(song);
+    await validateXMLWithXSD(musicXml, 'test/data/musicxml.xsd');
+    fs.writeFileSync(`test/output/${song.title}.musicxml`, musicXml);
   });
 
   it('should correctly handle uneven bar spacings', async function() {
     const playlist = new Playlist(fs.readFileSync('test/data/jazz1350.txt', 'utf-8'));
     const song = playlist.songs.find(song => song.title === 'Take Five');
     assert.notStrictEqual(song, undefined);
-    const musicxml = MusicXML.convert(song);
-    await validateXMLWithXSD(musicxml, 'test/data/musicxml.xsd');
-    fs.writeFileSync(`test/output/${song.title}.musicxml`, musicxml);
+    const musicXml = MusicXML.convert(song);
+    await validateXMLWithXSD(musicXml, 'test/data/musicxml.xsd');
+    fs.writeFileSync(`test/output/${song.title}.musicxml`, musicXml);
+  });
+
+  it('should correctly handle edge cases', async function() {
+    const playlist = new Playlist(fs.readFileSync('test/data/strange.html', 'utf-8'));
+    const strange = MusicXML.convert(playlist.songs[0]);
+    await validateXMLWithXSD(strange, 'test/data/musicxml.xsd');
+    fs.writeFileSync('test/output/strange.musicxml', strange);
   });
 });

@@ -60,14 +60,14 @@ export class MusicXML {
 
   static convert(song, options = {}) {
     const realOptions = Object.assign({}, this.defaultOptions, options);
-    return new MusicXML(song, realOptions).musicxml;
+    return new MusicXML(song, realOptions).musicXml;
   }
 
   constructor(song, options) {
     this.song = song;
     this.options = options;
     this.time = { beats: 4, type: 4 };
-    this.musicxml = toXML(this.convert(), {
+    this.musicXml = toXML(this.convert(), {
       header: `
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE score-partwise PUBLIC "-//Recordare//DTD MusicXML 3.1 Partwise//EN" "http://www.musicxml.org/dtds/partwise.dtd">
@@ -90,7 +90,7 @@ export class MusicXML {
           // https://github.com/w3c/musicxml/issues/347
           _name: 'creator',
           _attrs: { 'type': 'lyricist' },
-          _content: this.song.exStyle || this.song.style
+          _content: `${this.song.style} (${this.song.groove})`
         }, {
           'encoding': [{
             'software': '@infojunkie/ireal-musicxml'
