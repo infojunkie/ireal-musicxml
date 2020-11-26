@@ -1,6 +1,6 @@
 import assert from 'assert';
 import fs from 'fs';
-import iReal2MusicXML from '../src/index';
+import * as iReal2MusicXML from '../src/index';
 
 describe('iReal2MusicXML', function() {
   it('should convert an iReal Pro song to MusicXML', function() {

@@ -2,10 +2,11 @@ import {toXML} from 'jstoxml';
 
 export class MusicXML {
   static defaultOptions = {
-    'divisions': 768, // as used by iReal
-    'note': {
-      'step': 'B',
-      'octave': 4,
+    'divisions': 768, // same as used by iReal
+    'note': { // params for chord notes
+      'type': 'pitch', // 'rest' is also supported
+      'step': 'B', // unused for 'rest'
+      'octave': 4, // unused for 'rest'
       'notehead': 'slash'
     }
   }
@@ -58,6 +59,24 @@ export class MusicXML {
     'b': -1
   }
 
+  static mapFifthsToAlters = {
+    '0': [],
+    '1': ['F'],
+    '2': ['F', 'C'],
+    '3': ['F', 'C', 'G'],
+    '4': ['F', 'C', 'G', 'D'],
+    '5': ['F', 'C', 'G', 'D', 'A'],
+    '6': ['F', 'C', 'G', 'D', 'A', 'E'],
+    '7': ['F', 'C', 'G', 'D', 'A', 'E', 'B'],
+    '-1': ['B'],
+    '-2': ['B', 'E'],
+    '-3': ['B', 'E', 'A'],
+    '-4': ['B', 'E', 'A', 'D'],
+    '-5': ['B', 'E', 'A', 'D', 'G'],
+    '-6': ['B', 'E', 'A', 'D', 'G', 'C'],
+    '-7': ['B', 'E', 'A', 'D', 'G', 'C', 'F'],
+  }
+
   static convert(song, options = {}) {
     const realOptions = Object.assign({}, this.defaultOptions, options);
     return new MusicXML(song, realOptions).musicXml;
@@ -67,6 +86,7 @@ export class MusicXML {
     this.song = song;
     this.options = options;
     this.time = { beats: 4, type: 4 };
+    this.fifths = null;
     this.musicXml = toXML(this.convert(), {
       header: `
 <?xml version="1.0" encoding="UTF-8"?>
@@ -591,8 +611,22 @@ export class MusicXML {
   }
 
   convertChordNote(duration, type, dots) {
-    return MusicXML.reorderSequence([{
+    const noteType = this.options.note.type === 'rest' ? {
       _name: 'rest'
+    } : {
+      _name: 'pitch',
+      _content: [{
+        'step': this.options.note.step
+      }, {
+        'alter': MusicXML.getMap(MusicXML.mapFifthsToAlters, this.fifths, [], `[MusicXML.convertChordNote] Unhandled fifths "${this.fifths}"`)
+        .includes(this.options.note.step) ? (this.fifths > 0 ? 1 : -1) : 0
+      }, {
+        'octave': this.options.note.octave
+      }]
+    }
+
+    return MusicXML.reorderSequence([noteType, {
+      'notehead': this.options.note.notehead
     }, {
       'duration': duration
     }, {
@@ -770,9 +804,12 @@ export class MusicXML {
       return null;
     }
 
+    // Remember the fifth.
+    this.fifths = mapKeys[this.song.key];
+
     return {
       'key': [{
-        'fifths': mapKeys[this.song.key]
+        'fifths': this.fifths
       }, {
         'mode': this.song.key.slice(-1) === '-' ? 'minor' : 'major'
       }]
