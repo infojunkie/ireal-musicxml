@@ -43,4 +43,4 @@ npm run test
 
 # Known issues
 - No chord (N.C.) MusicXML spec [needs a `root/root-step`](https://forums.makemusic.com/viewtopic.php?f=12&t=2476#p9099), which [confuses MuseScore](https://musescore.org/en/node/313008).
-- Generating a staff note for each chord [confuses MuseScore into playing that (dummy) note](https://musescore.org/en/node/313008), which is only there to indicate the rhythm structure. Currently exporting a rest instead.
+- Generating a staff note for each chord [confuses MuseScore into playing that (dummy) note](https://musescore.org/en/node/313008), which is only there to indicate the rhythm structure.
