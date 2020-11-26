@@ -4,8 +4,11 @@ const ESLintPlugin = require('eslint-webpack-plugin');
 module.exports = {
   entry: './src/index.js',
   output: {
-    path: path.resolve(__dirname, 'lib'),
-    filename: 'ireal-musicxml.js'
+    path: path.resolve(__dirname, './lib'),
+    filename: 'ireal-musicxml.js',
+    library: 'iReal2MusicXML',
+    libraryTarget: 'umd',
+    globalObject: 'this', // https://stackoverflow.com/a/64639975/209184
   },
   module: {
     rules: [

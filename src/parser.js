@@ -46,7 +46,7 @@ export class Song {
       this.style = "";
       this.key = "";
       this.transpose = 0;
-      this.exStyle = "";
+      this.groove = "";
       this.bpm = 0;
       this.repeats = 0;
       this.music = "";
@@ -58,7 +58,7 @@ export class Song {
     this.style = parts[3].trim();
     this.key = parts[4];
     this.transpose = +parts[5] || 0; // TODO
-    this.exStyle = parts[7];
+    this.groove = parts[7];
     this.bpm = +parts[8];
     this.repeats = +parts[9] || 3;
     const musicPrefix = "1r34LbKcu7";

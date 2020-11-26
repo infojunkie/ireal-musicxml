@@ -3,10 +3,11 @@ import { chordParserFactory, chordRendererFactory } from 'chord-symbol';
 
 export class MusicXML {
   static defaultOptions = {
-    'divisions': 768, // as used by iReal
-    'note': {
-      'step': 'B',
-      'octave': 4,
+    'divisions': 768, // same as used by iReal
+    'note': { // params for chord notes
+      'type': 'pitch', // 'rest' is also supported
+      'step': 'B', // unused for 'rest'
+      'octave': 4, // unused for 'rest'
       'notehead': 'slash'
     }
   }
@@ -59,15 +60,34 @@ export class MusicXML {
     'b': -1
   }
 
+  static mapFifthsToAlters = {
+    '0': [],
+    '1': ['F'],
+    '2': ['F', 'C'],
+    '3': ['F', 'C', 'G'],
+    '4': ['F', 'C', 'G', 'D'],
+    '5': ['F', 'C', 'G', 'D', 'A'],
+    '6': ['F', 'C', 'G', 'D', 'A', 'E'],
+    '7': ['F', 'C', 'G', 'D', 'A', 'E', 'B'],
+    '-1': ['B'],
+    '-2': ['B', 'E'],
+    '-3': ['B', 'E', 'A'],
+    '-4': ['B', 'E', 'A', 'D'],
+    '-5': ['B', 'E', 'A', 'D', 'G'],
+    '-6': ['B', 'E', 'A', 'D', 'G', 'C'],
+    '-7': ['B', 'E', 'A', 'D', 'G', 'C', 'F'],
+  }
+
   static convert(song, options = {}) {
     const realOptions = Object.assign({}, this.defaultOptions, options);
-    return new MusicXML(song, realOptions).musicxml;
+    return new MusicXML(song, realOptions).musicXml;
   }
 
   constructor(song, options) {
     this.song = song;
     this.options = options;
     this.time = { beats: 4, type: 4 };
+    this.fifths = null;
 
     // chord-symbol.
     this.parseChord = chordParserFactory();
@@ -77,7 +97,7 @@ export class MusicXML {
     });
 
     // Convert to MusicXML.
-    this.musicxml = toXML(this.convert(), {
+    this.musicXml = toXML(this.convert(), {
       header: `
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE score-partwise PUBLIC "-//Recordare//DTD MusicXML 3.1 Partwise//EN" "http://www.musicxml.org/dtds/partwise.dtd">
@@ -100,7 +120,7 @@ export class MusicXML {
           // https://github.com/w3c/musicxml/issues/347
           _name: 'creator',
           _attrs: { 'type': 'lyricist' },
-          _content: this.song.exStyle || this.song.style
+          _content: this.song.style + (this.song.groove ? ` (${this.song.groove})` : '')
         }, {
           'encoding': [{
             'software': '@infojunkie/ireal-musicxml'
@@ -310,9 +330,17 @@ export class MusicXML {
             measure.chords = [...measures[measures.length-barRepeat].chords];
             break;
           }
+          case 'p':
+            // If slash does not occur as first chord, count it as a space.
+            // Otherwise, handle it as 'W'.
+            if (measure.chords.length) {
+              measure.chords[measure.chords.length-1].spaces++;
+              break;
+            }
+            // Fall into case 'W'.
+            // eslint-disable-next-line no-fallthrough
           case 'W': {
             // Handle invisible root by copying previous chord.
-            // https://irealpro.com/dwkb/invisible-root/
             let target = measure;
             if (!target.chords.length) {
               target = measures.slice().reverse().find(m => m.chords.length);
@@ -326,10 +354,7 @@ export class MusicXML {
           }
           case ' ': {
             // TODO Handle alternate chord only.
-            break;
-          }
-          case 'p': {
-            // TODO Handle slash (repeat last chord).
+            console.warn(`[MusicXML.convertMeasure] Unhandled empty/alternate chord ${JSON.stringify(cell.chord)}`);
             break;
           }
           default: {
@@ -337,7 +362,8 @@ export class MusicXML {
             measure.chords.push(this.convertChord(cell.chord));
           }
         }
-      } else if (!barRepeat) {
+      }
+      else if (!barRepeat) {
         // There are 16 cells per row, regardless of time signature.
         // Barlines can occur anywhere and the iReal Pro player uses an unknown algorithm
         // to schedule the chords within a measure, using the empty cells as "hints" for scheduling.
@@ -410,9 +436,11 @@ export class MusicXML {
     let repeat = null;
     if (bars.match(/\[|\]/)) {
       style = 'light-light';
-    } else if (bars.match(/Z/)) {
+    }
+    else if (bars.match(/Z/)) {
       style = 'light-heavy';
-    } else if (bars.match(/\{|\}/)) {
+    }
+    else if (bars.match(/\{|\}/)) {
       style = location === 'left' ? 'heavy-light' : 'light-heavy';
       repeat = location === 'left' ? 'forward' : 'backward';
     }
@@ -593,8 +621,22 @@ export class MusicXML {
   }
 
   convertChordNote(duration, type, dots) {
-    return MusicXML.reorderSequence([{
+    const noteType = this.options.note.type === 'rest' ? {
       _name: 'rest'
+    } : {
+      _name: 'pitch',
+      _content: [{
+        'step': this.options.note.step
+      }, {
+        'alter': MusicXML.getMap(MusicXML.mapFifthsToAlters, this.fifths, [], `[MusicXML.convertChordNote] Unhandled fifths "${this.fifths}"`)
+        .includes(this.options.note.step) ? (this.fifths > 0 ? 1 : -1) : 0
+      }, {
+        'octave': this.options.note.octave
+      }]
+    }
+
+    return MusicXML.reorderSequence([noteType, {
+      'notehead': this.options.note.notehead
     }, {
       'duration': duration
     }, {
@@ -706,15 +748,12 @@ export class MusicXML {
     else {
       const { rootStep, rootAlter, chordKind, chordText, chordDegrees } = this.convertChordSymbol(chord)
 
-      // TODO Handle alternate chord
-      if (chord.alternate) {
-        console.warn(`[MusicXML.convertChord] Unhandled alternate chord ${JSON.stringify(chord.alternate)}`);
-      }
-
-      // TODO Handle bass note
-      if (chord.over) {
-        console.warn(`[MusicXML.convertChord] Unhandled bass note "${chord.over.note}"`);
-      }
+      // Handle bass note
+      let bass = !chord.over ? null : [{
+        'bass-step': chord.over.note[0]
+      }, { ...(chord.over.note[1] && {
+        'bass-alter': MusicXML.getMap(MusicXML.mapAlter, chord.over.note[1], null, `[MusicXML.convertChord] Unrecognized accidental in bass note "${chord.over.note}"`)
+      })}]
 
       harmony = [{
         'root': [{
@@ -726,7 +765,14 @@ export class MusicXML {
         _name: 'kind',
         _attrs: { 'text': chordText },
         _content: chordKind,
-      }].concat(chordDegrees);
+      }, { ...(bass && {
+        'bass': bass
+      })}].concat(chordDegrees);
+    }
+
+    // TODO Handle alternate chord
+    if (chord.alternate) {
+      console.warn(`[MusicXML.convertChord] Unhandled alternate chord ${JSON.stringify(chord.alternate)}`);
     }
 
     const { duration, type, dots } = this.calculateChordDuration(1); // Every new chord starts as 1 beat
@@ -747,9 +793,12 @@ export class MusicXML {
       return null;
     }
 
+    // Remember the fifth.
+    this.fifths = mapKeys[this.song.key];
+
     return {
       'key': [{
-        'fifths': mapKeys[this.song.key]
+        'fifths': this.fifths
       }, {
         'mode': this.song.key.slice(-1) === '-' ? 'minor' : 'major'
       }]
