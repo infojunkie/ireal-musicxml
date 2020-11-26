@@ -90,7 +90,7 @@ export class MusicXML {
           // https://github.com/w3c/musicxml/issues/347
           _name: 'creator',
           _attrs: { 'type': 'lyricist' },
-          _content: `${this.song.style} (${this.song.groove})`
+          _content: this.song.style + (this.song.groove ? ` (${this.song.groove})` : '')
         }, {
           'encoding': [{
             'software': '@infojunkie/ireal-musicxml'
