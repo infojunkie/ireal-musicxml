@@ -300,9 +300,17 @@ export class MusicXML {
             measure.chords = [...measures[measures.length-barRepeat].chords];
             break;
           }
+          case 'p':
+            // If slash does not occur as first chord, count it as a space.
+            // Otherwise, handle it as 'W'.
+            if (measure.chords.length) {
+              measure.chords[measure.chords.length-1].spaces++;
+              break;
+            }
+            // Fall into case 'W'.
+            // eslint-disable-next-line no-fallthrough
           case 'W': {
             // Handle invisible root by copying previous chord.
-            // https://irealpro.com/dwkb/invisible-root/
             let target = measure;
             if (!target.chords.length) {
               target = measures.slice().reverse().find(m => m.chords.length);
@@ -316,10 +324,7 @@ export class MusicXML {
           }
           case ' ': {
             // TODO Handle alternate chord only.
-            break;
-          }
-          case 'p': {
-            // TODO Handle slash (repeat last chord).
+            console.warn(`[MusicXML.convertMeasure] Unhandled empty/alternate chord ${JSON.stringify(cell.chord)}`);
             break;
           }
           default: {
@@ -715,11 +720,6 @@ export class MusicXML {
         console.warn(`[MusicXML.convertChord] Unrecognized chord modifiers "${chord.modifiers}"`);
       }
 
-      // TODO Handle alternate chord
-      if (chord.alternate) {
-        console.warn(`[MusicXML.convertChord] Unhandled alternate chord ${JSON.stringify(chord.alternate)}`);
-      }
-
       // Handle bass note
       let bass = !chord.over ? null : [{
         'bass-step': chord.over.note[0]
@@ -740,6 +740,11 @@ export class MusicXML {
       }, { ...(bass && {
         'bass': bass
       })}].concat(chordDegrees);
+    }
+
+    // TODO Handle alternate chord
+    if (chord.alternate) {
+      console.warn(`[MusicXML.convertChord] Unhandled alternate chord ${JSON.stringify(chord.alternate)}`);
     }
 
     const { duration, type, dots } = this.calculateChordDuration(1); // Every new chord starts as 1 beat
