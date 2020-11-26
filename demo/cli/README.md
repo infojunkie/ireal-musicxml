@@ -1,6 +1,6 @@
 # ireal2musicxml
 
-CLI tool to convert an iReal Pro playlist or ireal:// URI.
+CLI tool to convert an iReal Pro playlist or `ireal://` URI to MusicXML files.
 
 # Usage
 
