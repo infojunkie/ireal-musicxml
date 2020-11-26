@@ -332,7 +332,8 @@ export class MusicXML {
             measure.chords.push(this.convertChord(cell.chord));
           }
         }
-      } else if (!barRepeat) {
+      }
+      else if (!barRepeat) {
         // There are 16 cells per row, regardless of time signature.
         // Barlines can occur anywhere and the iReal Pro player uses an unknown algorithm
         // to schedule the chords within a measure, using the empty cells as "hints" for scheduling.
@@ -405,9 +406,11 @@ export class MusicXML {
     let repeat = null;
     if (bars.match(/\[|\]/)) {
       style = 'light-light';
-    } else if (bars.match(/Z/)) {
+    }
+    else if (bars.match(/Z/)) {
       style = 'light-heavy';
-    } else if (bars.match(/\{|\}/)) {
+    }
+    else if (bars.match(/\{|\}/)) {
       style = location === 'left' ? 'heavy-light' : 'light-heavy';
       repeat = location === 'left' ? 'forward' : 'backward';
     }
@@ -615,7 +618,8 @@ export class MusicXML {
         _attrs: { 'text': 'N.C.' },
         _content: 'none',
       }];
-    } else {
+    }
+    else {
       const rootStep = chord.note[0];
       const rootAlter = MusicXML.getMap(MusicXML.mapAlter, chord.note[1], null, `[MusicXML.convertChord] Unrecognized accidental in chord "${chord.note}"`);
 
@@ -716,7 +720,8 @@ export class MusicXML {
             }
           });
         }
-      } else {
+      }
+      else {
         console.warn(`[MusicXML.convertChord] Unrecognized chord modifiers "${chord.modifiers}"`);
       }
 
