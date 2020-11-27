@@ -1,6 +1,6 @@
 import assert from 'assert';
 import fs from 'fs';
-import regeneratorRuntime from 'regenerator-runtime';
+import regeneratorRuntime, { async } from 'regenerator-runtime';
 import {validateXMLWithXSD} from 'validate-with-xmllint';
 import select from 'xpath.js';
 import {DOMParser} from 'xmldom';
@@ -37,7 +37,7 @@ describe('MusicXML', function() {
     const playlist = new Playlist(fs.readFileSync('test/data/playlist.html', 'utf-8'));
     const bolivia = MusicXML.convert(playlist.songs[0]);
     await validateXMLWithXSD(bolivia, 'test/data/musicxml.xsd');
-    fs.writeFileSync('test/output/bolivia.musicxml', bolivia);
+    fs.writeFileSync(`test/output/${playlist.songs[0].title}.musicxml`, bolivia);
     const doc = new DOMParser().parseFromString(bolivia);
     const composer = select(doc, '//creator[@type="composer"]/text()');
     assert.strictEqual(composer[0].toString(), "Cedar Extra Name Walton");
@@ -55,7 +55,7 @@ describe('MusicXML', function() {
     const playlist = new Playlist(fs.readFileSync('test/data/playlist.html', 'utf-8'));
     const moanin = MusicXML.convert(playlist.songs[1]);
     await validateXMLWithXSD(moanin, 'test/data/musicxml.xsd');
-    fs.writeFileSync('test/output/moanin.musicxml', moanin);
+    fs.writeFileSync(`test/output/${playlist.songs[1].title}.musicxml`, moanin);
     const doc = new DOMParser().parseFromString(moanin);
     const keyMode = select(doc, '//measure/attributes/key/mode/text()');
     assert.strictEqual(keyMode[0].toString(), "minor");
@@ -70,14 +70,14 @@ describe('MusicXML', function() {
     const playlist = new Playlist(fs.readFileSync('test/data/playlist.html', 'utf-8'));
     const bolero = MusicXML.convert(playlist.songs[2]);
     await validateXMLWithXSD(bolero, 'test/data/musicxml.xsd');
-    fs.writeFileSync('test/output/bolero.musicxml', bolero);
+    fs.writeFileSync(`test/output/${playlist.songs[2].title}.musicxml`, bolero);
   });
 
   it('should create a valid, complete and correct MusicXML for Girl From Ipanema', async function() {
     const playlist = new Playlist(fs.readFileSync('test/data/playlist.html', 'utf-8'));
     const ipanema = MusicXML.convert(playlist.songs[3]);
     await validateXMLWithXSD(ipanema, 'test/data/musicxml.xsd');
-    fs.writeFileSync('test/output/ipanema.musicxml', ipanema);
+    fs.writeFileSync(`test/output/${playlist.songs[3].title}.musicxml`, ipanema);
     const doc = new DOMParser().parseFromString(ipanema);
     const ending = select(doc, '//barline/ending/@type');
     assert.strictEqual(ending.length, 4);
@@ -87,14 +87,14 @@ describe('MusicXML', function() {
     const playlist = new Playlist(fs.readFileSync('test/data/playlist.html', 'utf-8'));
     const father = MusicXML.convert(playlist.songs[4]);
     await validateXMLWithXSD(father, 'test/data/musicxml.xsd');
-    fs.writeFileSync('test/output/father.musicxml', father);
+    fs.writeFileSync(`test/output/${playlist.songs[4].title}.musicxml`, father);
   });
 
   it('should create a valid, complete and correct MusicXML for All Blues', async function() {
     const playlist = new Playlist(fs.readFileSync('test/data/playlist.html', 'utf-8'));
     const blues = MusicXML.convert(playlist.songs[5]);
     await validateXMLWithXSD(blues, 'test/data/musicxml.xsd');
-    fs.writeFileSync('test/output/blues.musicxml', blues);
+    fs.writeFileSync(`test/output/${playlist.songs[5].title}.musicxml`, blues);
   });
 
   it('should correctly handle invisible roots', async function() {
@@ -115,10 +115,24 @@ describe('MusicXML', function() {
     fs.writeFileSync(`test/output/${song.title}.musicxml`, musicXml);
   });
 
-  it('should correctly handle edge cases', async function() {
+  it('should correctly handle timing edge cases', async function() {
     const playlist = new Playlist(fs.readFileSync('test/data/strange.html', 'utf-8'));
     const strange = MusicXML.convert(playlist.songs[0]);
     await validateXMLWithXSD(strange, 'test/data/musicxml.xsd');
-    fs.writeFileSync('test/output/strange.musicxml', strange);
+    fs.writeFileSync(`test/output/${playlist.songs[0].title}.musicxml`, strange);
+  });
+
+  it ('should correctly handle comments and repeats', async function() {
+    const playlist = new Playlist(fs.readFileSync('test/data/jazz1350.txt', 'utf-8'));
+    const song = playlist.songs.find(song => song.title === 'Butterfly');
+    assert.notStrictEqual(song, undefined);
+    const musicXml = MusicXML.convert(song);
+    await validateXMLWithXSD(musicXml, 'test/data/musicxml.xsd');
+    fs.writeFileSync(`test/output/${song.title}.musicxml`, musicXml);
+    const doc = new DOMParser().parseFromString(musicXml);
+    const chordRoots = select(doc, '//measure/harmony/root/root-step/text()');
+    assert.strictEqual(chordRoots[chordRoots.length-1].toString(), 'A');
+    const words = select(doc, '//measure/direction/direction-type/words/text()');
+    assert.notStrictEqual(words.length, 0);
   });
 });

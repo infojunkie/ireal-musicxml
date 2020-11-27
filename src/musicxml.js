@@ -205,7 +205,11 @@ export class MusicXML {
     // Loop on cells.
     const measures = this.song.cells.reduce( (measures, cell, cellIndex) => {
       // Start a new measure if needed.
-      if (cell.bars.match(/\(|\{|\[/)) {
+      // This means either finding an opening barline or finding non-empty cells while we're not in any measure.
+      if (cell.bars.match(/\(|\{|\[/) || (!measure && (cell.chord || cell.annots.length || cell.comments.length || cell.bars))) {
+        if (measure) {
+          console.log(`[MusicXML.convertMeasures] Starting a new measure over existing measure ${JSON.stringify(measure)}`)
+        }
         measure = new MusicXML.Measure(measures.length+1);
 
         // Very first bar: add defaults.
@@ -243,7 +247,12 @@ export class MusicXML {
       // Short-circuit loop if no measure exists.
       // It can happen that `measure` is still blank in case of empty cells in iReal layout.
       // e.g. Girl From Ipanema in tests.
-      if (!measure) return measures;
+      if (!measure) {
+        if (cell.chord || cell.annots.length || cell.comments.length || cell.bars) {
+          console.log(`[MusicXML.convertMeasures] Found non-empty orphan cell ${JSON.stringify(cell)}.`);
+        }
+        return measures;
+      }
 
       // Start new system every 16 cells.
       if (cellIndex % 16 === 0) {
@@ -334,7 +343,7 @@ export class MusicXML {
             let target = measure;
             if (!target.chords.length) {
               target = measures.slice().reverse().find(m => m.chords.length);
-              if (!target) console.error(`[MusicXML.convertMeasure] Cannot find any measure with chords prior to ${cell.chord}`);
+              if (!target) console.error(`[MusicXML.convertMeasures] Cannot find any measure with chords prior to ${cell.chord}`);
             }
             const chord = target.chords[target.chords.length-1].ireal;
             chord.over = cell.chord.over;
@@ -344,7 +353,7 @@ export class MusicXML {
           }
           case ' ': {
             // TODO Handle alternate chord only.
-            console.warn(`[MusicXML.convertMeasure] Unhandled empty/alternate chord ${JSON.stringify(cell.chord)}`);
+            console.warn(`[MusicXML.convertMeasures] Unhandled empty/alternate chord ${JSON.stringify(cell.chord)}`);
             break;
           }
           default: {

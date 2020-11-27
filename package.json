@@ -13,7 +13,7 @@
   "scripts": {
     "build": "webpack",
     "test": "npm run test:lint && npm run test:spec",
-    "test:spec": "nyc mocha",
+    "test:spec": "nyc mocha --grep ${TEST:-''}",
     "test:lint": "eslint src"
   },
   "devDependencies": {
