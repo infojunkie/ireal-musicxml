@@ -132,7 +132,11 @@ describe('MusicXML', function() {
     const doc = new DOMParser().parseFromString(musicXml);
     const chordRoots = select(doc, '//measure/harmony/root/root-step/text()');
     assert.strictEqual(chordRoots[chordRoots.length-1].toString(), 'A');
-    const words = select(doc, '//measure/direction/direction-type/words/text()');
+    const words = select(doc, '//measure/direction/direction-type/words');
     assert.notStrictEqual(words.length, 0);
+    const coda = select(doc, '//measure/direction/sound/@coda');
+    assert.notStrictEqual(coda.length, 0);
+    const tocoda = select(doc, '//measure/direction/sound/@tocoda');
+    assert.notStrictEqual(tocoda.length, 0);
   });
 });
