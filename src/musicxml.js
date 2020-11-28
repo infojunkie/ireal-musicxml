@@ -1,4 +1,5 @@
-import {toXML} from 'jstoxml';
+import { toXML } from 'jstoxml';
+import { chordParserFactory, chordRendererFactory } from 'chord-symbol';
 
 export class MusicXML {
   static defaultOptions = {
@@ -120,6 +121,13 @@ export class MusicXML {
     this.barRepeat = 0; // current bar number for single- and double-bar repeats
     this.codas = []; // list of measures containing codas
     this.repeats = 0; // repeat count for closing repeat barline
+
+    // chord-symbol.
+    this.parseChord = chordParserFactory();
+    this.renderChord = chordRendererFactory({
+      useShortNamings: true,
+      printer: 'raw'
+    });
 
     // Perform the conversion right now.
     this.musicXml = toXML(this.convert(), {
@@ -763,6 +771,88 @@ export class MusicXML {
     }].concat(Array(dots).fill({ _name: 'dot' })), MusicXML.sequenceNote);
   }
 
+  convertChordSymbol(chord) {
+    // TODO Handle minor flat-sixth "-b6" chords
+    const parsedChord = this.renderChord(this.parseChord(`${chord.note}${chord.modifiers}`));
+    if (!parsedChord) {
+      console.warn(`[MusicXML.convertChordSymbol] Unrecognized chord "${chord.note}${chord.modifiers}"`);
+      return { rootStep: null, rootAlter: null, chordKind: null, chordText: null, chordDegrees: [] }
+    }
+
+    const rootStep = parsedChord.input.rootNote[0];
+    const rootAlter = MusicXML.getMap(MusicXML.mapAlter, parsedChord.input.rootNote[1] || null, null, `[MusicXML.convertChordSymbol] Unrecognized accidental in chord "${parsedChord.input.rootNote}"`);
+    const chordText = parsedChord.input.symbol;
+
+    const mapKind = {
+      'major': 'major',
+      'major6': 'major-sixth',
+      'major7': 'major-seventh',
+      'dominant7': 'dominant',
+      'minor': 'minor',
+      'minor6': 'minor-sixth',
+      'minor7': 'minor-seventh',
+      'minorMajor7': 'major-minor',
+      'augmented': 'augmented',
+      'diminished': 'diminished',
+      'diminished7': 'diminished-seventh',
+      'power': 'power'
+    }
+    const chordKind = MusicXML.getMap(mapKind, parsedChord.normalized.quality, '', `[MusicXML.convertChordSymbol] Unrecognized chord quality "${parsedChord.normalized.quality}"`);
+
+    const chordDegrees = [];
+    if (parsedChord.normalized.isSuspended) {
+      chordDegrees.push({
+        'degree': [{ 'degree-value': 3, 'degree-alter': parsedChord.normalized.intents.major ? 0 : -1, 'degree-type': 'subtract' }]
+      }, {
+        'degree': [{ 'degree-value': 4, 'degree-alter': 0, 'degree-type': 'add' }]
+      });
+    }
+    parsedChord.normalized.extensions.forEach(extension => {
+      chordDegrees.push({
+        'degree': [{ 'degree-value': extension, 'degree-alter': 0, 'degree-type': 'add' }]
+      });
+    });
+    parsedChord.normalized.alterations.map(alteration => {
+      if (alteration === 'alt') {
+        const mapAlterations = {
+          // TODO If fifthFlat is false and fifthSharp is true, then the 5th will not be altered, only added, which is a bug.
+          'fifthFlat': { 'degree': [{ 'degree-value': 5, 'degree-alter': -1, 'degree-type': 'alter' }] },
+          'fifthSharp': { 'degree': [{ 'degree-value': 5, 'degree-alter': 1, 'degree-type': 'add' }] },
+          'ninthFlat': { 'degree': [{ 'degree-value': 9, 'degree-alter': -1, 'degree-type': 'add' }] },
+          'ninthSharp': { 'degree': [{ 'degree-value': 9, 'degree-alter': 1, 'degree-type': 'add' }] },
+          'eleventhSharp': { 'degree': [{ 'degree-value': 11, 'degree-alter': 1, 'degree-type': 'add' }] },
+          'thirteenthFlat': { 'degree': [{ 'degree-value': 13, 'degree-alter': -1, 'degree-type': 'add' }] },
+        }
+        Object.keys(parsedChord.parserConfiguration.altIntervals).forEach(interval => {
+          if (parsedChord.parserConfiguration.altIntervals[interval]) {
+            chordDegrees.push(MusicXML.getMap(mapAlterations, interval, null, `[MusicXML.convertChordSymbol] Unrecognized altered interval "${interval}"`));
+          }
+        })
+      }
+      else {
+        chordDegrees.push({
+          'degree': [{ 'degree-value': alteration.slice(1), 'degree-alter': MusicXML.getMap(MusicXML.mapAlter, alteration[0], 0, `[MusicXML.convertChordSymbol] Unrecognized alter symbol in "${alteration}"`), 'degree-type': 'alter' }]
+        });
+      }
+    });
+    parsedChord.normalized.adds.forEach(add => {
+      const alteration = Object.keys(MusicXML.mapAlter).includes(add[0]) ? add[0] : null;
+      const degree = alteration ? add.slice(1) : add;
+      chordDegrees.push({
+        'degree': [{ 'degree-value': degree, 'degree-alter': MusicXML.getMap(MusicXML.mapAlter, alteration, 0, `[MusicXML.convertChordSymbol] Unrecognized alter symbol in "${add}"`), 'degree-type': 'add' }]
+      });
+    });
+    parsedChord.normalized.omits.forEach(omit => {
+      const alteration = Object.keys(MusicXML.mapAlter).includes(omit[0]) ? omit[0] : null;
+      const degree = alteration ? omit.slice(1) : omit;
+      chordDegrees.push({
+        'degree': [{ 'degree-value': degree, 'degree-alter': MusicXML.getMap(MusicXML.mapAlter, alteration, 0, `[MusicXML.convertChordSymbol] Unrecognized alter symbol in "${omit}"`), 'degree-type': 'subtract' }]
+      });
+    });
+
+    return { rootStep, rootAlter, chordKind, chordText, chordDegrees };
+  }
+
   convertChord(chord) {
     let harmony = null;
 
@@ -781,110 +871,7 @@ export class MusicXML {
       }];
     }
     else {
-      const rootStep = chord.note[0];
-      const rootAlter = MusicXML.getMap(MusicXML.mapAlter, chord.note[1], null, `[MusicXML.convertChord] Unrecognized accidental in chord "${chord.note}"`);
-
-      // To map iReal chord modifiers to a MusicXML structure, enumerate all the possibilities.
-      // Maybe there's a way to parse based on actual understanding of the chord naming practice,
-      // but it's _very_ complicated :-)
-      // https://github.com/felixroos/jazzband/blob/master/src/harmony/Harmony.ts#L12-L73
-      // https://usermanuals.musicxml.com/MusicXML/Content/ST-MusicXML-kind-value.htm
-      // TODO Replace with https://github.com/no-chris/chord-symbol
-      const mapChord = {
-        '': { text: '', kind: 'major' },
-        '-': { text: 'm', kind: 'minor' },
-        '-#5': { text: 'm', kind: 'minor', degrees: [{ d: 5, a: 1, t: 'alter' }] },
-        '-b6': { text: 'm', kind: 'minor', degrees: [{ d: 6, a: -1, t: 'add' }] },
-        '+': { text: '+', kind: 'augmented' },
-        'sus': { text: 'sus4', kind: 'suspended-fourth' },
-        'sus4': { text: 'sus4', kind: 'suspended-fourth' },
-        '2': { text: 'sus2', kind: 'suspended-second' },
-        'sus2': { text: 'sus2', kind: 'suspended-second' },
-        'o': { text: 'o', kind: 'diminished' },
-        '^': { text: '△7', kind: 'major-seventh' },
-        '^7': { text: '△7', kind: 'major-seventh' },
-        '^7#5': { text: '△7', kind: 'major-seventh', degrees: [{ d: 5, a: 1, t: 'alter' }] },
-        '^7#11': { text: '△7', kind: 'major-seventh', degrees: [{ d: 11, a: 1, t: 'add' }] },
-        '-^7': { text: 'm△7', kind: 'major-minor' },
-        '-7': { text: 'm7', kind: 'minor-seventh' },
-        '-7b5': { text: 'm7♭5', kind: 'half-diminished' },
-        'h7': { text: 'ø7', kind: 'half-diminished' },
-        'h': { text: 'ø7', kind: 'half-diminished' },
-        'o7': { text: 'o7', kind: 'diminished-seventh' },
-        '7': { text: '7', kind: 'dominant' },
-        '7#5': { text: '7', kind: 'dominant', degrees: [{ d: 5, a: 1, t: 'alter' }] },
-        '7+': { text: '7', kind: 'dominant', degrees: [{ d: 5, a: 1, t: 'alter' }] },
-        '7b5': { text: '7', kind: 'dominant', degrees: [{ d: 5, a: -1, t: 'alter' }]},
-        '7sus': { text: '7sus4', kind: 'dominant', degrees: [{ d: 3, a: 1, t: 'alter' }] },
-        '7b9': { text: '7', kind: 'dominant', degrees: [{ d: 9, a: -1, t: 'add' }] },
-        '7b9b5': { text: '7', kind: 'dominant', degrees: [{ d: 5, a: -1, t: 'alter' }, { d: 9, a: -1, t: 'add' }] },
-        '7b9sus': { text: '7', kind: 'dominant', degrees: [{ d: 7, a: -1, t: 'add' }, { d: 9, a: -1, t: 'add' }] },
-        '7b9#5': { text: '7', kind: 'dominant', degrees: [{ d: 5, a: 1, t: 'alter' }, { d: 9, a: -1, t: 'add' }] },
-        '7b9#9': { text: '7', kind: 'dominant', degrees: [{ d: 9, a: -1, t: 'add' }, { d: 9, a: 1, t: 'add' }] },
-        '7b9b13': { text: '7', kind: 'dominant', degrees: [{ d: 9, a: -1, t: 'add' }, { d: 13, a: -1, t: 'add' }] },
-        '7b9#11': { text: '', kind: 'dominant', degrees: [{ d: 9, a: -1, t: 'add' }, { d: 11, a: 1, t: 'add' }] },
-        '7#9': { text: '7', kind: 'dominant', degrees: [{ d: 9, a: 1, t: 'add' }] },
-        '7#9b5': { text: '7', kind: 'dominant', degrees: [{ d: 5, a: -1, t: 'alter' }, { d: 9, a: 1, t: 'add' }] },
-        '7#9#5': { text: '7', kind: 'dominant', degrees: [{ d: 5, a: 1, t: 'alter' }, { d: 9, a: 1, t: 'add' }] },
-        '7#9#11': { text: '7', kind: 'dominant', degrees: [{ d: 9, a: 1, t: 'alter' }, { d: 11, a: 1, t: 'add' }] },
-        '7#11': { text: '7', kind: 'dominant', degrees: [{ d: 11, a: 1, t: 'add' }] },
-        '7alt': { text: '7alt', kind: 'dominant', degrees: [
-          { d: 5, a: -1, t: 'alter' },
-          { d: 5, a: 1, t: 'add' },
-          { d: 9, a: -1, t: 'add' },
-          { d: 9, a: 1, t: 'add' },
-          { d: 11, a: 1, t: 'add' },
-          { d: 13, a: -1, t: 'add' }
-        ] },
-        '7b13': { text: '7', kind: 'dominant', degrees: [{ d: 13, a: -1, t: 'add' }] },
-        '6': { text: '6', kind: 'major-sixth' },
-        '69': { text: '6/9', kind: 'major-sixth', degrees: [{ d: 9, a: null, t: 'add' }] },
-        '-6': { text: 'm6', kind: 'minor-sixth' },
-        '-69': { text: 'm6/9', kind: 'minor-sixth', degrees: [{ d: 9, a: null, t: 'add' }] },
-        '^9': { text: '△9', kind: 'major-ninth' },
-        '^9#11': { text: '△9', kind: 'major-ninth', degrees: [{ d: 11, a: 1, t: 'add' }] },
-        '-9': { text: 'm9', kind: 'minor-ninth' },
-        '-^9': { text: 'm△9', kind: 'major-minor', degrees: [{ d: 9, a: null, t: 'add' }] },
-        '9': { text: '9', kind: 'dominant-ninth' },
-        '9sus': { text: '9sus4', kind: 'dominant-ninth', degrees: [{ d: 3, a: 1, t: 'alter' }] },
-        '9#5': { text: '9', kind: 'dominant-ninth', degrees: [{ d: 5, a: 1, t: 'alter' }] },
-        '9b5': { text: '9', kind: 'dominant-ninth', degrees: [{ d: 5, a: -1, t: 'alter' }] },
-        '9#11': { text: '9', kind: 'dominant-ninth', degrees: [{ d: 11, a: 1, t: 'add' }] },
-        '^11': { text: '△11', kind: 'major-11th' },
-        '-11': { text: 'm11', kind: 'minor-11th' },
-        '11': { text: '11', kind: 'dominant-11th' },
-        '^13': { text: '△13', kind: 'major-13th' },
-        '-13': { text: 'm13', kind: 'minor-13th' },
-        '13': { text: '13', kind: 'dominant-13th' },
-        '13sus': { text: '13sus4', kind: 'dominant-13th', degrees: [{ d: 3, a: 1, t: 'alter' }] },
-        '13b9': { text: '13', kind: 'dominant-13th', degrees: [{ d: 9, a: -1, t: 'alter' }] },
-        '13#9': { text: '13', kind: 'dominant-13th', degrees: [{ d: 9, a: 1, t: 'alter' }] },
-        '13#11': { text: '13', kind: 'dominant-13th', degrees: [{ d: 11, a: 1, t: 'alter' }] }
-      };
-      let chordKind = null;
-      let chordText = null;
-      let chordDegrees = [];
-      if (chord.modifiers in mapChord) {
-        const mappedChord = mapChord[chord.modifiers];
-        chordText = mappedChord.text;
-        chordKind = mappedChord.kind;
-        if ('degrees' in mappedChord) {
-          chordDegrees = mappedChord.degrees.map(degree => {
-            return {
-              'degree': [{
-                'degree-value': degree.d
-              }, {
-                'degree-alter': degree.a
-              }, {
-                'degree-type': degree.t
-              }]
-            }
-          });
-        }
-      }
-      else {
-        console.warn(`[MusicXML.convertChord] Unrecognized chord modifiers "${chord.modifiers}"`);
-      }
+      const { rootStep, rootAlter, chordKind, chordText, chordDegrees } = this.convertChordSymbol(chord)
 
       // Handle bass note
       let bass = !chord.over ? null : [{
