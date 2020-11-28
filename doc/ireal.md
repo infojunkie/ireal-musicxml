@@ -118,12 +118,12 @@ _I Got Rhythm_, _Like Someone in Love_, _On the Sunny Side of the Street_, _Mist
 "()" - alternative chord written in small (above actual chord)
 " " - represents a chord seperator
 "," - equivalent to space, especially for whole notes in 44
-"<stuff here>" - comments (see _La Fiesta_)
+"<stuff here>" - Comments and repeat directives (can start with "*yy" to denote a vertical offset of yy units, see _La Fiesta_)
 "*A" - section A (could be *B, *C, *i, *v, etc.)
 "S" - segno (see _Butterfly_)
 "Q" - coda (see _Butterfly_)
 "Y" - vertical spacer (see _Nearness of You_, _Night in Tunisia_)
-"U" - ?? (see _Mas Que Nada_, _Scrapple from the Apple_, _Triste_, _Wave_)
+"U" - end (see _Mas Que Nada_, _Scrapple from the Apple_, _Triste_, _Wave_)
 "s" - small chord (e.g. sC^7)
 "l" - large chord (e.g. lC^7)
 "f" - fermata (see _Butterfly_, _Summer Serenade_)
@@ -158,7 +158,7 @@ _I Got Rhythm_, _Like Someone in Love_, _On the Sunny Side of the Street_, _Mist
 "Z" - end double barline (that has a bolded second line)
 ```
 
-## Comments and free text
+## Comments and repeat directives
 ```
 "D.C. al Coda"
 "D.C. al Fine"
