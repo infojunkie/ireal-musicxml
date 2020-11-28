@@ -77,6 +77,26 @@ export class MusicXML {
     '-7': ['B', 'E', 'A', 'D', 'G', 'C', 'F'],
   }
 
+  static mapRepeats = [
+    "D.C. al Coda",
+    "D.C. al Fine",
+    "D.C. al 1st End.",
+    "D.C. al 2nd End.",
+    "D.C. al 3rd End.",
+    "D.S. al Coda",
+    "D.S. al Fine",
+    "D.S. al 1st End.",
+    "D.S. al 2nd End.",
+    "D.S. al 3rd End.",
+    "Fine",
+    "3x",
+    "4x",
+    "4x",
+    "6x",
+    "7x",
+    "8x"
+  ]
+
   static convert(song, options = {}) {
     const realOptions = Object.assign({}, this.defaultOptions, options);
     return new MusicXML(song, realOptions).musicXml;
@@ -86,7 +106,12 @@ export class MusicXML {
     this.song = song;
     this.options = options;
     this.time = { beats: 4, type: 4 };
-    this.fifths = null;
+    this.fifths = null; // key signature's degree of fifths
+    this.measure = null; // current measure (of class Measure) being built
+    this.barRepeat = 0; // current bar number for single- and double-bar repeats
+    this.codas = []; // list of measures containing codas
+
+    // Perform the conversion right now.
     this.musicXml = toXML(this.convert(), {
       header: `
 <?xml version="1.0" encoding="UTF-8"?>
@@ -174,12 +199,14 @@ export class MusicXML {
     }
 
     assemble() {
+      // Attributes.
       if (this.attributes.length) {
         this.body['_content'].push({
           'attributes': MusicXML.reorderSequence(this.attributes, MusicXML.sequenceAttributes)
         });
       }
 
+      // Chords.
       this.chords.forEach(chord => {
         this.body['_content'].push({
           'harmony': chord.harmony
@@ -188,7 +215,7 @@ export class MusicXML {
         })
       });
 
-      // Finalize barlines.
+      // Barlines.
       this.barlines[0]['_content'] = MusicXML.reorderSequence(this.barlines[0]['_content'], MusicXML.sequenceBarline);
       this.body['_content'].splice(1, 0, this.barlines[0]);
       this.barlines[1]['_content'] = MusicXML.reorderSequence(this.barlines[1]['_content'], MusicXML.sequenceBarline);
@@ -199,22 +226,19 @@ export class MusicXML {
   }
 
   convertMeasures() {
-    let measure = null; // current measure (of class Measure) being built
-    let barRepeat = 0; // current bar number for single- and double-bar repeats
-
     // Loop on cells.
     const measures = this.song.cells.reduce( (measures, cell, cellIndex) => {
       // Start a new measure if needed.
       // This means either finding an opening barline or finding non-empty cells while we're not in any measure.
-      if (cell.bars.match(/\(|\{|\[/) || (!measure && (cell.chord || cell.annots.length || cell.comments.length || cell.bars))) {
-        if (measure) {
-          console.log(`[MusicXML.convertMeasures] Starting a new measure over existing measure ${JSON.stringify(measure)}`)
+      if (cell.bars.match(/\(|\{|\[/) || (!this.measure && (cell.chord || cell.annots.length || cell.comments.length))) {
+        if (this.measure) {
+          console.log(`[MusicXML.convertMeasures] Starting a new measure over existing measure ${JSON.stringify(this.measure)}`)
         }
-        measure = new MusicXML.Measure(measures.length+1);
+        this.measure = new MusicXML.Measure(measures.length+1);
 
         // Very first bar: add defaults.
         if (!measures.length) {
-          measure.attributes.push({
+          this.measure.attributes.push({
             'divisions': this.options.divisions
           }, {
             'clef': [{
@@ -231,23 +255,23 @@ export class MusicXML {
 
           // Add bpm if any.
           if (this.song.bpm) {
-            measure.body['_content'].push(this.convertTempo(this.song.bpm));
+            this.measure.body['_content'].push(this.convertTempo(this.song.bpm));
           }
         }
 
         // Add starting barline.
-        measure.barlines.push(this.convertBarline(cell.bars, 'left'));
+        this.measure.barlines.push(this.convertBarline(cell.bars, 'left'));
 
         // If we're still repeating bars, copy the previous bar now.
-        if (barRepeat) {
-          measure.chords = [...measures[measures.length-barRepeat-1].chords];
+        if (this.barRepeat) {
+          this.measure.chords = [...measures[measures.length-this.barRepeat-1].chords];
         }
       }
 
       // Short-circuit loop if no measure exists.
       // It can happen that `measure` is still blank in case of empty cells in iReal layout.
       // e.g. Girl From Ipanema in tests.
-      if (!measure) {
+      if (!this.measure) {
         if (cell.chord || cell.annots.length || cell.comments.length || cell.bars) {
           console.log(`[MusicXML.convertMeasures] Found non-empty orphan cell ${JSON.stringify(cell)}.`);
         }
@@ -256,32 +280,30 @@ export class MusicXML {
 
       // Start new system every 16 cells.
       if (cellIndex % 16 === 0) {
-        measure.body['_content'].splice(0, 0, { _name: 'print', _attrs: { 'new-system': 'yes' } });
+        this.measure.body['_content'].splice(0, 0, { _name: 'print', _attrs: { 'new-system': 'yes' } });
       }
-
-      // TODO Comments.
 
       // Other attributes.
       cell.annots.forEach(annot => {
         switch(annot[0]) {
           case '*': { // section
             const section = annot.slice(1);
-            measure.body['_content'].push(this.convertSection(section));
+            this.measure.body['_content'].push(this.convertSection(section));
             break;
           }
           case 'T': { // time
             const time = annot.slice(1);
-            measure.attributes.push(this.convertTime(time));
+            this.measure.attributes.push(this.convertTime(time));
             break;
           }
           case 'S': { // segno
-            measure.body['_content'].push(this.convertSegno());
+            this.measure.body['_content'].push(this.convertSegno());
             break;
           }
           case 'N': { // ending
             // TODO This assumes a single ending at a time.
             const ending = parseInt(annot.slice(1));
-            measure.barlines[0]['_content'].push(this.convertEnding(ending, 'start'));
+            this.measure.barlines[0]['_content'].push(this.convertEnding(ending, 'start'));
             // End the previous ending at the previous measure's right barline.
             // Also, remove the 'discontinue' ending from its starting measure since we found an end to it.
             if (ending > 1) {
@@ -294,11 +316,15 @@ export class MusicXML {
               delete target.barlines[1]['_content'][index];
             }
             // We will add a 'discontinue' ending at this measure's right barline.
-            measure.barEnding = ending;
+            this.measure.barEnding = ending;
             break;
           }
           case 'Q': { // coda
-            measure.body['_content'].push(this.convertCoda());
+            // We add all codas as "tocoda" because we expect the last one to be the actual coda.
+            // After all measures have been built, adjust the last coda.
+            // https://irealpro.com/how-the-coda-symbol-works-in-ireal-pro/
+            this.measure.body['_content'].push(this.convertToCoda());
+            this.codas.push(this.measure);
             break;
           }
 
@@ -316,8 +342,8 @@ export class MusicXML {
         switch (cell.chord.note) {
           case 'x': {
             // Handle single bar repeat.
-            barRepeat = 1;
-            measure.chords = [...measures[measures.length-barRepeat].chords];
+            this.barRepeat = 1;
+            this.measure.chords = [...measures[measures.length-this.barRepeat].chords];
             break;
           }
           case 'r': {
@@ -325,22 +351,22 @@ export class MusicXML {
             // We do this in 2 stages, because a blank measure occurs after 'r' (to keep the measure count correct)
             // Here, we copy the next-to-last measure and set the repeat flag.
             // The next opening measure will pick up the remaining measure.
-            barRepeat = 2;
-            measure.chords = [...measures[measures.length-barRepeat].chords];
+            this.barRepeat = 2;
+            this.measure.chords = [...measures[measures.length-this.barRepeat].chords];
             break;
           }
           case 'p':
             // If slash does not occur as first chord, count it as a space.
             // Otherwise, handle it as 'W'.
-            if (measure.chords.length) {
-              measure.chords[measure.chords.length-1].spaces++;
+            if (this.measure.chords.length) {
+              this.measure.chords[this.measure.chords.length-1].spaces++;
               break;
             }
             // Fall into case 'W'.
             // eslint-disable-next-line no-fallthrough
           case 'W': {
             // Handle invisible root by copying previous chord.
-            let target = measure;
+            let target = this.measure;
             if (!target.chords.length) {
               target = measures.slice().reverse().find(m => m.chords.length);
               if (!target) console.error(`[MusicXML.convertMeasures] Cannot find any measure with chords prior to ${cell.chord}`);
@@ -348,7 +374,7 @@ export class MusicXML {
             const chord = target.chords[target.chords.length-1].ireal;
             chord.over = cell.chord.over;
             chord.alternate = cell.chord.alternate;
-            measure.chords.push(this.convertChord(chord));
+            this.measure.chords.push(this.convertChord(chord));
             break;
           }
           case ' ': {
@@ -358,11 +384,11 @@ export class MusicXML {
           }
           default: {
             // Process new chord.
-            measure.chords.push(this.convertChord(cell.chord));
+            this.measure.chords.push(this.convertChord(cell.chord));
           }
         }
       }
-      else if (!barRepeat) {
+      else if (!this.barRepeat) {
         // There are 16 cells per row, regardless of time signature.
         // Barlines can occur anywhere and the iReal Pro player uses an unknown algorithm
         // to schedule the chords within a measure, using the empty cells as "hints" for scheduling.
@@ -372,29 +398,62 @@ export class MusicXML {
         // Our approach to emulate the iReal Pro player is as follows:
         // 1. Whenever we find an empty cell, attach it to the previous chord (or discard it if there's no previous chord)
         // 2. At the end of the measure, adjust the chord durations based on existing empty cells across the measure
-        if (measure.chords.length) {
-          measure.chords[measure.chords.length-1].spaces++;
+        if (this.measure.chords.length) {
+          this.measure.chords[this.measure.chords.length-1].spaces++;
         }
       }
+
+      // Comments and repeats.
+      // TODO Handle measure offset.
+      // https://usermanuals.musicxml.com/MusicXML/Content/EL-MusicXML-offset.htm
+      cell.comments.map(c => c.trim()).forEach(comment => {
+        if (MusicXML.mapRepeats.includes(comment)) {
+          // TODO Handle repeats.
+          console.warn(`[MusicXML.convertMeasures] Unhandled repeat directive "${comment}"`);
+        } else {
+          this.measure.body['_content'].push(this.convertComment(comment));
+        }
+      });
 
       // Close and insert the measure if needed.
       if (cell.bars.match(/\)|\}|\]|Z/)) {
         // Add closing barline and ending if needed.
-        measure.barlines.push(this.convertBarline(cell.bars, 'right'));
-        if (measure.barEnding) {
-          measure.barlines[1]['_content'].push(this.convertEnding(measure.barEnding, 'discontinue'));
+        this.measure.barlines.push(this.convertBarline(cell.bars, 'right'));
+        if (this.measure.barEnding) {
+          // In case of numbered repeats, end measure an open repeat by default  ┌──────
+          //                                                                     │ 2.
+          // It may be replaced later by a closing repeat  ┌───────────┐
+          //                                               │ 2.        │
+          this.measure.barlines[1]['_content'].push(this.convertEnding(this.measure.barEnding, 'discontinue'));
         }
 
         // Adjust chord durations.
-        this.adjustChordsDuration(measure);
+        this.adjustChordsDuration(this.measure);
 
         // Get ready for next measure.
-        measures.push(measure);
-        measure = null;
-        if (barRepeat) barRepeat--;
+        measures.push(this.measure);
+        this.measure = null;
+        if (this.barRepeat) this.barRepeat--;
       }
       return measures;
     }, []);
+
+    // Adjust last coda if any.
+    if (this.codas.length) {
+      const target = this.codas[this.codas.length-1];
+      const direction = target.body['_content'].findIndex(d =>
+        d['_name'] === 'direction' &&
+        Array.isArray(d['_content']) &&
+        d['_content'].some(s =>
+          s['_name'] === 'sound' &&
+          Object.keys(s['_attrs']).includes('tocoda')
+        )
+      );
+      if (direction === -1) {
+        console.warn(`[MusicXML.convertMeasures] Cannot find sound direction in measure ${target.number()}`);
+      }
+      target.body['_content'][direction] = this.convertCoda();
+    }
 
     // `Measure.assemble()` puts all the parts in `Measure.body`.
     return measures.map(measure => measure.assemble());
@@ -419,6 +478,20 @@ export class MusicXML {
       }
       return i1 - i2;
     });
+  }
+
+  convertComment(comment) {
+    const words = comment[0] === '*' ? comment.slice(3) : comment;
+    const placement = comment[0] === '*' ? 'above' : 'below';
+    return {
+      _name: 'direction',
+      _attrs: { 'placement': placement },
+      _content: {
+        'direction-type': {
+          'words': words
+        }
+      }
+    }
   }
 
   convertEnding(ending, type) {
@@ -451,7 +524,7 @@ export class MusicXML {
         'bar-style': style
       }, { ...(repeat && {
         _name: 'repeat',
-        _attrs: { 'direction': repeat }
+        _attrs: { 'direction': repeat, 'times': 2 }
       })}]
     }
   }
@@ -490,11 +563,26 @@ export class MusicXML {
       _attrs: { 'placement': 'above' },
       _content: [{
         'direction-type': {
-          _name: 'coda'
+          '_name': 'coda'
         }
       }, {
         _name: 'sound',
-        _attrs: { 'coda': 'coda' }
+        _attrs: { 'coda': 'coda' }  // TODO: We assume a single coda
+      }]
+    }
+  }
+
+  convertToCoda() {
+    return {
+      _name: 'direction',
+      _attrs: { 'placement': 'above' },
+      _content: [{
+        'direction-type': {
+          'words': 'To Coda'
+        }
+      }, {
+        _name: 'sound',
+        _attrs: { 'tocoda': 'coda' }  // TODO: We assume a single coda
       }]
     }
   }
