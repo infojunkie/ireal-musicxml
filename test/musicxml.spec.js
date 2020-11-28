@@ -135,8 +135,10 @@ describe('MusicXML', function() {
     const words = select(doc, '//measure/direction/direction-type/words');
     assert.notStrictEqual(words.length, 0);
     const coda = select(doc, '//measure/direction/sound/@coda');
-    assert.notStrictEqual(coda.length, 0);
+    assert.strictEqual(coda.length, 1);
     const tocoda = select(doc, '//measure/direction/sound/@tocoda');
-    assert.notStrictEqual(tocoda.length, 0);
+    assert.strictEqual(tocoda.length, 1);
+    const fermata = select(doc, '//note/notations/fermata');
+    assert.strictEqual(fermata.length, 1);
   });
 });
