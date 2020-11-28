@@ -1,6 +1,6 @@
 import assert from 'assert';
 import fs from 'fs';
-import regeneratorRuntime, { async } from 'regenerator-runtime';
+import 'regenerator-runtime/runtime';
 import {validateXMLWithXSD} from 'validate-with-xmllint';
 import select from 'xpath.js';
 import {DOMParser} from 'xmldom';

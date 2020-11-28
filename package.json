@@ -2,11 +2,11 @@
   "name": "ireal-musicxml",
   "version": "1.0.0",
   "description": "iReal to MusicXML converter",
-  "author": "Karim Ratib <karim.ratib@gmail.com> (https://github.com/infojunkie)"  ,
+  "author": "Karim Ratib <karim.ratib@gmail.com> (https://github.com/infojunkie)",
   "license": "MIT",
   "repository": {
-    "type" : "git",
-    "url" : "https://github.com/infojunkie/ireal-musicxml"
+    "type": "git",
+    "url": "https://github.com/infojunkie/ireal-musicxml"
   },
   "homepage": "https://github.com/infojunkie/ireal-musicxml#ireal-musicxml",
   "main": "lib/ireal-musicxml.js",
@@ -29,7 +29,6 @@
     "eslint-webpack-plugin": "^2.2.1",
     "mocha": "^8.2.1",
     "nyc": "^15.1.0",
-    "regenerator-runtime": "^0.13.7",
     "validate-with-xmllint": "^1.2.0",
     "webpack": "^5.4.0",
     "webpack-cli": "^4.2.0",
@@ -37,6 +36,8 @@
     "xpath.js": "^1.1.0"
   },
   "dependencies": {
-    "jstoxml": "^2.0.1"
+    "jstoxml": "^2.0.1",
+    "promise": "^8.1.0",
+    "regenerator-runtime": "^0.13.7"
   }
 }
