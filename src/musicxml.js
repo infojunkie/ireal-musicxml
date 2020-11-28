@@ -119,6 +119,7 @@ export class MusicXML {
     this.measure = null; // current measure (of class Measure) being built
     this.barRepeat = 0; // current bar number for single- and double-bar repeats
     this.codas = []; // list of measures containing codas
+    this.repeats = 0; // repeat count for closing repeat barline
 
     // Perform the conversion right now.
     this.musicXml = toXML(this.convert(), {
@@ -413,7 +414,7 @@ export class MusicXML {
           }
 
           // TODO More attributes: U
-          default: console.warn(`[MusicXML.convertMeasures] Unrecognized annotation "${annot}"`);
+          default: console.warn(`[MusicXML.convertMeasures] Unhandled annotation "${annot}"`);
         }
       });
 
@@ -422,8 +423,14 @@ export class MusicXML {
       // https://usermanuals.musicxml.com/MusicXML/Content/EL-MusicXML-offset.htm
       cell.comments.map(c => c.trim()).forEach(comment => {
         if (MusicXML.mapRepeats.includes(comment)) {
-          // TODO Handle repeats.
-          console.warn(`[MusicXML.convertMeasures] Unhandled repeat directive "${comment}"`);
+          // Handle Nx repeats.
+          let repeats = null;
+          if (null !== (repeats = comment.match(/(\d+)x/))) {
+            this.repeats = repeats[1];
+          }
+          else {
+            console.warn(`[MusicXML.convertMeasures] Unhandled repeat directive "${comment}"`);
+          }
         } else {
           this.measure.body['_content'].push(this.convertComment(comment));
         }
@@ -531,6 +538,11 @@ export class MusicXML {
       repeat = location === 'left' ? 'forward' : 'backward';
     }
 
+    // Set the current repeat count to 2, which may be changed later if we find a repeat annotation.
+    if (repeat === 'forward') {
+      this.repeats = 2;
+    }
+
     return {
       _name: 'barline',
       _attrs: { 'location': location },
@@ -538,7 +550,7 @@ export class MusicXML {
         'bar-style': style
       }, { ...(repeat && {
         _name: 'repeat',
-        _attrs: { 'direction': repeat, 'times': 2 }
+        _attrs: { 'direction': repeat, ...(repeat === 'backward' && { 'times': this.repeats }) }
       })}]
     }
   }

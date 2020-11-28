@@ -140,5 +140,7 @@ describe('MusicXML', function() {
     assert.strictEqual(tocoda.length, 1);
     const fermata = select(doc, '//note/notations/fermata');
     assert.strictEqual(fermata.length, 1);
+    const repeats = select(doc, '//barline/repeat/@times');
+    assert.strictEqual(repeats.some(r => r.value === '3'), true);
   });
 });
