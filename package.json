@@ -29,7 +29,6 @@
     "eslint-webpack-plugin": "^2.2.1",
     "mocha": "^8.2.1",
     "nyc": "^15.1.0",
-    "regenerator-runtime": "^0.13.7",
     "validate-with-xmllint": "^1.2.0",
     "webpack": "^5.4.0",
     "webpack-cli": "^4.2.0",
@@ -38,6 +37,8 @@
   },
   "dependencies": {
     "chord-symbol": "^1.2.0",
-    "jstoxml": "^2.0.1"
+    "jstoxml": "^2.0.1",
+    "promise": "^8.1.0",
+    "regenerator-runtime": "^0.13.7"
   }
 }

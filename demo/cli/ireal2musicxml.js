@@ -15,7 +15,7 @@ else {
   ireal = args[0];
 }
 
-const playlist = iReal2MusicXML.convert(ireal);
+const playlist = iReal2MusicXML.convertSync(ireal);
 playlist.songs.forEach(song => {
   process.stdout.write(`Exporting "${song.title}"...\n`);
   fs.writeFileSync(`${song.title.replace(/[/\\?%*:|"<>]/g, '-')}.musicxml`, song.musicXml);
