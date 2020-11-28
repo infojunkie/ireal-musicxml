@@ -2,11 +2,11 @@
   "name": "ireal-musicxml",
   "version": "1.0.0",
   "description": "iReal to MusicXML converter",
-  "author": "Karim Ratib <karim.ratib@gmail.com> (https://github.com/infojunkie)"  ,
+  "author": "Karim Ratib <karim.ratib@gmail.com> (https://github.com/infojunkie)",
   "license": "MIT",
   "repository": {
-    "type" : "git",
-    "url" : "https://github.com/infojunkie/ireal-musicxml"
+    "type": "git",
+    "url": "https://github.com/infojunkie/ireal-musicxml"
   },
   "homepage": "https://github.com/infojunkie/ireal-musicxml#ireal-musicxml",
   "main": "lib/ireal-musicxml.js",
@@ -37,7 +37,7 @@
     "xpath.js": "^1.1.0"
   },
   "dependencies": {
-    "chord-symbol": "^1.1.1",
+    "chord-symbol": "^1.2.0",
     "jstoxml": "^2.0.1"
   }
 }
