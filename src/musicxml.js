@@ -872,7 +872,7 @@ export class MusicXML {
       });
     }
 
-    parsedChord.normalized.alterations.map(alteration => {
+    parsedChord.normalized.alterations.forEach(alteration => {
       if (alteration === 'alt') {
         const mapAlterations = {
           // TODO If fifthFlat is false and fifthSharp is true, then the 5th will not be altered, only added, which is a bug.
