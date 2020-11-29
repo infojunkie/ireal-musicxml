@@ -822,7 +822,6 @@ export class MusicXML {
   }
 
   convertChordSymbol(chord) {
-    // TODO Handle minor flat-sixth "-b6" chords
     const parsedChord = this.renderChord(this.parseChord(`${chord.note}${chord.modifiers}`));
     if (!parsedChord) {
       console.warn(`[MusicXML.convertChordSymbol] Unrecognized chord "${chord.note}${chord.modifiers}"`);
@@ -833,6 +832,8 @@ export class MusicXML {
     const rootAlter = MusicXML.getMap(MusicXML.mapAlter, parsedChord.input.rootNote[1] || null, null, `[MusicXML.convertChordSymbol] Unrecognized accidental in chord "${parsedChord.input.rootNote}"`);
     const chordText = parsedChord.input.symbol;
 
+    // Find chord quality (aka kind).
+    // `chord-symbol` doesn't recognize 9th, 11th or 13th so we'll have to derive them ourselves.
     const mapKind = {
       'major': 'major',
       'major6': 'major-sixth',
@@ -847,8 +848,21 @@ export class MusicXML {
       'diminished7': 'diminished-seventh',
       'power': 'power'
     }
-    const chordKind = MusicXML.getMap(mapKind, parsedChord.normalized.quality, '', `[MusicXML.convertChordSymbol] Unrecognized chord quality "${parsedChord.normalized.quality}"`);
+    let chordKind = MusicXML.getMap(mapKind, parsedChord.normalized.quality, '', `[MusicXML.convertChordSymbol] Unrecognized chord quality "${parsedChord.normalized.quality}"`);
 
+    // Convert extensions to their equivalent MusicXML kind.
+    // Find the highest extension, then replace the word following [major, minor, dominant] with it.
+    if (parsedChord.normalized.extensions.length) {
+      const extension = Math.max(...parsedChord.normalized.extensions.map(e => parseInt(e))).toString();
+      const mapExtensionKind = {
+        '9': '-ninth',
+        '11': '-11th',
+        '13': '-13th'
+      }
+      chordKind = chordKind.split('-')[0] + MusicXML.getMap(mapExtensionKind, extension, '', `[MusicXML.convertChordSymbol] Unhandled extension ${extension}`);
+    }
+
+    // Add chord degrees.
     const chordDegrees = [];
     if (parsedChord.normalized.isSuspended) {
       chordDegrees.push({
@@ -857,11 +871,7 @@ export class MusicXML {
         'degree': [{ 'degree-value': 4, 'degree-alter': 0, 'degree-type': 'add' }]
       });
     }
-    parsedChord.normalized.extensions.forEach(extension => {
-      chordDegrees.push({
-        'degree': [{ 'degree-value': extension, 'degree-alter': 0, 'degree-type': 'add' }]
-      });
-    });
+
     parsedChord.normalized.alterations.map(alteration => {
       if (alteration === 'alt') {
         const mapAlterations = {

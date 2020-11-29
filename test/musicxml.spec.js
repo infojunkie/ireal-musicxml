@@ -148,5 +148,7 @@ describe('MusicXML', function() {
     assert.strictEqual(dacapo.length, 1);
     const dalsegno = select(doc, '//measure/direction/sound/@dalsegno');
     assert.strictEqual(dalsegno.length, 1);
+    const dominant13 = select(doc, '//harmony/kind[@text="Bb13"]/text()');
+    assert.strictEqual(dominant13[0].toString(), "dominant-13th");
   });
 });
