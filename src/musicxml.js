@@ -84,28 +84,28 @@ export class MusicXML {
     '-4': ['B', 'E', 'A', 'D'],
     '-5': ['B', 'E', 'A', 'D', 'G'],
     '-6': ['B', 'E', 'A', 'D', 'G', 'C'],
-    '-7': ['B', 'E', 'A', 'D', 'G', 'C', 'F'],
+    '-7': ['B', 'E', 'A', 'D', 'G', 'C', 'F']
   }
 
-  static mapRepeats = [
-    "D.C. al Coda",
-    "D.C. al Fine",
-    "D.C. al 1st End.",
-    "D.C. al 2nd End.",
-    "D.C. al 3rd End.",
-    "D.S. al Coda",
-    "D.S. al Fine",
-    "D.S. al 1st End.",
-    "D.S. al 2nd End.",
-    "D.S. al 3rd End.",
-    "Fine",
-    "3x",
-    "4x",
-    "4x",
-    "6x",
-    "7x",
-    "8x"
-  ]
+  static mapRepeats = {
+    "D.C. al Coda": MusicXML.prototype.convertDaCapo,
+    "D.C. al Fine": MusicXML.prototype.convertDaCapo,
+    "D.C. al 1st End.": MusicXML.prototype.convertDaCapo,
+    "D.C. al 2nd End.": MusicXML.prototype.convertDaCapo,
+    "D.C. al 3rd End.": MusicXML.prototype.convertDaCapo,
+    "D.S. al Coda": MusicXML.prototype.convertDalSegno,
+    "D.S. al Fine": MusicXML.prototype.convertDalSegno,
+    "D.S. al 1st End.": MusicXML.prototype.convertDalSegno,
+    "D.S. al 2nd End.": MusicXML.prototype.convertDalSegno,
+    "D.S. al 3rd End.": MusicXML.prototype.convertDalSegno,
+    "Fine": MusicXML.prototype.convertFine,
+    "3x": MusicXML.prototype.convertRepeatNx,
+    "4x": MusicXML.prototype.convertRepeatNx,
+    "5x": MusicXML.prototype.convertRepeatNx,
+    "6x": MusicXML.prototype.convertRepeatNx,
+    "7x": MusicXML.prototype.convertRepeatNx,
+    "8x": MusicXML.prototype.convertRepeatNx
+  }
 
   static convert(song, options = {}) {
     const realOptions = Object.assign({}, this.defaultOptions, options);
@@ -250,7 +250,7 @@ export class MusicXML {
       // This means either finding an opening barline or finding non-empty cells while we're not in any measure.
       if (cell.bars.match(/\(|\{|\[/) || (!this.measure && (cell.chord || cell.annots.length || cell.comments.length))) {
         if (this.measure) {
-          console.log(`[MusicXML.convertMeasures] Starting a new measure over existing measure ${JSON.stringify(this.measure)}`)
+          console.info(`[MusicXML.convertMeasures] Starting a new measure over existing measure ${JSON.stringify(this.measure)}`)
         }
         this.measure = new MusicXML.Measure(measures.length+1);
 
@@ -291,7 +291,7 @@ export class MusicXML {
       // e.g. Girl From Ipanema in tests.
       if (!this.measure) {
         if (cell.chord || cell.annots.length || cell.comments.length || cell.bars) {
-          console.log(`[MusicXML.convertMeasures] Found non-empty orphan cell ${JSON.stringify(cell)}.`);
+          console.info(`[MusicXML.convertMeasures] Found non-empty orphan cell ${JSON.stringify(cell)}.`);
         }
         return measures;
       }
@@ -421,7 +421,11 @@ export class MusicXML {
             break;
           }
 
-          // TODO More attributes: U
+          case 'U': { // END, treated as Fine.
+            this.measure.body['_content'].push(this.convertFine('END'));
+            break;
+          }
+
           default: console.warn(`[MusicXML.convertMeasures] Unhandled annotation "${annot}"`);
         }
       });
@@ -430,15 +434,9 @@ export class MusicXML {
       // TODO Handle measure offset.
       // https://usermanuals.musicxml.com/MusicXML/Content/EL-MusicXML-offset.htm
       cell.comments.map(c => c.trim()).forEach(comment => {
-        if (MusicXML.mapRepeats.includes(comment)) {
-          // Handle Nx repeats.
-          let repeats = null;
-          if (null !== (repeats = comment.match(/(\d+)x/))) {
-            this.repeats = repeats[1];
-          }
-          else {
-            console.warn(`[MusicXML.convertMeasures] Unhandled repeat directive "${comment}"`);
-          }
+        const repeatFn = MusicXML.getMap(MusicXML.mapRepeats, comment);
+        if (repeatFn) {
+          this.measure.body['_content'].push(repeatFn.call(this, comment));
         } else {
           this.measure.body['_content'].push(this.convertComment(comment));
         }
@@ -507,6 +505,58 @@ export class MusicXML {
       }
       return i1 - i2;
     });
+  }
+
+  convertRepeatNx(comment) {
+    let repeats = null;
+    if (null !== (repeats = comment.match(/(\d+)x/))) {
+      this.repeats = repeats[1];
+    }
+  }
+
+  convertFine(comment) {
+    return {
+      _name: 'direction',
+      _attrs: { 'placement': 'below' },
+      _content: [{
+        'direction-type': {
+          'words': comment
+        }
+      }, {
+        _name: 'sound',
+        _attrs: { 'fine': 'yes' }
+      }]
+    }
+  }
+
+  convertDaCapo(comment) {
+    return {
+      _name: 'direction',
+      _attrs: { 'placement': 'below' },
+      _content: [{
+        'direction-type': {
+          'words': comment
+        }
+      }, {
+        _name: 'sound',
+        _attrs: { 'dacapo': 'yes' }
+      }]
+    }
+  }
+
+  convertDalSegno(comment) {
+    return {
+      _name: 'direction',
+      _attrs: { 'placement': 'below' },
+      _content: [{
+        'direction-type': {
+          'words': comment
+        }
+      }, {
+        _name: 'sound',
+        _attrs: { 'dalsegno': 'yes' }
+      }]
+    }
   }
 
   convertComment(comment) {
@@ -935,8 +985,8 @@ export class MusicXML {
   static getMap(map, key, defaultValue, message) {
     if (!key) return defaultValue;
     if (!(key in map)) {
-      console.warn(message);
-      return defaultValue;
+      if (message) console.warn(message);
+      return defaultValue || null;
     }
     return map[key];
   }

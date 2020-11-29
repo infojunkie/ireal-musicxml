@@ -142,5 +142,11 @@ describe('MusicXML', function() {
     assert.strictEqual(fermata.length, 1);
     const repeats = select(doc, '//barline/repeat/@times');
     assert.strictEqual(repeats.some(r => r.value === '3'), true);
+    const fine = select(doc, '//measure/direction/sound/@fine');
+    assert.strictEqual(fine.length, 1);
+    const dacapo = select(doc, '//measure/direction/sound/@dacapo');
+    assert.strictEqual(dacapo.length, 1);
+    const dalsegno = select(doc, '//measure/direction/sound/@dalsegno');
+    assert.strictEqual(dalsegno.length, 1);
   });
 });
