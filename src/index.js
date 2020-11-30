@@ -14,3 +14,5 @@ export function convertSync(ireal) {
 export async function convert(ireal) {
   return new Promise(resolve => resolve(convertSync(ireal)));
 }
+
+export {Playlist, MusicXML};

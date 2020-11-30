@@ -2,21 +2,22 @@ const opensheetmusicdisplay = require("opensheetmusicdisplay");
 const ireal2musicxml = require("../../lib/ireal-musicxml");
 
 function handleIRealChange(e) {
-  const playlist = ireal2musicxml.convertSync(e.target.value);
+  const playlist = new ireal2musicxml.Playlist(e.target.value);
   populateSheets(playlist);
 }
 
 function handleFileSelect(e) {
   var reader = new FileReader();
   reader.onload = function(ee) {
-    const playlist = ireal2musicxml.convertSync(ee.target.result);
+    const playlist = new ireal2musicxml.Playlist(ee.target.result);
     populateSheets(playlist);
   };
   reader.readAsText(e.target.files[0]);
 }
 
 function handleSheetSelect(e) {
-  displaySheet(e.target.value);
+  const musicXml = ireal2musicxml.MusicXML.convert(JSON.parse(e.target.value));
+  displaySheet(musicXml);
 }
 
 function populateSheets(playlist) {
@@ -24,7 +25,7 @@ function populateSheets(playlist) {
   sheets.innerHTML = "";
   playlist.songs.forEach(song => {
     const option = document.createElement("option");
-    option.value = song.musicXml;
+    option.value = JSON.stringify(song);
     option.text = song.title;
     sheets.add(option);
   });

@@ -27,6 +27,11 @@ const playlistAsync = await iReal2MusicXML.convert(ireal)
 //     musicXml:        // MusicXML output
 //   }]
 // }
+
+const playlistManual = new iReal2MusicXML.Playlist(ireal)
+// => Same as above minus `musicXml` attribute
+const musicXml = iReal2MusicXML.MusicXML.convert(playlistManual.songs[0])
+// => MusicXML output
 ```
 
 # Development
