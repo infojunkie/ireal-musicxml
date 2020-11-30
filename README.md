@@ -4,6 +4,10 @@ iReal Pro to MusicXML converter
 
 [![Build Status](https://travis-ci.org/infojunkie/ireal-musicxml.svg?branch=main)](https://travis-ci.org/infojunkie/ireal-musicxml)
 
+# Demo
+
+[Check out the demo!](https://ethereum.karimratib.me:8082/)
+
 # Usage
 
 ```
@@ -42,6 +46,8 @@ const musicXml = iReal2MusicXML.MusicXML.convert(playlistManual.songs[0])
 npm install
 npm run test
 ```
+
+Check out the demos for example usage under `demo/`.
 
 # Documentation
 - More information [about the iReal Pro format](doc/ireal.md).

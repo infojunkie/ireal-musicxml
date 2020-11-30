@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "build": "webpack",
-    "serve": "webpack serve"
+    "develop": "webpack serve",
+    "server": "http-server dist/ -p 8082 -g -S -C /etc/letsencrypt/live/ethereum.karimratib.me/cert.pem -K /etc/letsencrypt/live/ethereum.karimratib.me/privkey.pem"
   },
   "author": "",
   "license": "ISC",
