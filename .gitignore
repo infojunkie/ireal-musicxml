@@ -122,3 +122,4 @@ dist
 test/output/*
 !test/output/.gitkeep
 demo/cli/*.musicxml
+!dist
