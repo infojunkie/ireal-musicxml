@@ -1,4 +1,4 @@
-# iReal Pro Features
+# iReal Pro format and model
 
 ## Sources
 - iReal Pro [app](https://irealpro.com/), [forum](https://irealb.com/forums/) and [support docs](https://irealpro.com/support/)
