@@ -1,7 +1,7 @@
 {
   "name": "ireal-musicxml",
   "version": "1.0.1",
-  "description": "iReal to MusicXML converter",
+  "description": "iReal Pro to MusicXML converter",
   "author": "Karim Ratib <karim.ratib@gmail.com> (https://github.com/infojunkie)",
   "license": "MIT",
   "repository": {
