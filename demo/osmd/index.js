@@ -16,7 +16,16 @@ function handleFileSelect(e) {
 }
 
 function handleSheetSelect(e) {
-  const musicXml = ireal2musicxml.MusicXML.convert(JSON.parse(e.target.value));
+  const song = JSON.parse(e.target.value);
+  const title = `${song.title.replace(/[/\\?%*:|"<>]/g, '-')}.musicxml`;
+  const musicXml = ireal2musicxml.MusicXML.convert(song);
+  const a = document.createElement('a');
+  a.setAttribute('href', 'data:text/xml;charset=utf-8,' + encodeURIComponent(musicXml));
+  a.setAttribute('download', title);
+  a.innerText = title;
+  const download = document.getElementById('download');
+  download.innerHTML = "";
+  download.appendChild(a);
   displaySheet(musicXml);
 }
 
