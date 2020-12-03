@@ -35,6 +35,7 @@ export class MusicXML {
     'rest',
     'unpitched',
     'duration',
+    'tie',
     'voice',
     'type',
     'dot',
@@ -48,6 +49,25 @@ export class MusicXML {
     'notations',
     'lyric',
     'play'
+  ]
+
+  static sequenceNotations = [
+    // Expected order of notations elements.
+    // https://usermanuals.musicxml.com/MusicXML/Content/EL-MusicXML-notations.htm
+    'accidental-mark',
+    'arpeggiate',
+    'articulations',
+    'dynamics',
+    'fermata',
+    'glissando',
+    'non-arpeggiate',
+    'ornaments',
+    'other-notation',
+    'slide',
+    'slur',
+    'technical',
+    'tied',
+    'tuplet'
   ]
 
   static sequenceBarline = [
@@ -228,9 +248,11 @@ export class MusicXML {
       this.chords.forEach(chord => {
         this.body['_content'].push({
           'harmony': chord.harmony
-        }, {
-          'note': chord.note
-        })
+        }, ...chord.notes.map(note => {
+          return {
+            'note': note
+          }
+        }));
       });
 
       // Barlines.
@@ -240,6 +262,16 @@ export class MusicXML {
       this.body['_content'].push(this.barlines[1]);
 
       return this.body;
+    }
+  }
+
+  static Chord = class {
+    constructor(harmony, notes, ireal) {
+      this.harmony = harmony;
+      this.notes = notes;
+      this.ireal = ireal;
+      this.spaces = 0;
+      this.fermata = false;
     }
   }
 
@@ -680,7 +712,7 @@ export class MusicXML {
           _name: 'metronome',
           _attrs: { 'parentheses': 'no' },
           _content: [{
-            'beat-unit': this.calculateChordDuration(1).type
+            'beat-unit': this.calculateChordDuration(1)[0].type
           }, {
             'per-minute': bpm
           }]
@@ -753,45 +785,49 @@ export class MusicXML {
 
     // Adjust actual chord durations.
     measure.chords = measure.chords.map(chord => {
-      const { duration, type, dots } = this.calculateChordDuration(1+chord.spaces);
-      chord.note = this.convertChordNote(duration, type, dots, chord.fermata);
+      chord.notes = this.calculateChordDuration(1+chord.spaces).map((duration, i, ds) =>
+        this.convertChordNote(duration, chord.fermata, /* tie */ ds.length > 1 ? (i ? 'stop' : 'start') : null)
+      );
       return chord;
     });
   }
 
   calculateChordDuration(beats) {
     const mapDuration = {
-      '1': { t: 'eighth', d: 0 },
-      '2': { t: 'quarter', d: 0 },
-      '3': { t: 'quarter', d: 1 },
-      '4': { t: 'half', d: 0 },
-      '5': { t: null, d: null }, // TODO
-      '6': { t: 'half', d: 1 },
-      '7': { t: 'half', d: 2 },
-      '8': { t: 'whole', d: 0 },
-      '9': { t: null, d: null }, // TODO
-      '10': { t: null, d: null }, // TODO
-      '11': { t: null, d: null }, // TODO
-      '12': { t: 'whole', d: 1 }
+      '1': [{ t: 'eighth', d: 0, b: 1 }],
+      '2': [{ t: 'quarter', d: 0, b: 2 }],
+      '3': [{ t: 'quarter', d: 1, b: 3 }],
+      '4': [{ t: 'half', d: 0, b: 4 }],
+      '5': [{ t: 'quarter', d: 1, b: 3 }, { t: 'quarter', d: 0, b: 2 }],
+      '6': [{ t: 'half', d: 1, b: 6 }],
+      '7': [{ t: 'half', d: 2, b: 7 }],
+      '8': [{ t: 'whole', d: 0, b: 8 }],
+      '9': [{ t: 'half', d: 1, b: 6 }, { t: 'quarter', d: 1, b: 3 }],
+      '10': [{ t: 'half', d: 1, b: 6 }, { t: 'half', d: 0, b: 4 }],
+      '11': [{ t: 'half', d: 2, b: 7 }, { t: 'half', d: 0, b: 4 }],
+      '12': [{ t: 'whole', d: 1, b: 12 }],
+      '13': [{ t: 'half', d: 2, b: 7 }, { t: 'half', d: 1, b: 6 }],
+      '14': [{ t: 'whole', d: 2, b: 14 }],
+      '15': [{ t: 'whole', d: 0, b: 8 }, { t: 'half', d: 2, b: 7 }],
     };
 
     let index = beats * 8 / this.time.type; // Lowest beat resolution is eighth-note (8)
-    // Special case: full bar always equals whole.
-    if (beats === this.time.beats) {
+    // Special case: full bar always equals whole for rests.
+    if (beats === this.time.beats && this.options.note.type === 'rest') {
       index = 8;
     }
-    if (!(index in mapDuration)) {
-      console.warn(`[MusicXML.calculateChordDuration] Unexpected beat count ${beats} for time signature ${this.time.beats}/${this.time.type}`);
-    }
-    const type = mapDuration[index].t;
-    if (!type) {
-      console.warn(`[MusicXML.calculateChordDuration] Unhandled beat count ${beats} for time signature ${this.time.beats}/${this.time.type}`);
-    }
-    const duration = beats * this.options.divisions;
-    return { duration, type, dots: mapDuration[index].d };
+    return MusicXML
+      .getMap(mapDuration, index, [], `[MusicXML.calculateChordDuration] Unexpected beat count ${beats} for time signature ${this.time.beats}/${this.time.type}`)
+      .map(duration => {
+        return {
+          duration: duration.b * this.options.divisions * this.time.type / 8,
+          type: duration.t,
+          dots: duration.d
+        }
+      });
   }
 
-  convertChordNote(duration, type, dots, fermata = false) {
+  convertChordNote(duration, fermata = false, tie = null) {
     const noteType = this.options.note.type === 'rest' ? {
       _name: 'rest'
     } : {
@@ -799,26 +835,37 @@ export class MusicXML {
       _content: [{
         'step': this.options.note.step
       }, {
-        'alter': MusicXML.getMap(MusicXML.mapFifthsToAlters, this.fifths, [], `[MusicXML.convertChordNote] Unhandled fifths "${this.fifths}"`)
-        .includes(this.options.note.step) ? (this.fifths > 0 ? 1 : -1) : 0
+        'alter': MusicXML
+          .getMap(MusicXML.mapFifthsToAlters, this.fifths, [], `[MusicXML.convertChordNote] Unhandled fifths "${this.fifths}"`)
+          .includes(this.options.note.step) ? (this.fifths > 0 ? 1 : -1) : 0
       }, {
         'octave': this.options.note.octave
       }]
     }
 
+    const notations = [];
+    if (fermata) {
+      notations.push({ _name: 'fermata' });
+    }
+    if (tie) {
+      notations.push({ _name: 'tied', _attrs: { 'type': tie } })
+    }
+
     return MusicXML.reorderSequence([noteType, {
       'notehead': this.options.note.notehead
     }, {
-      'duration': duration
+      'duration': duration.duration
     }, {
       'voice': 1,
     }, {
-      'type': type
-    }, { ...(fermata && {
-      'notations': {
-        _name: 'fermata'
-      }})
-    }].concat(Array(dots).fill({ _name: 'dot' })), MusicXML.sequenceNote);
+      'type': duration.type
+    }, { ...(tie && {
+      _name: 'tie',
+      _attrs: { 'type': tie }
+    })}, { ...(notations.length && {
+      'notations': MusicXML.reorderSequence(notations, MusicXML.sequenceNotations)
+    })}]
+    .concat(Array(duration.dots).fill({ _name: 'dot' })), MusicXML.sequenceNote);
   }
 
   convertChordSymbol(chord) {
@@ -960,10 +1007,12 @@ export class MusicXML {
       console.warn(`[MusicXML.convertChord] Unhandled alternate chord ${JSON.stringify(chord.alternate)}`);
     }
 
-    const { duration, type, dots } = this.calculateChordDuration(1); // Every new chord starts as 1 beat
-
-    // TODO Convert this to an inner class
-    return { harmony, note: this.convertChordNote(duration, type, dots), ireal: chord, spaces: 0, fermata: false };
+    return new MusicXML.Chord(
+      harmony,
+      // Initial chord duration is 1 beat
+      this.calculateChordDuration(1).map(duration => this.convertChordNote(duration)),
+      chord
+    )
   }
 
   convertKey() {

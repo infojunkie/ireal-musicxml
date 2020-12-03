@@ -113,6 +113,9 @@ describe('MusicXML', function() {
     const musicXml = MusicXML.convert(song);
     await validateXMLWithXSD(musicXml, 'test/data/musicxml.xsd');
     fs.writeFileSync(`test/output/${song.title}.musicxml`, musicXml);
+    const doc = new DOMParser().parseFromString(musicXml);
+    const ties = select(doc, '//note/tie');
+    assert.strictEqual(ties.length, 2);
   });
 
   it('should correctly handle timing edge cases', async function() {
