@@ -814,7 +814,11 @@ export class MusicXML {
     let index = beats * 8 / this.time.type; // Lowest beat resolution is eighth-note (8)
     // Special case: full bar always equals whole for rests.
     if (beats === this.time.beats && this.options.note.type === 'rest') {
-      index = 8;
+      return [{
+        type: 'whole',
+        dots: 0,
+        duration: beats * this.options.divisions
+      }]
     }
     return MusicXML
       .getMap(mapDuration, index, [], `[MusicXML.calculateChordDuration] Unexpected beat count ${beats} for time signature ${this.time.beats}/${this.time.type}`)
