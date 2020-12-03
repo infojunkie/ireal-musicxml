@@ -15,8 +15,14 @@ else {
   ireal = args[0];
 }
 
-const playlist = iReal2MusicXML.convertSync(ireal);
-playlist.songs.forEach(song => {
-  process.stdout.write(`Exporting "${song.title}"...\n`);
-  fs.writeFileSync(`${song.title.replace(/[/\\?%*:|"<>]/g, '-')}.musicxml`, song.musicXml);
+const playlist = new iReal2MusicXML.Playlist(ireal);
+playlist.songs.forEach((song, i) => {
+  console.info(`Processing ${i+1}/${playlist.songs.length} "${song.title}"...`);
+  try {
+    const musicXml = iReal2MusicXML.MusicXML.convert(song);
+    fs.writeFileSync(`${song.title.replace(/[/\\?%*:|"<>]/g, '-')}.musicxml`, musicXml);
+  }
+  catch (error) {
+    console.error(`ireal2musicxml: Error converting "${song.title}" ${error}`);
+  }
 });
