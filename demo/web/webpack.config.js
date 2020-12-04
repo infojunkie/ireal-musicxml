@@ -5,7 +5,7 @@ module.exports = {
   entry: './index.js',
   output: {
     path: path.resolve(__dirname, 'dist'),
-    filename: 'demo-osmd.js'
+    filename: 'ireal2musicxml-demo.js'
   },
   devtool: 'inline-source-map',
   devServer: {

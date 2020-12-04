@@ -15,10 +15,12 @@ function handleFileSelect(e) {
   reader.readAsText(e.target.files[0]);
 }
 
+let musicXml = '';
+
 function handleSheetSelect(e) {
   const song = JSON.parse(e.target.value);
   const title = `${song.title.replace(/[/\\?%*:|"<>]/g, '-')}.musicxml`;
-  const musicXml = ireal2musicxml.MusicXML.convert(song);
+  musicXml = ireal2musicxml.MusicXML.convert(song);
   const a = document.createElement('a');
   a.setAttribute('href', 'data:text/xml;charset=utf-8,' + encodeURIComponent(musicXml));
   a.setAttribute('download', title);
@@ -26,6 +28,10 @@ function handleSheetSelect(e) {
   const download = document.getElementById('download');
   download.innerHTML = "";
   download.appendChild(a);
+  displaySheet(musicXml);
+}
+
+function handleRendererChange() {
   displaySheet(musicXml);
 }
 
@@ -41,27 +47,42 @@ function populateSheets(playlist) {
   sheets.dispatchEvent(new Event('change'));
 }
 
-function displaySheet(musicxml) {
-  var openSheetMusicDisplay = new opensheetmusicdisplay.OpenSheetMusicDisplay("osmdCanvas", {
-    // set options here
-    backend: "svg",
-    drawFromMeasureNumber: 1,
-    drawUpToMeasureNumber: Number.MAX_SAFE_INTEGER, // draw all measures, up to the end of the sample
-    newSystemFromXML: true,
-    newPageFromXML: true
-  });
-  openSheetMusicDisplay
-    .load(musicxml)
-    .then(
-      function() {
-        window.osmd = openSheetMusicDisplay; // give access to osmd object in Browser console, e.g. for osmd.setOptions()
-        openSheetMusicDisplay.render();
-      }
-    );
+function displaySheet(musicXml) {
+  const renderer = document.querySelector('input[name="renderer"]:checked').value;
+  if (renderer === 'osmd') {
+    var openSheetMusicDisplay = new opensheetmusicdisplay.OpenSheetMusicDisplay("sheet", {
+      // set options here
+      backend: "svg",
+      drawFromMeasureNumber: 1,
+      drawUpToMeasureNumber: Number.MAX_SAFE_INTEGER, // draw all measures, up to the end of the sample
+      newSystemFromXML: true,
+      newPageFromXML: true
+    });
+    openSheetMusicDisplay
+      .load(musicXml)
+      .then(
+        function() {
+          window.osmd = openSheetMusicDisplay; // give access to osmd object in Browser console, e.g. for osmd.setOptions()
+          openSheetMusicDisplay.render();
+        }
+      );
+  }
+  else {
+    const app = new Verovio.App(document.getElementById("sheet"), {
+      defaultView: 'document', // default is 'responsive', alternative is 'document'
+      defaultZoom: 3, // 0-7, default is 4
+      enableResponsive: true, // default is true
+      enableDocument: true // default is true
+    });
+    app.loadData(musicXml);
+  }
 }
 
 window.addEventListener('load', function () {
   document.getElementById("playlist").addEventListener("change", handleFileSelect, false);
   document.getElementById("ireal").addEventListener("change", handleIRealChange, false);
   document.getElementById("sheets").addEventListener("change", handleSheetSelect, false);
+  document.querySelectorAll("input[name='renderer']").forEach((input) => {
+    input.addEventListener('change', handleRendererChange);
+  });
 })

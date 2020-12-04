@@ -887,7 +887,7 @@ export class MusicXML {
 
     const rootStep = parsedChord.input.rootNote[0];
     const rootAlter = MusicXML.getMap(MusicXML.mapAlter, parsedChord.input.rootNote[1] || null, null, `[${this.measure.number()}] Unrecognized accidental in chord "${parsedChord.input.rootNote}"`);
-    const chordText = parsedChord.input.symbol;
+    const chordText = parsedChord.input.descriptor || '';
 
     // Find chord quality (aka kind).
     // `chord-symbol` doesn't recognize 9th, 11th or 13th so we'll have to derive them ourselves.

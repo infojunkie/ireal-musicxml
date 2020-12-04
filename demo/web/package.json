@@ -1,7 +1,7 @@
 {
-  "name": "demo-osmd",
+  "name": "ireal2musicxml-demo",
   "version": "1.0.0",
-  "description": "OSMD Demo",
+  "description": "Web Demo",
   "main": "index.js",
   "scripts": {
     "build": "webpack",
