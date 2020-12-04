@@ -14,7 +14,8 @@ before(() => {
 })
 
 describe('Bug Fixes', function() {
-  it('Fixes #18 Cannot read property \'spaces\' of undefined', async function() {
+  it('Checks #18 Cannot read property \'spaces\' of undefined', async () => {
+    this.timeout(2500);
     for (const title of [
       "All Or Nothing At All",
       "Brazilian Suite",
@@ -46,6 +47,22 @@ describe('Bug Fixes', function() {
       const musicXml = MusicXML.convert(song);
       await validateXMLWithXSD(musicXml, 'test/data/musicxml.xsd');
       fs.writeFileSync(`test/output/${song.title}.musicxml`, musicXml);
+    }
+  });
+
+  it('Checks #20 Missing measures', async () => {
+    for (const test of [
+      { title: "A Ballad", measures: 42 },
+      { title: "After You", measures: 32 },
+    ]) {
+      const song = jazz1350.songs.find(song => song.title === test.title);
+      assert.notStrictEqual(song, undefined);
+      const musicXml = MusicXML.convert(song);
+      await validateXMLWithXSD(musicXml, 'test/data/musicxml.xsd');
+      fs.writeFileSync(`test/output/${song.title}.musicxml`, musicXml);
+      const doc = new DOMParser().parseFromString(musicXml);
+      const measures = select(doc, '//measure');
+      assert.strictEqual(measures.length, test.measures);
     }
   });
 });
