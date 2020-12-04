@@ -1,0 +1,51 @@
+import assert from 'assert';
+import fs from 'fs';
+import 'regenerator-runtime/runtime';
+import {validateXMLWithXSD} from 'validate-with-xmllint';
+import select from 'xpath.js';
+import {DOMParser} from 'xmldom';
+import {Playlist} from '../src/parser';
+import {MusicXML} from '../src/musicxml';
+
+let jazz1350 = null;
+
+before(() => {
+  jazz1350 = new Playlist(fs.readFileSync('test/data/jazz1350.txt', 'utf-8'));
+})
+
+describe('Bug Fixes', function() {
+  it('Fixes #18 Cannot read property \'spaces\' of undefined', async function() {
+    for (const title of [
+      "All Or Nothing At All",
+      "Brazilian Suite",
+      "Bud Powell",
+      "Cabin in the Sky",
+      "Corcovado",
+      "Crepuscule With Nellie",
+      "Driftin'",
+      "Ill Wind",
+      "In a Sentimental Mood",
+      "Invitation",
+      "It's Only a Paper Moon",
+      "Lover Man",
+      "Memories Of You",
+      "My One And Only Love",
+      "On The Sunny Side Of The Street",
+      "Polkadots And Moonbeams",
+      "Prelude To A Kiss",
+      "Speak Low",
+      "Spring Can Really Hang You Up The Most",
+      "That's All",
+      "There's A Small Hotel",
+      "Travels",
+      "Yesterday's Gardenias",
+      "You Took Advantage Of Me"
+    ]) {
+      const song = jazz1350.songs.find(song => song.title === title);
+      assert.notStrictEqual(song, undefined);
+      const musicXml = MusicXML.convert(song);
+      await validateXMLWithXSD(musicXml, 'test/data/musicxml.xsd');
+      fs.writeFileSync(`test/output/${song.title}.musicxml`, musicXml);
+    }
+  });
+});

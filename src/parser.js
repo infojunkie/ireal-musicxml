@@ -164,6 +164,7 @@ export class Song {
       switch (cell[0]) {
         case '{':	// open repeat
         case '[':	// open double bar
+          if (prevobj) { prevobj.bars += ')'; prevobj = null; }
           obj.bars = cell; cell = null; break;
         case '|':	// single bar - close previous and open this
           if (prevobj) { prevobj.bars += ')'; prevobj = null; }
