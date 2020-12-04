@@ -1,6 +1,6 @@
-# OSMD Demo
+# Web Demo
 
-Web app to load an iReal Pro playlist from file or `ireal://` URI and display its sheets using [OpenSheetMusicDisplay](https://opensheetmusicdisplay.github.io/).
+Web app to load an iReal Pro playlist from file or `ireal://` URI and display its sheets using [OpenSheetMusicDisplay](https://opensheetmusicdisplay.github.io/) or [Verovio](https://www.verovio.org/index.xhtml).
 
 # Usage
 
