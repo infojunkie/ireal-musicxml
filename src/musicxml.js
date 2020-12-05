@@ -767,7 +767,6 @@ export class MusicXML {
       return;
     }
     if (beats > this.time.beats) {
-      console.info(`[${measure.number()}] Too many beats (${beats} out of ${this.time.beats}). Removing some spaces...`);
       // Reduce spaces.
       // We're guaranteed to end this loop because measure.chords.length <= this.time.beats
       let chordIndex = 0;
@@ -882,12 +881,11 @@ export class MusicXML {
     const parsedChord = this.renderChord(this.parseChord(`${chord.note}${chord.modifiers}`));
     if (!parsedChord) {
       console.warn(`[${this.measure.number()}] Unrecognized chord "${chord.note}${chord.modifiers}"`);
-      return { rootStep: null, rootAlter: null, chordKind: null, chordText: null, chordDegrees: [] }
+      return { rootStep: null, rootAlter: null, chordKind: null, chordDegrees: [] }
     }
 
     const rootStep = parsedChord.input.rootNote[0];
     const rootAlter = MusicXML.getMap(MusicXML.mapAlter, parsedChord.input.rootNote[1] || null, null, `[${this.measure.number()}] Unrecognized accidental in chord "${parsedChord.input.rootNote}"`);
-    const chordText = parsedChord.input.descriptor || '';
 
     // Find chord quality (aka kind).
     // `chord-symbol` doesn't recognize 9th, 11th or 13th so we'll have to derive them ourselves.
@@ -967,7 +965,7 @@ export class MusicXML {
       });
     });
 
-    return { rootStep, rootAlter, chordKind, chordText, chordDegrees };
+    return { rootStep, rootAlter, chordKind, chordDegrees };
   }
 
   convertChord(chord) {
@@ -988,7 +986,7 @@ export class MusicXML {
       }];
     }
     else {
-      const { rootStep, rootAlter, chordKind, chordText, chordDegrees } = this.convertChordSymbol(chord)
+      const { rootStep, rootAlter, chordKind, chordDegrees } = this.convertChordSymbol(chord)
 
       // Handle bass note
       let bass = !chord.over ? null : [{
@@ -1005,7 +1003,7 @@ export class MusicXML {
         })}],
       }, {
         _name: 'kind',
-        _attrs: { 'text': chordText },
+        _attrs: { 'use-symbols': 'no' },
         _content: chordKind,
       }, { ...(bass && {
         'bass': bass
