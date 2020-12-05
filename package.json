@@ -13,7 +13,7 @@
   "scripts": {
     "build": "webpack",
     "test": "npm run test:lint && npm run test:spec",
-    "test:spec": "nyc mocha --grep /${TEST:-'.*'}/i",
+    "test:spec": "NODE_ENV=test nyc mocha --grep /${TEST:-'.*'}/i",
     "test:lint": "eslint src"
   },
   "devDependencies": {
@@ -25,6 +25,7 @@
     "@babel/register": "^7.12.1",
     "babel-eslint": "^10.1.0",
     "babel-loader": "^8.1.0",
+    "babel-plugin-istanbul": "^6.0.0",
     "eslint": "^7.13.0",
     "eslint-webpack-plugin": "^2.2.1",
     "mocha": "^8.2.1",
