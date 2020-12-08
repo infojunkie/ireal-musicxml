@@ -2,7 +2,9 @@
 
 iReal Pro to MusicXML converter
 
-[![Build Status](https://travis-ci.org/infojunkie/ireal-musicxml.svg?branch=main)](https://travis-ci.org/infojunkie/ireal-musicxml)
+![GitHub Build Status](https://github.com/infojunkie/ireal-musicxml/workflows/Test/badge.svg)
+
+[![Travis Build Status](https://travis-ci.org/infojunkie/ireal-musicxml.svg?branch=main)](https://travis-ci.org/infojunkie/ireal-musicxml)
 
 # Demo
 
