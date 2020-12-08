@@ -48,7 +48,7 @@ describe('Bug Fixes', function() {
       await validateXMLWithXSD(musicXml, 'test/data/musicxml.xsd');
       fs.writeFileSync(`test/output/${song.title}.musicxml`, musicXml);
     }
-  });
+  }).timeout(2500);
 
   it('Checks #20 Missing measures', async () => {
     for (const test of [
