@@ -4,8 +4,6 @@ iReal Pro to MusicXML converter
 
 ![GitHub Build Status](https://github.com/infojunkie/ireal-musicxml/workflows/Test/badge.svg)
 
-[![Travis Build Status](https://travis-ci.org/infojunkie/ireal-musicxml.svg?branch=main)](https://travis-ci.org/infojunkie/ireal-musicxml)
-
 # Demo
 
 [Check out the demo!](https://ethereum.karimratib.me:8082/) You can upload the [1350 iReal Pro jazz standards playlist](https://raw.githubusercontent.com/infojunkie/ireal-musicxml/main/test/data/jazz1350.txt) as a test.
