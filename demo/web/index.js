@@ -9,6 +9,35 @@ function handleIRealChange(e) {
 function handleFileSelect(e) {
   var reader = new FileReader();
   reader.onload = function(ee) {
+    // If we've uploaded an XML file, assume it's MusicXML...
+    try {
+      const doc = new DOMParser().parseFromString(ee.target.result, 'text/xml');
+      if (doc && !doc.getElementsByTagName('parsererror').length) {
+        // Hand-make a fake playlist.
+        const playlist = {
+          name: 'Uploaded MusicXML',
+          songs: [{
+            title: doc.getElementsByTagName('movement-title')[0].textContent || 'Unknown Title',
+            composer: null,
+            style: null,
+            groove: null,
+            key: null,
+            transpose: null,
+            bpm: null,
+            repeats: null,
+            music: null,
+            cells: null,
+            musicXml: ee.target.result
+          }]
+        };
+        populateSheets(playlist);
+        return;
+      }
+    }
+    catch (ex) {
+      // Assume it's an iReal Pro sheet.
+    }
+
     const playlist = new ireal2musicxml.Playlist(ee.target.result);
     populateSheets(playlist);
   };
@@ -20,7 +49,7 @@ let musicXml = '';
 function handleSheetSelect(e) {
   const song = JSON.parse(e.target.value);
   const title = `${song.title.replace(/[/\\?%*:|"<>]/g, '-')}.musicxml`;
-  musicXml = ireal2musicxml.MusicXML.convert(song);
+  musicXml = song.musicXml ? song.musicXml : ireal2musicxml.MusicXML.convert(song);
   const a = document.createElement('a');
   a.setAttribute('href', 'data:text/xml;charset=utf-8,' + encodeURIComponent(musicXml));
   a.setAttribute('download', title);
