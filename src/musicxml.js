@@ -300,7 +300,7 @@ export class MusicXML {
           }, {
             'measure-style': [{
               _name: 'slash',
-              _attrs: { 'type': 'start', 'use-stems': 'no' }
+              _attrs: { 'type': 'start', 'use-stems': 'yes' }
             }]
           }, this.convertKey());
 

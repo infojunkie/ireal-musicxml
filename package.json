@@ -1,6 +1,6 @@
 {
   "name": "ireal-musicxml",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "iReal Pro to MusicXML converter",
   "author": "Karim Ratib <karim.ratib@gmail.com> (https://github.com/infojunkie)",
   "license": "MIT",
@@ -11,7 +11,7 @@
   "homepage": "https://github.com/infojunkie/ireal-musicxml#ireal-musicxml",
   "main": "lib/ireal-musicxml.js",
   "scripts": {
-    "build": "webpack",
+    "build": "webpack && cd demo/web && npm run build",
     "test": "npm run test:lint && npm run test:spec",
     "test:spec": "NODE_ENV=test nyc mocha --grep /${TEST:-'.*'}/i",
     "test:lint": "eslint src"
