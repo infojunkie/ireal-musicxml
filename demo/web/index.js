@@ -118,7 +118,12 @@ function displaySheet(musicXml) {
       p:'f', s:0      // page format: scale (1.0), width, left- and right margin in cm, shift note heads in tablature (1)
     });
     if (result[1]) console.info(`[xml2abc] ${result[1]}`);
-    abcjs.renderAbc("sheet", result[0]);
+
+    // xml2abc fixes
+    const abc = result[0]
+      .replace('nm="Lead sheet"', 'style=rhythm');
+
+    abcjs.renderAbc("sheet", abc);
   }
 }
 
