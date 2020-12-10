@@ -11,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "compression-webpack-plugin": "^7.0.0",
     "webpack": "^5.9.0",
     "webpack-cli": "^4.2.0",
     "webpack-dev-server": "^3.11.0"

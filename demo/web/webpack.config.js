@@ -1,4 +1,5 @@
 const path = require('path');
+const CompressionPlugin = require("compression-webpack-plugin");
 
 module.exports = {
   mode: 'development',
@@ -13,5 +14,6 @@ module.exports = {
     compress: true,
     port: 9000,
     watchContentBase: true
-  }
+  },
+  plugins: [new CompressionPlugin()]
 };
