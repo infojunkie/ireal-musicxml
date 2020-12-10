@@ -16,6 +16,8 @@
     "webpack-dev-server": "^3.11.0"
   },
   "dependencies": {
-    "opensheetmusicdisplay": "^0.8.7"
+    "abcjs": "^5.12.0",
+    "opensheetmusicdisplay": "^0.8.7",
+    "xml2abc": "https://wim.vree.org/js/xml2abc.tgz"
   }
 }

@@ -1,4 +1,6 @@
 const opensheetmusicdisplay = require("opensheetmusicdisplay");
+const abcjs = require("abcjs");
+const xml2abc = require("xml2abc");
 const ireal2musicxml = require("../../lib/ireal-musicxml");
 
 function handleIRealChange(e) {
@@ -96,7 +98,7 @@ function displaySheet(musicXml) {
         }
       );
   }
-  else {
+  else if (renderer === 'vrv') {
     const app = new Verovio.App(document.getElementById("sheet"), {
       defaultView: 'document', // default is 'responsive', alternative is 'document'
       defaultZoom: 3, // 0-7, default is 4
@@ -104,6 +106,19 @@ function displaySheet(musicXml) {
       enableDocument: true // default is true
     });
     app.loadData(musicXml);
+  }
+  else if (renderer === 'abc') {
+    const xmldata = $.parseXML(musicXml);
+    const result = xml2abc.vertaal(xmldata, {
+      u:0, b:0, n:0,  // unfold repeats (1), bars per line, chars per line
+      c:0, v:0, d:0,  // credit text filter level (0-6), no volta on higher voice numbers (1), denominator unit length (L:)
+      m:0, x:0, t:0,  // no midi, minimal midi, all midi output (0,1,2), no line breaks (1), perc, tab staff -> voicemap (1)
+      v1:0, noped:0,  // all directions to first voice of staff (1), no pedal directions (1)
+      stm:0,          // translate stem elements (stem direction)
+      p:'f', s:0      // page format: scale (1.0), width, left- and right margin in cm, shift note heads in tablature (1)
+    });
+    if (result[1]) console.info(`[xml2abc] ${result[1]}`);
+    abcjs.renderAbc("sheet", result[0]);
   }
 }
 
