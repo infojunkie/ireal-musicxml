@@ -79,6 +79,9 @@ function populateSheets(playlist) {
 }
 
 function displaySheet(musicXml) {
+  // Reset sheet height.
+  document.getElementById('sheet').style.cssText = "height: 100vh";
+
   const renderer = document.querySelector('input[name="renderer"]:checked').value;
   if (renderer === 'osmd') {
     var openSheetMusicDisplay = new opensheetmusicdisplay.OpenSheetMusicDisplay("sheet", {

@@ -315,6 +315,7 @@ export class MusicXML {
 
         // If we're still repeating bars, copy the previous bar now.
         if (this.barRepeat) {
+          // TODO We should probably deep-copy those measures.
           this.measure.chords = [...measures[measures.length-this.barRepeat-1].chords];
         }
       }
@@ -340,6 +341,7 @@ export class MusicXML {
           case 'x': {
             // Handle single bar repeat.
             this.barRepeat = 1;
+            // TODO We should probably deep-copy those measures.
             this.measure.chords = [...measures[measures.length-this.barRepeat].chords];
             break;
           }
@@ -349,6 +351,7 @@ export class MusicXML {
             // Here, we copy the next-to-last measure and set the repeat flag.
             // The next opening measure will pick up the remaining measure.
             this.barRepeat = 2;
+            // TODO We should probably deep-copy those measures.
             this.measure.chords = [...measures[measures.length-this.barRepeat].chords];
             break;
           }
@@ -826,7 +829,7 @@ export class MusicXML {
       }]
     }
     return MusicXML
-      .getMap(mapDuration, index, [], `[MusicXML.calculateChordDuration] Unexpected beat count ${beats} for time signature ${this.time.beats}/${this.time.type}`)
+      .getMap(mapDuration, index, [], `[${this.measure.number()}] Unexpected beat count ${beats} for time signature ${this.time.beats}/${this.time.type}`)
       .map(duration => {
         return {
           duration: duration.b * this.options.divisions * this.time.type / 8,
@@ -845,7 +848,7 @@ export class MusicXML {
         'step': this.options.note.step
       }, {
         'alter': MusicXML
-          .getMap(MusicXML.mapFifthsToAlters, this.fifths, [], `[MusicXML.convertChordNote] Unhandled fifths "${this.fifths}"`)
+          .getMap(MusicXML.mapFifthsToAlters, this.fifths, [], `[${this.measure.number()}] Unhandled fifths "${this.fifths}"`)
           .includes(this.options.note.step) ? (this.fifths > 0 ? 1 : -1) : 0
       }, {
         'octave': this.options.note.octave
@@ -877,18 +880,33 @@ export class MusicXML {
     .concat(Array(duration.dots).fill({ _name: 'dot' })), MusicXML.sequenceNote);
   }
 
+  convertChordDegree(value, type, alter) {
+    return {
+      _name: 'degree',
+      _attrs: { 'print-object': 'no' },
+      _content: [{
+        'degree-value': value
+      }, {
+        'degree-alter': alter
+      }, {
+        'degree-type': type
+      }]
+    }
+  }
+
   convertChordSymbol(chord) {
     const parsedChord = this.renderChord(this.parseChord(`${chord.note}${chord.modifiers}`));
     if (!parsedChord) {
       console.warn(`[${this.measure.number()}] Unrecognized chord "${chord.note}${chord.modifiers}"`);
-      return { rootStep: null, rootAlter: null, chordKind: null, chordDegrees: [] }
+      return { rootStep: null, rootAlter: null, chordKind: null, chordDegrees: [], chordText: null }
     }
 
     const rootStep = parsedChord.input.rootNote[0];
-    const rootAlter = MusicXML.getMap(MusicXML.mapAlter, parsedChord.input.rootNote[1] || null, null, `[${this.measure.number()}] Unrecognized accidental in chord "${parsedChord.input.rootNote}"`);
+    const rootAlter = MusicXML.getMap(MusicXML.mapAlter, parsedChord.input.rootNote[1] || null, 0, `[${this.measure.number()}] Unrecognized accidental in chord "${parsedChord.input.rootNote}"`);
+    const chordText = parsedChord.formatted.descriptor + parsedChord.formatted.chordChanges.join('');
 
     // Find chord quality (aka kind).
-    // `chord-symbol` doesn't recognize 9th, 11th or 13th so we'll have to derive them ourselves.
+    // `chord-symbol` misses a bunch of MusicXML chord qualities so we'll have to derive them ourselves.
     const mapKind = {
       'major': 'major',
       'major6': 'major-sixth',
@@ -903,7 +921,7 @@ export class MusicXML {
       'diminished7': 'diminished-seventh',
       'power': 'power'
     }
-    let chordKind = MusicXML.getMap(mapKind, parsedChord.normalized.quality, '', `[MusicXML.convertChordSymbol] Unrecognized chord quality "${parsedChord.normalized.quality}"`);
+    let chordKind = MusicXML.getMap(mapKind, parsedChord.normalized.quality, '', `[${this.measure.number()}] Unrecognized chord quality "${parsedChord.normalized.quality}"`);
 
     // Convert extensions to their equivalent MusicXML kind.
     // Find the highest extension, then replace the word following [major, minor, dominant] with it.
@@ -914,58 +932,73 @@ export class MusicXML {
         '11': '-11th',
         '13': '-13th'
       }
-      chordKind = chordKind.split('-')[0] + MusicXML.getMap(mapExtensionKind, extension, '', `[MusicXML.convertChordSymbol] Unhandled extension ${extension}`);
+      chordKind = chordKind.split('-')[0] + MusicXML.getMap(mapExtensionKind, extension, '', `[${this.measure.number()}] Unhandled extension ${extension}`);
     }
+
+    // Detect other chord kinds by explicit semitone comparison.
+    [
+      { semitones: [0, 5, 7], kind: 'suspended-fourth' },
+      { semitones: [0, 2, 7], kind: 'suspended-second' },
+      { semitones: [0, 3, 6, 10], kind: 'half-diminished' }
+    ].some(chord => {
+      if (parsedChord.normalized.semitones.length === chord.semitones.length && parsedChord.normalized.semitones.every((s, i) => s === chord.semitones[i])) {
+        chordKind = chord.kind;
+        return true;
+      }
+    });
 
     // Add chord degrees.
     const chordDegrees = [];
-    if (parsedChord.normalized.isSuspended) {
-      chordDegrees.push({
-        'degree': [{ 'degree-value': 3, 'degree-alter': parsedChord.normalized.intents.major ? 0 : -1, 'degree-type': 'subtract' }]
-      }, {
-        'degree': [{ 'degree-value': 4, 'degree-alter': 0, 'degree-type': 'add' }]
-      });
+    if (parsedChord.normalized.isSuspended && !chordKind.includes('suspended')) {
+      chordDegrees.push(
+        this.convertChordDegree(3, 'subtract', 0),
+        this.convertChordDegree(4, 'add', 0)
+      );
     }
 
     parsedChord.normalized.alterations.forEach(alteration => {
       if (alteration === 'alt') {
         const mapAlterations = {
-          // TODO If fifthFlat is false and fifthSharp is true, then the 5th will not be altered, only added, which is a bug.
-          'fifthFlat': { 'degree': [{ 'degree-value': 5, 'degree-alter': -1, 'degree-type': 'alter' }] },
-          'fifthSharp': { 'degree': [{ 'degree-value': 5, 'degree-alter': 1, 'degree-type': 'add' }] },
-          'ninthFlat': { 'degree': [{ 'degree-value': 9, 'degree-alter': -1, 'degree-type': 'add' }] },
-          'ninthSharp': { 'degree': [{ 'degree-value': 9, 'degree-alter': 1, 'degree-type': 'add' }] },
-          'eleventhSharp': { 'degree': [{ 'degree-value': 11, 'degree-alter': 1, 'degree-type': 'add' }] },
-          'thirteenthFlat': { 'degree': [{ 'degree-value': 13, 'degree-alter': -1, 'degree-type': 'add' }] },
+          'fifthFlat': { v: 5, a: -1 },
+          'fifthSharp': { v: 5, a: 1 },
+          'ninthFlat': { v: 9, a: -1 },
+          'ninthSharp': { v: 9, a: 1 },
+          'eleventhSharp': { v: 11, a: 1 },
+          'thirteenthFlat': { v: 13, a: -1 },
         }
+        let seenAFifth = false; // For 5th degrees, first one is altered and next one is added
         Object.keys(parsedChord.parserConfiguration.altIntervals).forEach(interval => {
           if (parsedChord.parserConfiguration.altIntervals[interval]) {
-            chordDegrees.push(MusicXML.getMap(mapAlterations, interval, null, `[MusicXML.convertChordSymbol] Unrecognized altered interval "${interval}"`));
+            const degree = MusicXML.getMap(mapAlterations, interval, null, `[${this.measure.number()}] Unrecognized altered interval "${interval}"`);
+            if (degree) {
+              chordDegrees.push(this.convertChordDegree(degree.v, degree.v === 5 && !seenAFifth ? 'alter' : 'add', degree.a));
+              seenAFifth = degree.v === 5;
+            }
           }
         })
       }
       else {
-        chordDegrees.push({
-          'degree': [{ 'degree-value': alteration.slice(1), 'degree-alter': MusicXML.getMap(MusicXML.mapAlter, alteration[0], 0, `[MusicXML.convertChordSymbol] Unrecognized alter symbol in "${alteration}"`), 'degree-type': 'alter' }]
-        });
+        chordDegrees.push(
+          this.convertChordDegree(alteration.slice(1), 'alter', MusicXML.getMap(MusicXML.mapAlter, alteration[0], 0, `[${this.measure.number()}] Unrecognized alter symbol in "${alteration}"`))
+        );
       }
     });
     parsedChord.normalized.adds.forEach(add => {
       const alteration = Object.keys(MusicXML.mapAlter).includes(add[0]) ? add[0] : null;
       const degree = alteration ? add.slice(1) : add;
-      chordDegrees.push({
-        'degree': [{ 'degree-value': degree, 'degree-alter': MusicXML.getMap(MusicXML.mapAlter, alteration, 0, `[MusicXML.convertChordSymbol] Unrecognized alter symbol in "${add}"`), 'degree-type': 'add' }]
-      });
+      chordDegrees.push(
+        this.convertChordDegree(degree, 'add', MusicXML.getMap(MusicXML.mapAlter, alteration, 0, `[${this.measure.number()}] Unrecognized alter symbol in "${add}"`))
+      );
     });
     parsedChord.normalized.omits.forEach(omit => {
       const alteration = Object.keys(MusicXML.mapAlter).includes(omit[0]) ? omit[0] : null;
       const degree = alteration ? omit.slice(1) : omit;
-      chordDegrees.push({
-        'degree': [{ 'degree-value': degree, 'degree-alter': MusicXML.getMap(MusicXML.mapAlter, alteration, 0, `[MusicXML.convertChordSymbol] Unrecognized alter symbol in "${omit}"`), 'degree-type': 'subtract' }]
-      });
+      chordDegrees.push(
+        this.convertChordDegree(degree, 'subtract', MusicXML.getMap(MusicXML.mapAlter, alteration, 0, `[${this.measure.number()}] Unrecognized alter symbol in "${omit}"`))
+      );
     });
 
-    return { rootStep, rootAlter, chordKind, chordDegrees };
+    return { rootStep, rootAlter, chordKind, chordDegrees, chordText };
   }
 
   convertChord(chord) {
@@ -986,24 +1019,24 @@ export class MusicXML {
       }];
     }
     else {
-      const { rootStep, rootAlter, chordKind, chordDegrees } = this.convertChordSymbol(chord)
+      const { rootStep, rootAlter, chordKind, chordDegrees, chordText } = this.convertChordSymbol(chord)
 
       // Handle bass note
       let bass = !chord.over ? null : [{
         'bass-step': chord.over.note[0]
       }, { ...(chord.over.note[1] && {
-        'bass-alter': MusicXML.getMap(MusicXML.mapAlter, chord.over.note[1], null, `[MusicXML.convertChord] Unrecognized accidental in bass note "${chord.over.note}"`)
+        'bass-alter': MusicXML.getMap(MusicXML.mapAlter, chord.over.note[1], null, `[${this.measure.number()}] Unrecognized accidental in bass note "${chord.over.note}"`)
       })}]
 
       harmony = [{
         'root': [{
           'root-step': rootStep
-        }, { ...(rootAlter && { // Don't generate the root-alter entry if rootAlter is blank
+        }, {
           'root-alter': rootAlter
-        })}],
+        }],
       }, {
         _name: 'kind',
-        _attrs: { 'use-symbols': 'no' },
+        _attrs: { 'text': chordText, 'use-symbols': 'no' },
         _content: chordKind,
       }, { ...(bass && {
         'bass': bass
@@ -1032,13 +1065,9 @@ export class MusicXML {
       'A-': 0, 'E-': 1, 'B-': 2, 'F#-': 3, 'C#-': 4, 'G#-': 5, 'D#-': 6, 'A#-': 7,
       'D-': -1, 'G-': -2, 'C-': -3, 'F-': -4, 'Bb-': -5, 'Eb-': -6, 'Ab-': -7
     }
-    if (!(this.song.key in mapKeys)) {
-      console.warn(`[${this.measure.number()}] Unrecognized key signature "${this.song.key}"`);
-      return null;
-    }
 
     // Remember the fifth.
-    this.fifths = mapKeys[this.song.key];
+    this.fifths = MusicXML.getMap(mapKeys, this.song.key, 0, `[${this.measure.number()}] Unrecognized key signature "${this.song.key}"`);
 
     return {
       'key': [{
