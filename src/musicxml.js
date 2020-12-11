@@ -902,7 +902,7 @@ export class MusicXML {
     }
 
     const rootStep = parsedChord.input.rootNote[0];
-    const rootAlter = MusicXML.getMap(MusicXML.mapAlter, parsedChord.input.rootNote[1] || null, 0, `[${this.measure.number()}] Unrecognized accidental in chord "${parsedChord.input.rootNote}"`);
+    const rootAlter = MusicXML.getMap(MusicXML.mapAlter, parsedChord.input.rootNote[1] || null, null, `[${this.measure.number()}] Unrecognized accidental in chord "${parsedChord.input.rootNote}"`);
     const chordText = parsedChord.formatted.descriptor + parsedChord.formatted.chordChanges.join('');
 
     // Find chord quality (aka kind).
@@ -1031,9 +1031,9 @@ export class MusicXML {
       harmony = [{
         'root': [{
           'root-step': rootStep
-        }, {
+        }, { ...(rootAlter && { // Don't generate the root-alter entry if rootAlter is blank
           'root-alter': rootAlter
-        }],
+        })}],
       }, {
         _name: 'kind',
         _attrs: { 'text': chordText, 'use-symbols': 'no' },
