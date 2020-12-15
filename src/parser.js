@@ -8,9 +8,6 @@
  * a full structure that can be iterated downstream.
  */
 
-/**
- * iReal Pro playlist.
- */
 export class Playlist {
   constructor(ireal){
     const percentEncoded = /.*?irealb:\/\/([^"]*)/.exec(ireal);
@@ -21,9 +18,6 @@ export class Playlist {
   }
 }
 
-/**
- * iReal Pro cell.
- */
 export class Cell {
   constructor() {
     this.annots = [];
@@ -34,9 +28,6 @@ export class Cell {
   }
 }
 
-/**
- * iReal Pro chord.
- */
 export class Chord {
   constructor(note, modifiers = "", over = null, alternate = null) {
     this.note = note;
@@ -46,9 +37,6 @@ export class Chord {
   }
 }
 
-/**
- * iReal Pro song.
- */
 export class Song {
   constructor(ireal) {
     this.cells = [];
