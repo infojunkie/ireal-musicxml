@@ -2,6 +2,7 @@
 
 iReal Pro to MusicXML converter
 
+[![npm version](https://badge.fury.io/js/ireal-musicxml.svg)](https://badge.fury.io/js/ireal-musicxml)
 ![GitHub Build Status](https://github.com/infojunkie/ireal-musicxml/workflows/Test/badge.svg)
 
 # Demo
