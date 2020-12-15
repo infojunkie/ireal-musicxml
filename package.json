@@ -10,10 +10,12 @@
   },
   "homepage": "https://github.com/infojunkie/ireal-musicxml#ireal-musicxml",
   "main": "lib/ireal-musicxml.js",
+  "types": "lib/ireal-musicxml.d.ts",
   "scripts": {
     "build": "webpack && cd demo/web && npm run build",
-    "test": "npm run test:lint && npm run test:spec",
+    "test": "npm run test:lint && npm run test:spec && npm run test:typescript",
     "test:spec": "NODE_ENV=test nyc mocha --grep /${TEST:-'.*'}/i",
+    "test:typescript": "npm run build && ts-mocha test/**/*.spec.ts",
     "test:lint": "eslint src"
   },
   "devDependencies": {
@@ -23,6 +25,9 @@
     "@babel/plugin-transform-destructuring": "^7.12.1",
     "@babel/preset-env": "^7.12.1",
     "@babel/register": "^7.12.1",
+    "@types/expect": "^24.3.0",
+    "@types/mocha": "^8.2.0",
+    "@types/node": "^14.14.13",
     "babel-eslint": "^10.1.0",
     "babel-loader": "^8.1.0",
     "babel-plugin-istanbul": "^6.0.0",
@@ -30,6 +35,8 @@
     "eslint-webpack-plugin": "^2.2.1",
     "mocha": "^8.2.1",
     "nyc": "^15.1.0",
+    "ts-mocha": "^8.0.0",
+    "typescript": "^4.1.3",
     "validate-with-xmllint": "^1.2.0",
     "webpack": "^5.4.0",
     "webpack-cli": "^4.2.0",

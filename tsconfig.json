@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "module": "umd",
+    "noImplicitAny": true,
+    "removeComments": true,
+    "preserveConstEnums": true,
+    "sourceMap": true,
+    "typeRoots": [
+      "./node_modules/@types"
+    ]
+  }
+}

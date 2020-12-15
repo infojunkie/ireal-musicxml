@@ -8,9 +8,12 @@
  * a full structure that can be iterated downstream.
  */
 
+/**
+ * iReal Pro playlist.
+ */
 export class Playlist {
-  constructor(data){
-    const percentEncoded = /.*?irealb:\/\/([^"]*)/.exec(data);
+  constructor(ireal){
+    const percentEncoded = /.*?irealb:\/\/([^"]*)/.exec(ireal);
     const percentDecoded = decodeURIComponent(percentEncoded[1]);
     const parts = percentDecoded.split("===");  //songs are separated by ===
     if (parts.length > 1) this.name = parts.pop();  //playlist name
@@ -18,6 +21,9 @@ export class Playlist {
   }
 }
 
+/**
+ * iReal Pro cell.
+ */
 export class Cell {
   constructor() {
     this.annots = [];
@@ -28,6 +34,9 @@ export class Cell {
   }
 }
 
+/**
+ * iReal Pro chord.
+ */
 export class Chord {
   constructor(note, modifiers = "", over = null, alternate = null) {
     this.note = note;
@@ -37,10 +46,14 @@ export class Chord {
   }
 }
 
+/**
+ * iReal Pro song.
+ */
 export class Song {
-  constructor(data) {
+  constructor(ireal) {
     this.cells = [];
-    if (!data) {
+    this.musicXml = "";
+    if (!ireal) {
       this.title = "";
       this.composer = "";
       this.style = "";
@@ -49,10 +62,9 @@ export class Song {
       this.groove = "";
       this.bpm = 0;
       this.repeats = 0;
-      this.music = "";
       return;
     }
-    const parts = data.split("="); //split on one sign, remove the blanks
+    const parts = ireal.split("="); //split on one sign, remove the blanks
     this.title = this.parseTitle(parts[0].trim());
     this.composer = this.parseComposer(parts[1].trim());
     this.style = parts[3].trim();
@@ -61,10 +73,8 @@ export class Song {
     this.groove = parts[7];
     this.bpm = +parts[8];
     this.repeats = +parts[9] || 3;
-    const musicPrefix = "1r34LbKcu7";
-    const music = parts[6].split(musicPrefix);
-    this.music = this.unscramble(music[1]);
-    this.cells = this.parse();
+    const music = parts[6].split("1r34LbKcu7");
+    this.cells = this.parse(unscramble(music[1]));
   }
 
   /**
@@ -89,7 +99,7 @@ export class Song {
   ];
 
   /**
-   * The parser cracks up the music string at song.music into several objects,
+   * The parser cracks up the raw music string into several objects,
    * one for each cell. iReal Pro works with rows of 16 cell each. The result
    * is stored at song.cells.
    *
@@ -122,8 +132,8 @@ export class Song {
    *
    * @returns [Cell]
    */
-  parse() {
-    let text = this.music.trim();
+  parse(ireal) {
+    let text = ireal.trim();
     const arr = [];
     while (text) {
       let found = false;
@@ -210,37 +220,37 @@ export class Song {
   /**
    * The title had "A" and "The" at the back (e.g. "Gentle Rain, The")
    */
-  parseTitle(match) {
-    return match.replace(/(.*)(, )(A|The)$/g, '$3 $1');
+  parseTitle(title) {
+    return title.replace(/(.*)(, )(A|The)$/g, '$3 $1');
   }
 
   /**
    * The composer is reversed (last first) if it only has 2 names :shrug:
    */
-  parseComposer(match) {
-    const parts = match.split(/(\s+)/); // match and return spaces too
+  parseComposer(composer) {
+    const parts = composer.split(/(\s+)/); // match and return spaces too
     if (parts.length == 3) { // [last, spaces, first]
       return parts[2] + parts[1] + parts[0]
     }
-    return match;
+    return composer;
   }
 
-  parseChord(match) {
-    var note = match[1] || " ";
-    var modifiers = match[2] || "";
-    var comment = match[3] || "";
+  parseChord(chord) {
+    var note = chord[1] || " ";
+    var modifiers = chord[2] || "";
+    var comment = chord[3] || "";
     if (comment)
       modifiers += comment.substr(1, comment.length-2);
-    var over = match[4] || "";
+    var over = chord[4] || "";
     if (over[0] === '/')
       over = over.substr(1);
-    var alternate = match[5] || null;
+    var alternate = chord[5] || null;
     if (alternate) {
-      match = Song.chordRegex.exec(alternate.substr(1, alternate.length-2));
-      if (!match)
+      chord = Song.chordRegex.exec(alternate.substr(1, alternate.length-2));
+      if (!chord)
         alternate = null;
       else
-        alternate = this.parseChord(match);
+        alternate = this.parseChord(chord);
     }
     // empty cell?
     if (note === " " && !alternate && !over)
@@ -254,42 +264,42 @@ export class Song {
     return new Chord(note, modifiers, over, alternate);
   }
 
-  newCell(arr) {
+  newCell(cells) {
     var obj = new Cell;
-    arr.push(obj);
+    cells.push(obj);
     return obj;
   }
+}
 
-  // Unscrambling hints from https://github.com/ironss/accompaniser/blob/master/irealb_parser.lua
-  // Strings are broken up in 50 character segments. each segment undergoes character substitution addressed by obfusc50()
-  // Note that a final part of length 50 or 51 is not scrambled.
-  // Finally need to substitute for Kcl, LZ and XyQ.
-  unscramble(s) {
-    let r = '', p;
+// Unscrambling hints from https://github.com/ironss/accompaniser/blob/master/irealb_parser.lua
+// Strings are broken up in 50 character segments. each segment undergoes character substitution addressed by obfusc50()
+// Note that a final part of length 50 or 51 is not scrambled.
+// Finally need to substitute for Kcl, LZ and XyQ.
+function unscramble(s) {
+  let r = '', p;
 
-    while (s.length > 51){
-      p = s.substring(0, 50);
-      s = s.substring(50);
-      r = r + this.obfusc50(p);
-    }
-    r = r + s;
-    // now undo substitution obfuscation
-    r =  r.replace(/Kcl/g, '| x').replace(/LZ/g, ' |').replace(/XyQ/g, '   ');
-    return r;
+  while (s.length > 51){
+    p = s.substring(0, 50);
+    s = s.substring(50);
+    r = r + obfusc50(p);
   }
+  r = r + s;
+  // now undo substitution obfuscation
+  r =  r.replace(/Kcl/g, '| x').replace(/LZ/g, ' |').replace(/XyQ/g, '   ');
+  return r;
+}
 
-  obfusc50(s) {
-    // the first 5 characters are switched with the last 5
-    let newString = s.split('');
-    for (let i = 0; i < 5; i++){
-      newString[49 - i] = s[i];
-      newString[i] = s[49 - i];
-    }
-    // characters 10-24 are also switched
-    for (let i = 10; i < 24; i++){
-      newString[49 - i] = s[i];
-      newString[i] = s[49 - i];
-    }
-    return newString.join('');
+function obfusc50(s) {
+  // the first 5 characters are switched with the last 5
+  let newString = s.split('');
+  for (let i = 0; i < 5; i++){
+    newString[49 - i] = s[i];
+    newString[i] = s[49 - i];
   }
+  // characters 10-24 are also switched
+  for (let i = 10; i < 24; i++){
+    newString[49 - i] = s[i];
+    newString[i] = s[49 - i];
+  }
+  return newString.join('');
 }

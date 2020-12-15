@@ -129,7 +129,7 @@ export class MusicXML {
 
   static convert(song, options = {}) {
     const realOptions = Object.assign({}, this.defaultOptions, options);
-    return new MusicXML(song, realOptions).musicXml;
+    return new MusicXML(song, realOptions).convert();
   }
 
   constructor(song, options) {
@@ -148,9 +148,10 @@ export class MusicXML {
       useShortNamings: true,
       printer: 'raw'
     });
+  }
 
-    // Perform the conversion right now.
-    this.musicXml = toXML(this.convert(), {
+  convert() {
+    return toXML(this.convertSong(), {
       header: `
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE score-partwise PUBLIC "-//Recordare//DTD MusicXML 3.1 Partwise//EN" "http://www.musicxml.org/dtds/partwise.dtd">
@@ -159,7 +160,7 @@ export class MusicXML {
     });
   }
 
-  convert() {
+  convertSong() {
     return {
       'score-partwise': [{
         'movement-title': this.song.title
@@ -972,7 +973,7 @@ export class MusicXML {
             const degree = MusicXML.getMap(mapAlterations, interval, null, `[${this.measure.number()}] Unrecognized altered interval "${interval}"`);
             if (degree) {
               chordDegrees.push(this.convertChordDegree(degree.v, degree.v === 5 && !seenAFifth ? 'alter' : 'add', degree.a));
-              seenAFifth = degree.v === 5;
+              seenAFifth = degree.v === 5; // First 5th is altered, next one is added.
             }
           }
         })
