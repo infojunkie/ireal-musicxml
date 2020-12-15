@@ -12,7 +12,7 @@
   "main": "lib/ireal-musicxml.js",
   "types": "lib/ireal-musicxml.d.ts",
   "scripts": {
-    "build": "webpack && cd demo/web && npm run build",
+    "build": "webpack",
     "test": "npm run test:lint && npm run test:spec && npm run test:typescript",
     "test:spec": "NODE_ENV=test nyc mocha --grep /${TEST:-'.*'}/i",
     "test:typescript": "npm run build && ts-mocha test/**/*.spec.ts",
