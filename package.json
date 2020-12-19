@@ -11,6 +11,10 @@
   "homepage": "https://github.com/infojunkie/ireal-musicxml#ireal-musicxml",
   "main": "lib/ireal-musicxml.js",
   "types": "lib/ireal-musicxml.d.ts",
+  "files": [
+    "LICENSE.txt",
+    "lib/*"
+  ],
   "scripts": {
     "build": "webpack",
     "test": "npm run test:lint && npm run test:spec && npm run test:typescript",
