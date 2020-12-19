@@ -195,6 +195,13 @@ export class MusicXML {
           }]
         }]
       }, {
+        'defaults': {
+          'scaling': {
+            'millimeters': 7,
+            'tenths': 40
+          }
+        }
+      }, {
         'part-list': {
           _name: 'score-part',
           _attrs: { 'id': 'P1' },
@@ -332,7 +339,7 @@ export class MusicXML {
       }
 
       // Start new system every 16 cells.
-      if (cellIndex % 16 === 0) {
+      if (cellIndex > 0 && cellIndex % 16 === 0) {
         this.measure.body['_content'].splice(0, 0, { _name: 'print', _attrs: { 'new-system': 'yes' } });
       }
 
