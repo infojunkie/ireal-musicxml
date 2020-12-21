@@ -163,7 +163,9 @@ export class MusicXML {
   convertSong() {
     return {
       'score-partwise': [{
-        'movement-title': this.song.title
+        'work': {
+          'work-title': this.song.title
+        }
       }, {
         'identification': [{
           _name: 'creator',
