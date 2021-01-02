@@ -118,6 +118,15 @@ export class Chord {
 }
 
 /**
+ * Type of chord notation.
+ * https://en.wikipedia.org/wiki/Chord_chart
+ */
+export enum ChordNotation {
+  Rhythmic = "rhythmic",
+  Slash = "slash"
+}
+
+/**
  * MusicXML conversion options.
  */
 export class Options {
@@ -130,15 +139,15 @@ export class Options {
    */
   note: {
     /**
-     * Type of note: `pitch` or `rest`
+     * Type of chord notation.
      */
-    type: string,
+    notation: ChordNotation,
     /**
-     * In case of `pitch` note, pitch step to use.
+     * Pitch step to use.
      */
     step: string,
     /**
-     * In case of `pitch` note, octave to use.
+     * Octave to use.
      */
     octave: number,
     /**

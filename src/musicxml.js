@@ -5,9 +5,9 @@ export class MusicXML {
   static defaultOptions = {
     'divisions': 768, // same as used by iReal
     'note': { // params for chord notes
-      'type': 'pitch', // 'rest' is also supported
-      'step': 'B', // unused for 'rest'
-      'octave': 4, // unused for 'rest'
+      'notation': 'rhythmic', // 'rhythmic' for rhythmic notation, 'slash' for slash notation
+      'step': 'B',
+      'octave': 4,
       'notehead': 'slash'
     }
   }
@@ -135,7 +135,7 @@ export class MusicXML {
   constructor(song, options) {
     this.song = song;
     this.options = options;
-    this.time = { beats: 4, type: 4 };
+    this.time = { beats: 4, beatType: 4 };
     this.fifths = null; // key signature's degree of fifths
     this.measure = null; // current measure (of class Measure) being built
     this.barRepeat = 0; // current bar number for single- and double-bar repeats
@@ -310,7 +310,7 @@ export class MusicXML {
           }, {
             'measure-style': [{
               _name: 'slash',
-              _attrs: { 'type': 'start', 'use-stems': 'yes' }
+              _attrs: { 'type': 'start', 'use-stems': this.options.note.notation === 'rhythmic' ? 'yes' : 'no' }
             }]
           }, this.convertKey());
 
@@ -746,7 +746,7 @@ export class MusicXML {
       beats = 12;
       beatType = 8;
     }
-    this.time = { beats, type: beatType };
+    this.time = { beats, beatType };
     return {
       'time': [{
         'beats': beats
@@ -804,13 +804,18 @@ export class MusicXML {
     // Adjust actual chord durations.
     measure.chords = measure.chords.map(chord => {
       chord.notes = this.calculateChordDuration(1+chord.spaces).map((duration, i, ds) =>
-        this.convertChordNote(duration, chord.fermata, /* tie */ ds.length > 1 ? (i ? 'stop' : 'start') : null)
+        this.convertChordNote(
+          duration,
+          i === ds.length - 1 ? chord.fermata : false, // Possible fermata on last chord note only
+          this.options.note.notation === 'rhythmic' && ds.length > 1 ? (i > 0 ? 'stop' : 'start') : null // Possible tie in case of rhythmic notation
+        )
       );
       return chord;
     });
   }
 
   calculateChordDuration(beats) {
+    // Lowest beat resolution is eighth-note (8).
     const mapDuration = {
       '1': [{ t: 'eighth', d: 0, b: 1 }],
       '2': [{ t: 'quarter', d: 0, b: 2 }],
@@ -829,36 +834,43 @@ export class MusicXML {
       '15': [{ t: 'whole', d: 0, b: 8 }, { t: 'half', d: 2, b: 7 }],
     };
 
-    let index = beats * 8 / this.time.type; // Lowest beat resolution is eighth-note (8)
-    // Special case: full bar always equals whole for rests.
-    if (beats === this.time.beats && this.options.note.type === 'rest') {
-      return [{
-        type: 'whole',
-        dots: 0,
-        duration: beats * this.options.divisions
-      }]
+    if (this.options.note.notation === 'slash') {
+      // In case of slash notation, return an array of n=beats elements, each with a duration of 1 beat.
+      const index = 1 * 8 / this.time.beatType;
+      return Array(beats).fill(MusicXML
+        .getMap(mapDuration, index, [], `[${this.measure.number()}] Unexpected beat count 1 for time signature ${this.time.beats}/${this.time.beatType}`)
+        .map(duration => {
+          return {
+            duration: duration.b * this.options.divisions * this.time.beatType / 8,
+            type: duration.t,
+            dots: duration.d
+          }
+        })[0] // We're sure to get only one entry in this case.
+      );
     }
-    return MusicXML
-      .getMap(mapDuration, index, [], `[${this.measure.number()}] Unexpected beat count ${beats} for time signature ${this.time.beats}/${this.time.type}`)
+    else {
+      // In case of rhythmic notation, return a single note (or 2 tied notes) corresponding to the desired beat count.
+      const index = beats * 8 / this.time.beatType;
+      return MusicXML
+      .getMap(mapDuration, index, [], `[${this.measure.number()}] Unexpected beat count ${beats} for time signature ${this.time.beats}/${this.time.beatType}`)
       .map(duration => {
         return {
-          duration: duration.b * this.options.divisions * this.time.type / 8,
+          duration: duration.b * this.options.divisions * this.time.beatType / 8,
           type: duration.t,
           dots: duration.d
         }
       });
+    }
   }
 
   convertChordNote(duration, fermata = false, tie = null) {
-    const noteType = this.options.note.type === 'rest' ? {
-      _name: 'rest'
-    } : {
+    const noteType = {
       _name: 'pitch',
       _content: [{
         'step': this.options.note.step
       }, {
         'alter': MusicXML
-          .getMap(MusicXML.mapFifthsToAlters, this.fifths, [], `[${this.measure.number()}] Unhandled fifths "${this.fifths}"`)
+          .getMap(MusicXML.mapFifthsToAlters, this.fifths, [], `[${this.measure.number()}] Unhandled fifths count=${this.fifths}`)
           .includes(this.options.note.step) ? (this.fifths > 0 ? 1 : -1) : 0
       }, {
         'octave': this.options.note.octave
@@ -976,13 +988,13 @@ export class MusicXML {
           'eleventhSharp': { v: 11, a: 1 },
           'thirteenthFlat': { v: 13, a: -1 },
         }
-        let seenAFifth = false; // For 5th degrees, first one is altered and next one is added
+        let seenAFifth = false; // First 5th is altered, next one is added.
         Object.keys(parsedChord.parserConfiguration.altIntervals).forEach(interval => {
           if (parsedChord.parserConfiguration.altIntervals[interval]) {
             const degree = MusicXML.getMap(mapAlterations, interval, null, `[${this.measure.number()}] Unrecognized altered interval "${interval}"`);
             if (degree) {
               chordDegrees.push(this.convertChordDegree(degree.v, degree.v === 5 && !seenAFifth ? 'alter' : 'add', degree.a));
-              seenAFifth = degree.v === 5; // First 5th is altered, next one is added.
+              seenAFifth = degree.v === 5;
             }
           }
         })
