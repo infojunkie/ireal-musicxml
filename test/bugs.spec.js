@@ -15,7 +15,7 @@ before(() => {
 
 describe('Bug Fixes', function() {
   it('Checks #18 Cannot read property \'spaces\' of undefined', async () => {
-    this.timeout(2500);
+    this.timeout(3000);
     for (const title of [
       "All Or Nothing At All",
       "Brazilian Suite",
