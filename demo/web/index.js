@@ -2,6 +2,7 @@ const opensheetmusicdisplay = require("opensheetmusicdisplay");
 const abcjs = require("abcjs");
 const xml2abc = require("xml2abc");
 const ireal2musicxml = require("../../lib/ireal-musicxml");
+const jazz1350 = require("../../test/data/jazz1350.txt");
 
 function handleIRealChange(e) {
   const playlist = new ireal2musicxml.Playlist(e.target.value);
@@ -140,6 +141,11 @@ function displaySheet(musicXml) {
   }
 }
 
+function handleJazz1350() {
+  const playlist = new ireal2musicxml.Playlist(jazz1350);
+  populateSheets(playlist);
+}
+
 window.addEventListener('load', function () {
   document.getElementById("playlist").addEventListener("change", handleFileSelect, false);
   document.getElementById("ireal").addEventListener("change", handleIRealChange, false);
@@ -150,4 +156,5 @@ window.addEventListener('load', function () {
   document.querySelectorAll("input[name='notation']").forEach((input) => {
     input.addEventListener('change', handleNotationChange);
   });
+  document.getElementById("jazz1350").addEventListener("click", handleJazz1350, false);
 })

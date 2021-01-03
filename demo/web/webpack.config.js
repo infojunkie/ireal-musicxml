@@ -15,5 +15,18 @@ module.exports = {
     port: 9000,
     watchContentBase: true
   },
-  plugins: [new CompressionPlugin()]
+  plugins: [new CompressionPlugin()],
+  module: {
+    rules: [
+      {
+        test: /\.txt$/i,
+        use: [{
+          loader: 'raw-loader',
+          options: {
+            esModule: false,
+          }
+        }]
+      }
+    ],
+  }
 };
