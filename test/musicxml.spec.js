@@ -7,6 +7,16 @@ import {DOMParser} from 'xmldom';
 import {Playlist} from '../src/parser';
 import {MusicXML} from '../src/musicxml';
 
+let jazz1350 = null;
+let playlist = null;
+let strange = null;
+
+before(() => {
+  jazz1350 = new Playlist(fs.readFileSync('test/data/jazz1350.txt', 'utf-8'));
+  playlist = new Playlist(fs.readFileSync('test/data/playlist.html', 'utf-8'));
+  strange = new Playlist(fs.readFileSync('test/data/strange.html', 'utf-8'));
+})
+
 describe('MusicXML', function() {
   it('should validate MusicXML files', async function() {
     await validateXMLWithXSD(
@@ -34,7 +44,6 @@ describe('MusicXML', function() {
   });
 
   it('should create a valid, complete and correct MusicXML for Bolivia', async function() {
-    const playlist = new Playlist(fs.readFileSync('test/data/playlist.html', 'utf-8'));
     const bolivia = MusicXML.convert(playlist.songs[0]);
     await validateXMLWithXSD(bolivia, 'test/data/musicxml.xsd');
     fs.writeFileSync(`test/output/${playlist.songs[0].title}.musicxml`, bolivia);
@@ -52,7 +61,6 @@ describe('MusicXML', function() {
   });
 
   it('should create a valid, complete and correct MusicXML for Moanin\'', async function() {
-    const playlist = new Playlist(fs.readFileSync('test/data/playlist.html', 'utf-8'));
     const moanin = MusicXML.convert(playlist.songs[1]);
     await validateXMLWithXSD(moanin, 'test/data/musicxml.xsd');
     fs.writeFileSync(`test/output/${playlist.songs[1].title}.musicxml`, moanin);
@@ -67,14 +75,12 @@ describe('MusicXML', function() {
   });
 
   it('should create a valid, complete and correct MusicXML for New Bolero', async function() {
-    const playlist = new Playlist(fs.readFileSync('test/data/playlist.html', 'utf-8'));
     const bolero = MusicXML.convert(playlist.songs[2]);
     await validateXMLWithXSD(bolero, 'test/data/musicxml.xsd');
     fs.writeFileSync(`test/output/${playlist.songs[2].title}.musicxml`, bolero);
   });
 
   it('should create a valid, complete and correct MusicXML for Girl From Ipanema', async function() {
-    const playlist = new Playlist(fs.readFileSync('test/data/playlist.html', 'utf-8'));
     const ipanema = MusicXML.convert(playlist.songs[3]);
     await validateXMLWithXSD(ipanema, 'test/data/musicxml.xsd');
     fs.writeFileSync(`test/output/${playlist.songs[3].title}.musicxml`, ipanema);
@@ -84,22 +90,19 @@ describe('MusicXML', function() {
   });
 
   it('should create a valid, complete and correct MusicXML for Song For My Father', async function() {
-    const playlist = new Playlist(fs.readFileSync('test/data/playlist.html', 'utf-8'));
     const father = MusicXML.convert(playlist.songs[4]);
     await validateXMLWithXSD(father, 'test/data/musicxml.xsd');
     fs.writeFileSync(`test/output/${playlist.songs[4].title}.musicxml`, father);
   });
 
   it('should create a valid, complete and correct MusicXML for All Blues', async function() {
-    const playlist = new Playlist(fs.readFileSync('test/data/playlist.html', 'utf-8'));
     const blues = MusicXML.convert(playlist.songs[5]);
     await validateXMLWithXSD(blues, 'test/data/musicxml.xsd');
     fs.writeFileSync(`test/output/${playlist.songs[5].title}.musicxml`, blues);
   });
 
   it('should correctly handle invisible roots', async function() {
-    const playlist = new Playlist(fs.readFileSync('test/data/jazz1350.txt', 'utf-8'));
-    const song = playlist.songs.find(song => song.cells.some(cell => cell.chord && cell.chord.note === 'W'));
+    const song = jazz1350.songs.find(song => song.cells.some(cell => cell.chord && cell.chord.note === 'W'));
     assert.notStrictEqual(song, undefined);
     const musicXml = MusicXML.convert(song);
     await validateXMLWithXSD(musicXml, 'test/data/musicxml.xsd');
@@ -107,8 +110,7 @@ describe('MusicXML', function() {
   });
 
   it('should correctly handle uneven bar spacings', async function() {
-    const playlist = new Playlist(fs.readFileSync('test/data/jazz1350.txt', 'utf-8'));
-    const song = playlist.songs.find(song => song.title === 'Take Five');
+    const song = jazz1350.songs.find(song => song.title === 'Take Five');
     assert.notStrictEqual(song, undefined);
     const musicXml = MusicXML.convert(song);
     await validateXMLWithXSD(musicXml, 'test/data/musicxml.xsd');
@@ -119,15 +121,13 @@ describe('MusicXML', function() {
   });
 
   it('should correctly handle timing edge cases', async function() {
-    const playlist = new Playlist(fs.readFileSync('test/data/strange.html', 'utf-8'));
-    const strange = MusicXML.convert(playlist.songs[0]);
-    await validateXMLWithXSD(strange, 'test/data/musicxml.xsd');
-    fs.writeFileSync(`test/output/${playlist.songs[0].title}.musicxml`, strange);
+    const musicXml = MusicXML.convert(strange.songs[0]);
+    await validateXMLWithXSD(musicXml, 'test/data/musicxml.xsd');
+    fs.writeFileSync(`test/output/${strange.songs[0].title}.musicxml`, musicXml);
   });
 
   it ('should correctly handle comments and repeats', async function() {
-    const playlist = new Playlist(fs.readFileSync('test/data/jazz1350.txt', 'utf-8'));
-    const song = playlist.songs.find(song => song.title === 'Butterfly');
+    const song = jazz1350.songs.find(song => song.title === 'Butterfly');
     assert.notStrictEqual(song, undefined);
     const musicXml = MusicXML.convert(song);
     await validateXMLWithXSD(musicXml, 'test/data/musicxml.xsd');
@@ -153,9 +153,33 @@ describe('MusicXML', function() {
     assert.strictEqual(dalsegno.length, 1);
   });
 
-  it('should correctly convert chords', async function() {
+  it('should correctly distinguish between rhythmic notation and slash notation', async function() {
+    const song = jazz1350.songs.find(song => song.title === 'Take Five');
+    assert.notStrictEqual(song, undefined);
+    {
+      const musicXml = MusicXML.convert(song, { notation: 'rhythmic' });
+      await validateXMLWithXSD(musicXml, 'test/data/musicxml.xsd');
+      fs.writeFileSync(`test/output/${song.title}-rhythmic.musicxml`, musicXml);
+      const doc = new DOMParser().parseFromString(musicXml);
+      const measureStyle = select(doc, '//measure/attributes/measure-style/slash/@use-stems');
+      assert.strictEqual(measureStyle[0].value, 'yes');
+      const noteTypes = select(doc, '//measure/note/type/text()');
+      assert.strictEqual(noteTypes[0].toString(), 'half');
+    }
+    {
+      const musicXml = MusicXML.convert(song, { notation: 'slash' });
+      await validateXMLWithXSD(musicXml, 'test/data/musicxml.xsd');
+      fs.writeFileSync(`test/output/${song.title}-slash.musicxml`, musicXml);
+      const doc = new DOMParser().parseFromString(musicXml);
+      const measureStyle = select(doc, '//measure/attributes/measure-style/slash/@use-stems');
+      assert.strictEqual(measureStyle[0].value, 'no');
+      const noteTypes = select(doc, '//measure/note/type/text()');
+      assert.strictEqual(noteTypes[0].toString(), 'quarter');
+    }
+  });
+
+  it('should correctly convert chords', function() {
     // We don't care about conversion - just add dummy data here.
-    const playlist = new Playlist(fs.readFileSync('test/data/strange.html', 'utf-8'));
     const musicXml = new MusicXML(playlist.songs[0], MusicXML.defaultOptions);
     musicXml.measure = new MusicXML.Measure(1);
 

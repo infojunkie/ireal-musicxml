@@ -4,12 +4,10 @@ import { chordParserFactory, chordRendererFactory } from 'chord-symbol';
 export class MusicXML {
   static defaultOptions = {
     'divisions': 768, // same as used by iReal
-    'note': { // params for chord notes
-      'notation': 'rhythmic', // 'rhythmic' for rhythmic notation, 'slash' for slash notation
-      'step': 'B',
-      'octave': 4,
-      'notehead': 'slash'
-    }
+    'notation': 'rhythmic', // 'rhythmic' for rhythmic notation, 'slash' for slash notation
+    'step': 'B', // chord note
+    'octave': 4, // chord note octave
+    'notehead': 'slash' // chord note head
   }
 
   static sequenceAttributes = [
@@ -310,7 +308,7 @@ export class MusicXML {
           }, {
             'measure-style': [{
               _name: 'slash',
-              _attrs: { 'type': 'start', 'use-stems': this.options.note.notation === 'rhythmic' ? 'yes' : 'no' }
+              _attrs: { 'type': 'start', 'use-stems': this.options.notation === 'rhythmic' ? 'yes' : 'no' }
             }]
           }, this.convertKey());
 
@@ -807,7 +805,7 @@ export class MusicXML {
         this.convertChordNote(
           duration,
           i === ds.length - 1 ? chord.fermata : false, // Possible fermata on last chord note only
-          this.options.note.notation === 'rhythmic' && ds.length > 1 ? (i > 0 ? 'stop' : 'start') : null // Possible tie in case of rhythmic notation
+          this.options.notation === 'rhythmic' && ds.length > 1 ? (i > 0 ? 'stop' : 'start') : null // Possible tie in case of rhythmic notation
         )
       );
       return chord;
@@ -834,7 +832,7 @@ export class MusicXML {
       '15': [{ t: 'whole', d: 0, b: 8 }, { t: 'half', d: 2, b: 7 }],
     };
 
-    if (this.options.note.notation === 'slash') {
+    if (this.options.notation === 'slash') {
       // In case of slash notation, return an array of n=beats elements, each with a duration of 1 beat.
       const index = 1 * 8 / this.time.beatType;
       return Array(beats).fill(MusicXML
@@ -867,13 +865,13 @@ export class MusicXML {
     const noteType = {
       _name: 'pitch',
       _content: [{
-        'step': this.options.note.step
+        'step': this.options.step
       }, {
         'alter': MusicXML
           .getMap(MusicXML.mapFifthsToAlters, this.fifths, [], `[${this.measure.number()}] Unhandled fifths count=${this.fifths}`)
-          .includes(this.options.note.step) ? (this.fifths > 0 ? 1 : -1) : 0
+          .includes(this.options.step) ? (this.fifths > 0 ? 1 : -1) : 0
       }, {
-        'octave': this.options.note.octave
+        'octave': this.options.octave
       }]
     }
 
@@ -886,7 +884,7 @@ export class MusicXML {
     }
 
     return MusicXML.reorderSequence(this.measure, [noteType, {
-      'notehead': this.options.note.notehead
+      'notehead': this.options.notehead
     }, {
       'duration': duration.duration
     }, {
@@ -1032,7 +1030,7 @@ export class MusicXML {
         'root': [{
           _name: 'root-step',
           _attrs: { 'text': '' },
-          _content: this.options.note.step
+          _content: this.options.step
         }],
       }, {
         _name: 'kind',

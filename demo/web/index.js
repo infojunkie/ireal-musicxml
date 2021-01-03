@@ -49,9 +49,19 @@ function handleFileSelect(e) {
 let musicXml = '';
 
 function handleSheetSelect(e) {
-  const song = JSON.parse(e.target.value);
+  displaySong(JSON.parse(e.target.value));
+}
+
+function handleNotationChange() {
+  const sheets = document.getElementById('sheets');
+  displaySong(JSON.parse(sheets.options[sheets.selectedIndex].value));
+}
+
+function displaySong(song) {
   const title = `${song.title.replace(/[/\\?%*:|"<>]/g, '-')}.musicxml`;
-  musicXml = song.musicXml ? song.musicXml : ireal2musicxml.MusicXML.convert(song);
+  musicXml = song.musicXml || ireal2musicxml.MusicXML.convert(song, {
+    notation: document.querySelector('input[name="notation"]:checked').value
+  });
   const a = document.createElement('a');
   a.setAttribute('href', 'data:text/xml;charset=utf-8,' + encodeURIComponent(musicXml));
   a.setAttribute('download', title);
@@ -136,5 +146,8 @@ window.addEventListener('load', function () {
   document.getElementById("sheets").addEventListener("change", handleSheetSelect, false);
   document.querySelectorAll("input[name='renderer']").forEach((input) => {
     input.addEventListener('change', handleRendererChange);
+  });
+  document.querySelectorAll("input[name='notation']").forEach((input) => {
+    input.addEventListener('change', handleNotationChange);
   });
 })

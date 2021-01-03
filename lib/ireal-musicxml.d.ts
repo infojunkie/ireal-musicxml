@@ -121,40 +121,32 @@ export class Chord {
  * Type of chord notation.
  * https://en.wikipedia.org/wiki/Chord_chart
  */
-export enum ChordNotation {
-  Rhythmic = "rhythmic",
-  Slash = "slash"
-}
+export type ChordNotation = "rhythmic" | "slash";
 
 /**
  * MusicXML conversion options.
  */
-export class Options {
+export class ConversionOptions {
   /**
    * Divisions (ticks) per measure.
    */
-  divisions: number;
+  divisions?: number;
   /**
-   * Options for dummy notes representing chords on the staff.
+   * Type of chord notation.
    */
-  note: {
-    /**
-     * Type of chord notation.
-     */
-    notation: ChordNotation,
-    /**
-     * Pitch step to use.
-     */
-    step: string,
-    /**
-     * Octave to use.
-     */
-    octave: number,
-    /**
-     * Shape of note head to use, as per https://usermanuals.musicxml.com/MusicXML/Content/ST-MusicXML-notehead-value.htm
-     */
-    notehead: string
-  }
+  notation?: ChordNotation;
+  /**
+   * Pitch step to use.
+   */
+  step?: string;
+  /**
+   * Octave to use.
+   */
+  octave?: number;
+  /**
+   * Shape of note head to use, as per https://usermanuals.musicxml.com/MusicXML/Content/ST-MusicXML-notehead-value.htm
+   */
+  notehead?: string;
 }
 
 /**
@@ -164,20 +156,20 @@ export class MusicXML {
   /**
    * Default conversion options.
    */
-  static defaultOptions: Options;
+  static defaultOptions: ConversionOptions;
   /**
    * Utility function to convert a Song to MusicXML.
    * @param song Song structure
    * @param options Conversion options (optional, merged with defaults)
    * @returns MusicXML string
    */
-  static convert(song: Song, options?: Options): string;
+  static convert(song: Song, options?: ConversionOptions): string;
   /**
    * Conversion setup.
    * @param song Song structure
    * @param options Conversion options
    */
-  constructor(song: Song, options: Options);
+  constructor(song: Song, options: ConversionOptions);
   /**
    * Conversion function.
    * @returns MusicXML string
@@ -188,13 +180,15 @@ export class MusicXML {
 /**
  * Convert an iReal Pro playlist synchronously.
  * @param ireal iReal Pro playlist as HTML file contents or URI encoding
+ * @param options Conversion options (optional, merged with defaults)
  * @returns Playlist object including MusicXML string for each song
  */
-export function convertSync(ireal: string): Playlist;
+export function convertSync(ireal: string, options?: ConversionOptions): Playlist;
 
 /**
  * Convert an iReal Pro playlist asynchronously.
  * @param ireal iReal Pro playlist as HTML file contents or URI encoding
+ * @param options Conversion options (optional, merged with defaults)
  * @returns Promise for a Playlist object including MusicXML string for each song
  */
-export function convert(ireal: string): Promise<Playlist>;
+export function convert(ireal: string, options?: ConversionOptions): Promise<Playlist>;
