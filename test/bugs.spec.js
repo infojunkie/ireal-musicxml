@@ -15,7 +15,6 @@ before(() => {
 
 describe('Bug Fixes', function() {
   it('Checks #18 Cannot read property \'spaces\' of undefined', async () => {
-    this.timeout(2500);
     for (const title of [
       "All Or Nothing At All",
       "Brazilian Suite",
@@ -48,7 +47,7 @@ describe('Bug Fixes', function() {
       await validateXMLWithXSD(musicXml, 'test/data/musicxml.xsd');
       fs.writeFileSync(`test/output/${song.title}.musicxml`, musicXml);
     }
-  }).timeout(2500);
+  }).timeout(0);
 
   it('Checks #20 Missing measures', async () => {
     for (const test of [
