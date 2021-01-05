@@ -916,8 +916,8 @@ export class MusicXML {
 
   convertChordSymbol(chord) {
     const parsedChord = this.renderChord(this.parseChord(`${chord.note}${chord.modifiers}`));
-    if (!parsedChord) {
-      console.warn(`[${this.measure.number()}] Unrecognized chord "${chord.note}${chord.modifiers}"`);
+    if (parsedChord.error) {
+      console.warn(`[${this.measure.number()}] Unrecognized chord "${chord.note}${chord.modifiers}": ${JSON.stringify(parsedChord.error)}`);
       return { rootStep: null, rootAlter: null, chordKind: null, chordDegrees: [], chordText: null }
     }
 
@@ -978,23 +978,12 @@ export class MusicXML {
 
     parsedChord.normalized.alterations.forEach(alteration => {
       if (alteration === 'alt') {
-        const mapAlterations = {
-          'fifthFlat': { v: 5, a: -1 },
-          'fifthSharp': { v: 5, a: 1 },
-          'ninthFlat': { v: 9, a: -1 },
-          'ninthSharp': { v: 9, a: 1 },
-          'eleventhSharp': { v: 11, a: 1 },
-          'thirteenthFlat': { v: 13, a: -1 },
-        }
         let seenAFifth = false; // First 5th is altered, next one is added.
-        Object.keys(parsedChord.parserConfiguration.altIntervals).forEach(interval => {
-          if (parsedChord.parserConfiguration.altIntervals[interval]) {
-            const degree = MusicXML.getMap(mapAlterations, interval, null, `[${this.measure.number()}] Unrecognized altered interval "${interval}"`);
-            if (degree) {
-              chordDegrees.push(this.convertChordDegree(degree.v, degree.v === 5 && !seenAFifth ? 'alter' : 'add', degree.a));
-              seenAFifth = degree.v === 5;
-            }
-          }
+        parsedChord.parserConfiguration.altIntervals.forEach(interval => {
+          const alter = MusicXML.getMap(MusicXML.mapAlter, interval[0], 0, `[${this.measure.number()}] Unrecognized alter symbol in "${interval}"`);
+          const degree = parseInt(interval[1]);
+          chordDegrees.push(this.convertChordDegree(degree, degree === 5 && !seenAFifth ? 'alter' : 'add', alter));
+          seenAFifth = degree === 5;
         })
       }
       else {
