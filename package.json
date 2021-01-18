@@ -48,7 +48,7 @@
     "xpath.js": "^1.1.0"
   },
   "dependencies": {
-    "chord-symbol": "^2.0.0",
+    "chord-symbol": "github:no-chris/chord-symbol#v2.1.0",
     "jstoxml": "^2.0.1",
     "promise": "^8.1.0",
     "regenerator-runtime": "^0.13.7"

@@ -975,22 +975,10 @@ export class MusicXML {
         this.convertChordDegree(4, 'add', 0)
       );
     }
-
     parsedChord.normalized.alterations.forEach(alteration => {
-      if (alteration === 'alt') {
-        let seenAFifth = false; // First 5th is altered, next one is added.
-        parsedChord.parserConfiguration.altIntervals.forEach(interval => {
-          const alter = MusicXML.getMap(MusicXML.mapAlter, interval[0], 0, `[${this.measure.number()}] Unrecognized alter symbol in "${interval}"`);
-          const degree = parseInt(interval[1]);
-          chordDegrees.push(this.convertChordDegree(degree, degree === 5 && !seenAFifth ? 'alter' : 'add', alter));
-          seenAFifth = degree === 5;
-        })
-      }
-      else {
-        chordDegrees.push(
-          this.convertChordDegree(alteration.slice(1), 'alter', MusicXML.getMap(MusicXML.mapAlter, alteration[0], 0, `[${this.measure.number()}] Unrecognized alter symbol in "${alteration}"`))
-        );
-      }
+      chordDegrees.push(
+        this.convertChordDegree(alteration.slice(1), 'alter', MusicXML.getMap(MusicXML.mapAlter, alteration[0], 0, `[${this.measure.number()}] Unrecognized alter symbol in "${alteration}"`))
+      );
     });
     parsedChord.normalized.adds.forEach(add => {
       const alteration = Object.keys(MusicXML.mapAlter).includes(add[0]) ? add[0] : null;
