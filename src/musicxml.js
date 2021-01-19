@@ -1,6 +1,6 @@
 import { toXML } from 'jstoxml';
 import { chordParserFactory, chordRendererFactory } from 'chord-symbol';
-import musicXmlRenderer from 'chord-symbol-musicxml';
+import { musicXmlRenderer } from 'chord-symbol-musicxml';
 
 export class MusicXML {
   static defaultOptions = {
