@@ -16,11 +16,18 @@ function handleFileSelect(e) {
     try {
       const doc = new DOMParser().parseFromString(ee.target.result, 'text/xml');
       if (doc && !doc.getElementsByTagName('parsererror').length) {
+        let title = 'Unknown Title';
+        try {
+          title = doc.getElementsByTagName('work-title')[0].textContent;
+        }
+        catch (ex) {
+          // Do nothing.
+        }
         // Hand-make a fake playlist.
         const playlist = {
           name: 'Uploaded MusicXML',
           songs: [{
-            title: doc.getElementsByTagName('movement-title')[0].textContent || 'Unknown Title',
+            title,
             composer: null,
             style: null,
             groove: null,
