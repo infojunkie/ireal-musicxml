@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "abcjs": "^5.12.0",
-    "opensheetmusicdisplay": "^0.9.0",
+    "opensheetmusicdisplay": "^0.9.1",
     "xml2abc": "https://wim.vree.org/js/xml2abc.tgz"
   }
 }
