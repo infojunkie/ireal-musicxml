@@ -13,13 +13,13 @@
   "devDependencies": {
     "compression-webpack-plugin": "^7.1.2",
     "raw-loader": "^4.0.2",
-    "webpack": "^5.24.4",
-    "webpack-cli": "^4.5.0",
+    "webpack": "^5.38.1",
+    "webpack-cli": "^4.7.2",
     "webpack-dev-server": "^3.11.2"
   },
   "dependencies": {
     "abcjs": "^5.12.0",
-    "opensheetmusicdisplay": "^0.9.5",
+    "opensheetmusicdisplay": "^1.0.0",
     "xml2abc": "https://wim.vree.org/js/xml2abc.tgz"
   }
 }

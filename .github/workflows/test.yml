@@ -9,7 +9,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [10.x, 12.x, 14.x]
+        node-version: [12, 14, 16]
 
     steps:
     - name: Install dependencies
@@ -20,6 +20,6 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - run: npm install
-    - run: npm test
+    - run: npm test && npm run test:typescript
       env:
         CI: true

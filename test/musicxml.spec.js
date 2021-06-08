@@ -251,7 +251,7 @@ describe('MusicXML', function() {
         note: 'D',
         modifiers: chord.m
       });
-      assert.strictEqual(chordKind, chord.k, `Expected "${chord.m}" kind`);
+      assert.strictEqual(chordKind, chord.k, `Expected D${chord.m} kind`);
     });
   });
 });

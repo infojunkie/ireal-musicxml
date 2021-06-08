@@ -998,8 +998,13 @@ export class MusicXML {
         })
       }
       else {
+        const degree = alteration.slice(1);
         chordDegrees.push(
-          this.convertChordDegree(alteration.slice(1), 'alter', MusicXML.getMap(MusicXML.mapAlter, alteration[0], 0, `[${this.measure.number()}] Unrecognized alter symbol in "${alteration}"`))
+          this.convertChordDegree(
+            degree,
+            (degree === '5' || parsedChord.normalized.extensions.includes(degree)) ? 'alter' : 'add',
+            MusicXML.getMap(MusicXML.mapAlter, alteration[0], 0, `[${this.measure.number()}] Unrecognized alter symbol in "${alteration}"`)
+          )
         );
       }
     });
