@@ -10,11 +10,11 @@
 
 export class Playlist {
   constructor(ireal){
-    const percentEncoded = /.*?irealb(?:ook)?:\/\/([^"]*)/.exec(ireal);
-    const percentDecoded = decodeURIComponent(percentEncoded[1]);
-    const parts = percentDecoded.split("===");  //songs are separated by ===
+    const playlistEncoded = /.*?(irealb(?:ook)?):\/\/([^"]*)/.exec(ireal);
+    const playlist = decodeURIComponent(playlistEncoded[2]);
+    const parts = playlist.split("===");  //songs are separated by ===
     if (parts.length > 1) this.name = parts.pop();  //playlist name
-    this.songs = parts.map(x => new Song(x));
+    this.songs = parts.map(x => new Song(x, playlistEncoded[1] === 'irealbook'));
   }
 }
 
@@ -38,7 +38,7 @@ export class Chord {
 }
 
 export class Song {
-  constructor(ireal) {
+  constructor(ireal, oldFormat = false) {
     this.cells = [];
     this.musicXml = "";
     if (!ireal) {
@@ -53,18 +53,25 @@ export class Song {
       return;
     }
     const parts = ireal.split("="); //split on one sign, remove the blanks
-    console.log(parts);
-
-    this.title = this.parseTitle(parts[0].trim());
-    this.composer = this.parseComposer(parts[1].trim());
-    this.style = parts[3].trim();
-    this.key = parts[4];
-    this.transpose = +parts[5] || 0; // TODO
-    this.groove = parts[7];
-    this.bpm = +parts[8];
-    this.repeats = +parts[9] || 3;
-    const music = parts[6].split("1r34LbKcu7");
-    this.cells = this.parse(unscramble(music[1]));
+    if (oldFormat) {
+      this.title = this.parseTitle(parts[0].trim());
+      this.composer = this.parseComposer(parts[1].trim());
+      this.style = this.groove = parts[2].trim();
+      this.key = parts[3];
+      this.cells = this.parse(parts[5]);
+    }
+    else {
+      this.title = this.parseTitle(parts[0].trim());
+      this.composer = this.parseComposer(parts[1].trim());
+      this.style = parts[3].trim();
+      this.key = parts[4];
+      this.transpose = +parts[5] || 0; // TODO
+      this.groove = parts[7];
+      this.bpm = +parts[8];
+      this.repeats = +parts[9] || 3;
+      const music = parts[6].split("1r34LbKcu7");
+      this.cells = this.parse(unscramble(music[1]));
+    }
   }
 
   /**
