@@ -10,7 +10,7 @@
 
 export class Playlist {
   constructor(ireal){
-    const percentEncoded = /.*?irealb:\/\/([^"]*)/.exec(ireal);
+    const percentEncoded = /.*?irealb(?:ook)?:\/\/([^"]*)/.exec(ireal);
     const percentDecoded = decodeURIComponent(percentEncoded[1]);
     const parts = percentDecoded.split("===");  //songs are separated by ===
     if (parts.length > 1) this.name = parts.pop();  //playlist name
@@ -53,6 +53,8 @@ export class Song {
       return;
     }
     const parts = ireal.split("="); //split on one sign, remove the blanks
+    console.log(parts);
+
     this.title = this.parseTitle(parts[0].trim());
     this.composer = this.parseComposer(parts[1].trim());
     this.style = parts[3].trim();

@@ -21,4 +21,9 @@ describe('Parser', function() {
     const playlist = new Playlist(fs.readFileSync('test/data/jazz1350.txt', 'utf-8'));
     assert.strictEqual(playlist.songs.length, 1350);
   });
+
+  it('should parse the irealbook:// format', function() {
+    const playlist = new Playlist(fs.readFileSync('test/data/irealbook.txt', 'utf-8'));
+    assert.strictEqual(playlist.songs.length, 1);
+  });
 });
