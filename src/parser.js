@@ -56,7 +56,7 @@ export class Song {
     if (oldFormat) {
       this.title = this.parseTitle(parts[0].trim());
       this.composer = this.parseComposer(parts[1].trim());
-      this.style = this.groove = parts[2].trim();
+      this.style = parts[2].trim();
       this.key = parts[3];
       this.cells = this.parse(parts[5]);
     }
