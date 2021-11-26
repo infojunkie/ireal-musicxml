@@ -112,12 +112,9 @@ function displaySheet(musicXml) {
     });
     openSheetMusicDisplay
       .load(musicXml)
-      .then(
-        function() {
-          window.osmd = openSheetMusicDisplay; // give access to osmd object in Browser console, e.g. for osmd.setOptions()
-          openSheetMusicDisplay.render();
-        }
-      );
+      .then(() => {
+        openSheetMusicDisplay.render();
+      });
   }
   else if (renderer === 'vrv') {
     const app = new Verovio.App(document.getElementById("sheet"), {
@@ -164,4 +161,8 @@ window.addEventListener('load', function () {
     input.addEventListener('change', handleNotationChange);
   });
   document.getElementById("jazz1350").addEventListener("click", handleJazz1350, false);
+
+  document.getElementById("vrv-version").innerText = '(WASM) 3.8.0-dev-dac75b7'; // https://github.com/rism-digital/verovio/issues/2514
+  document.getElementById("abc-version").innerText = abcjs.signature;
+  document.getElementById("osmd-version").innerText = new opensheetmusicdisplay.OpenSheetMusicDisplay("sheet").Version;
 })
