@@ -1,8 +1,12 @@
-const opensheetmusicdisplay = require("opensheetmusicdisplay");
+const osmd = require("opensheetmusicdisplay");
 const abcjs = require("abcjs");
 const xml2abc = require("xml2abc");
 const ireal2musicxml = require("../../lib/ireal-musicxml");
 const jazz1350 = require("../../test/data/jazz1350.txt");
+
+// Current state.
+let musicXml = '';
+let openSheetMusicDisplay = null;
 
 function handleIRealChange(e) {
   const playlist = new ireal2musicxml.Playlist(e.target.value);
@@ -10,7 +14,7 @@ function handleIRealChange(e) {
 }
 
 function handleFileSelect(e) {
-  var reader = new FileReader();
+  const reader = new FileReader();
   reader.onload = function(ee) {
     // If we've uploaded an XML file, assume it's MusicXML...
     try {
@@ -54,8 +58,6 @@ function handleFileSelect(e) {
   reader.readAsText(e.target.files[0]);
 }
 
-let musicXml = '';
-
 function handleSheetSelect(e) {
   displaySong(JSON.parse(e.target.value));
 }
@@ -81,7 +83,9 @@ function displaySong(song) {
 }
 
 function handleRendererChange() {
-  displaySheet(musicXml);
+  if (musicXml) {
+    displaySheet(musicXml);
+  }
 }
 
 function populateSheets(playlist) {
@@ -96,24 +100,37 @@ function populateSheets(playlist) {
   sheets.dispatchEvent(new Event('change'));
 }
 
-function displaySheet(musicXml) {
-  // Reset sheet height.
+function resetSheet() {
+  document.getElementById('sheet').innerHTML = "";
   document.getElementById('sheet').style.cssText = "height: 100vh";
+  document.getElementsByClassName('control-panel').forEach(e => e.remove());
+  document.getElementsByClassName('playback-buttons').forEach(e => e.remove());
+
+  if (openSheetMusicDisplay) {
+    openSheetMusicDisplay.PlaybackManager.pause();
+    openSheetMusicDisplay.PlaybackManager.reset();
+  }
+}
+
+function displaySheet(musicXml) {
+  resetSheet();
 
   const renderer = document.querySelector('input[name="renderer"]:checked').value;
   if (renderer === 'osmd') {
-    var openSheetMusicDisplay = new opensheetmusicdisplay.OpenSheetMusicDisplay("sheet", {
+    openSheetMusicDisplay = new osmd.OpenSheetMusicDisplay("sheet", {
       // set options here
       backend: "svg",
       drawFromMeasureNumber: 1,
       drawUpToMeasureNumber: Number.MAX_SAFE_INTEGER, // draw all measures, up to the end of the sample
       newSystemFromXML: true,
-      newPageFromXML: true
+      newPageFromXML: true,
+      followCursor: true,
     });
     openSheetMusicDisplay
       .load(musicXml)
       .then(() => {
         openSheetMusicDisplay.render();
+        createPlaybackControl(openSheetMusicDisplay);
       });
   }
   else if (renderer === 'vrv') {
@@ -150,6 +167,24 @@ function handleJazz1350() {
   populateSheets(playlist);
 }
 
+function createPlaybackControl(openSheetMusicDisplay) {
+  const timingSource = new osmd.LinearTimingSource();
+  const playbackManager = new osmd.PlaybackManager(timingSource, undefined, new osmd.BasicAudioPlayer(), undefined);
+  playbackManager.DoPlayback = true;
+  playbackManager.DoPreCount = false;
+  playbackManager.PreCountMeasures = 1;
+  const playbackControlPanel = new osmd.ControlPanel();
+  playbackControlPanel.addListener(playbackManager);
+  timingSource.reset();
+  timingSource.pause();
+  timingSource.Settings = openSheetMusicDisplay.sheet.playbackSettings;
+  playbackManager.initialize(openSheetMusicDisplay.sheet.musicPartManager);
+  playbackManager.addListener(openSheetMusicDisplay.cursor);
+  playbackManager.reset();
+  playbackControlPanel.show();
+  openSheetMusicDisplay.PlaybackManager = playbackManager;
+}
+
 window.addEventListener('load', function () {
   document.getElementById("playlist").addEventListener("change", handleFileSelect, false);
   document.getElementById("ireal").addEventListener("change", handleIRealChange, false);
@@ -162,7 +197,7 @@ window.addEventListener('load', function () {
   });
   document.getElementById("jazz1350").addEventListener("click", handleJazz1350, false);
 
-  document.getElementById("vrv-version").innerText = '(WASM) 3.8.0-dev-dac75b7'; // https://github.com/rism-digital/verovio/issues/2514
+  document.getElementById("vrv-version").innerText = '(WASM) 3.8.0-dev-acb0387';
   document.getElementById("abc-version").innerText = abcjs.signature;
-  document.getElementById("osmd-version").innerText = new opensheetmusicdisplay.OpenSheetMusicDisplay("sheet").Version;
+  document.getElementById("osmd-version").innerText = new osmd.OpenSheetMusicDisplay("sheet").Version;
 })
