@@ -196,7 +196,7 @@ window.addEventListener('load', function () {
   });
   document.getElementById("jazz1350").addEventListener("click", handleJazz1350, false);
 
-  document.getElementById("vrv-version").innerText = '(WASM) 3.8.0-dev-acb0387';
+  document.getElementById("vrv-version").innerText = '(WASM) 3.8.0-dev';
   document.getElementById("abc-version").innerText = abcjs.signature;
   document.getElementById("osmd-version").innerText = new osmd.OpenSheetMusicDisplay("sheet").Version;
 })
