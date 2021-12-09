@@ -3,6 +3,7 @@ const abcjs = require("abcjs");
 const xml2abc = require("xml2abc");
 const ireal2musicxml = require("../../lib/ireal-musicxml");
 const jazz1350 = require("../../test/data/jazz1350.txt");
+const $ = window.$ = require("jquery");
 
 // Current state.
 let musicXml = null;
