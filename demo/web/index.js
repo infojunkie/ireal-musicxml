@@ -5,7 +5,7 @@ const ireal2musicxml = require("../../lib/ireal-musicxml");
 const jazz1350 = require("../../test/data/jazz1350.txt");
 
 // Current state.
-let musicXml = '';
+let musicXml = null;
 let openSheetMusicDisplay = null;
 
 function handleIRealChange(e) {
@@ -181,7 +181,6 @@ function createPlaybackControl(openSheetMusicDisplay) {
   playbackManager.initialize(openSheetMusicDisplay.sheet.musicPartManager);
   playbackManager.addListener(openSheetMusicDisplay.cursor);
   playbackManager.reset();
-  playbackControlPanel.show();
   openSheetMusicDisplay.PlaybackManager = playbackManager;
 }
 
