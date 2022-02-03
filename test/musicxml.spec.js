@@ -3,7 +3,7 @@ import fs from 'fs';
 import 'regenerator-runtime/runtime';
 import {validateXMLWithXSD} from 'validate-with-xmllint';
 import select from 'xpath.js';
-import {DOMParser} from 'xmldom';
+import {DOMParser} from '@xmldom/xmldom';
 import {Playlist} from '../src/parser';
 import {MusicXML} from '../src/musicxml';
 
