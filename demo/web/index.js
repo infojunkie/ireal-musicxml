@@ -1,6 +1,7 @@
 const opensheetmusicdisplay = require("opensheetmusicdisplay");
 const abcjs = require("abcjs");
 const xml2abc = require("xml2abc");
+const unzip = require("unzipit");
 const ireal2musicxml = require("../../lib/ireal-musicxml");
 const jazz1350 = require("../../test/data/jazz1350.txt");
 
@@ -9,49 +10,89 @@ function handleIRealChange(e) {
   populateSheets(playlist);
 }
 
-function handleFileSelect(e) {
-  var reader = new FileReader();
-  reader.onload = function(ee) {
-    // If we've uploaded an XML file, assume it's MusicXML...
-    try {
-      const doc = new DOMParser().parseFromString(ee.target.result, 'text/xml');
-      if (doc && !doc.getElementsByTagName('parsererror').length) {
-        let title = 'Unknown Title';
-        try {
-          title = doc.getElementsByTagName('work-title')[0].textContent;
-        }
-        catch (ex) {
-          // Do nothing.
-        }
-        // Hand-make a fake playlist.
-        const playlist = {
-          name: 'Uploaded MusicXML',
-          songs: [{
-            title,
-            composer: null,
-            style: null,
-            groove: null,
-            key: null,
-            transpose: null,
-            bpm: null,
-            repeats: null,
-            music: null,
-            cells: null,
-            musicXml: ee.target.result
-          }]
-        };
-        populateSheets(playlist);
-        return;
+function tryMusicXML(xml) {
+  try {
+    const doc = new DOMParser().parseFromString(xml, 'text/xml');
+    if (doc && !doc.getElementsByTagName('parsererror').length) {
+      let title = 'Unknown Title';
+      try {
+        title = doc.getElementsByTagName('work-title')[0].textContent;
       }
+      catch (ex) {
+        // Do nothing.
+      }
+      // Hand-make a fake playlist.
+      const playlist = {
+        name: 'Uploaded MusicXML',
+        songs: [{
+          title,
+          composer: null,
+          style: null,
+          groove: null,
+          key: null,
+          transpose: null,
+          bpm: null,
+          repeats: null,
+          music: null,
+          cells: null,
+          musicXml: xml
+        }]
+      };
+      populateSheets(playlist);
+      return true;
     }
-    catch (ex) {
-      // Assume it's an iReal Pro sheet.
-    }
+  }
+  catch (ex) {
+    console.warn(ex);
+    return false;
+  }
+}
 
-    const playlist = new ireal2musicxml.Playlist(ee.target.result);
+async function tryCompressedMusicXML(buf) {
+  try {
+    const decoder = new TextDecoder();
+    const {entries} = await unzip.unzip(buf);
+
+    // Extract rootfile from META-INF/container.xml.
+    const containerBuf =  await entries['META-INF/container.xml'].arrayBuffer();
+    const doc = new DOMParser().parseFromString(decoder.decode(containerBuf), 'text/xml');
+    const rootFile = doc.getElementsByTagName('rootfile')[0].getAttribute('full-path');
+
+    // Parse rootfile as MusicXML.
+    const rootBuf = await entries[rootFile].arrayBuffer();
+    return tryMusicXML(decoder.decode(rootBuf));
+  }
+  catch (ex) {
+    console.warn(ex);
+    return false;
+  }
+}
+
+function tryiRealPro(ireal) {
+  try {
+    const playlist = new ireal2musicxml.Playlist(ireal);
     populateSheets(playlist);
+    return true;
+  }
+  catch (ex) {
+    console.warn(ex);
+    return false;
+  }
+}
+
+function handleFileSelect(e) {
+  document.getElementById('file-error').textContent = '';
+  var reader = new FileReader();
+  reader.onloadend = async function(ee) {
+    const file = e.target.files[0];
+    const decoder = new TextDecoder();
+    const text = decoder.decode(ee.target.result);
+    if (file.type === 'text/xml' && tryMusicXML(text)) return;
+    if (file.type.includes('musicxml') && (tryMusicXML(text) || await tryCompressedMusicXML(ee.target.result))) return;
+    if (tryiRealPro(text)) return;
+    document.getElementById('file-error').textContent = 'This file was not recognized as either iRealPro or MusicXML.';
   };
-  reader.readAsText(e.target.files[0]);
+  reader.readAsArrayBuffer(e.target.files[0]);
 }
 
 let musicXml = '';

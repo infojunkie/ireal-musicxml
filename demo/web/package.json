@@ -20,6 +20,7 @@
   "dependencies": {
     "abcjs": "^5.12.0",
     "opensheetmusicdisplay": "^1.1.0",
+    "unzipit": "^1.4.0",
     "verovio": "^3.7.0",
     "xml2abc": "https://wim.vree.org/js/xml2abc.tgz"
   }

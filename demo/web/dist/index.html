@@ -9,6 +9,7 @@
 <div>
 	<label for="playlist">Upload an iReal Pro playlist or a MusicXML file</label>&nbsp;
 	<input type="file" id="playlist" name="playlist"/>
+	<span id="file-error"></span>
 </div>
 
 <div>
@@ -34,10 +35,10 @@ Or simply use this <a href="javascript:;" id="jazz1350">playlist of 1350 jazz st
 
 <div>
 	Renderer
-	<input type="radio" id="vrv" name="renderer" value="vrv" checked/>
-	<label for="vrv">Verovio <span id="vrv-version"></span></label>
-	<input type="radio" id="osmd" name="renderer" value="osmd"/>
+	<input type="radio" id="osmd" name="renderer" value="osmd" checked/>
 	<label for="osmd">OpenSheetMusicDisplay <span id="osmd-version"></span></label>
+	<input type="radio" id="vrv" name="renderer" value="vrv"/>
+	<label for="vrv">Verovio <span id="vrv-version"></span></label>
 	<input type="radio" id="abc" name="renderer" value="abc"/>
 	<label for="abc"><span id="abc-version"></span></label>
 </div>
