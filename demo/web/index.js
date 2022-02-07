@@ -2,6 +2,7 @@ const opensheetmusicdisplay = require("opensheetmusicdisplay");
 const abcjs = require("abcjs");
 const xml2abc = require("xml2abc");
 const unzip = require("unzipit");
+const parserError = require('sane-domparser-error');
 const ireal2musicxml = require("../../lib/ireal-musicxml");
 const jazz1350 = require("../../test/data/jazz1350.txt");
 
@@ -13,37 +14,36 @@ function handleIRealChange(e) {
 function tryMusicXML(xml) {
   try {
     const doc = new DOMParser().parseFromString(xml, 'text/xml');
-    if (doc && !doc.getElementsByTagName('parsererror').length) {
-      let title = 'Unknown Title';
-      try {
-        title = doc.getElementsByTagName('work-title')[0].textContent;
-      }
-      catch (ex) {
-        // Do nothing.
-      }
-      // Hand-make a fake playlist.
-      const playlist = {
-        name: 'Uploaded MusicXML',
-        songs: [{
-          title,
-          composer: null,
-          style: null,
-          groove: null,
-          key: null,
-          transpose: null,
-          bpm: null,
-          repeats: null,
-          music: null,
-          cells: null,
-          musicXml: xml
-        }]
-      };
-      populateSheets(playlist);
-      return true;
+    parserError.failOnParseError(doc);
+    let title = 'Unknown Title';
+    try {
+      title = doc.getElementsByTagName('work-title')[0].textContent;
     }
+    catch (ex) {
+      // Do nothing.
+    }
+    // Hand-make a fake playlist.
+    const playlist = {
+      name: 'Uploaded MusicXML',
+      songs: [{
+        title,
+        composer: null,
+        style: null,
+        groove: null,
+        key: null,
+        transpose: null,
+        bpm: null,
+        repeats: null,
+        music: null,
+        cells: null,
+        musicXml: xml
+      }]
+    };
+    populateSheets(playlist);
+    return true;
   }
   catch (ex) {
-    console.warn(ex);
+    console.warn(ex.toString());
     return false;
   }
 }
@@ -63,7 +63,7 @@ async function tryCompressedMusicXML(buf) {
     return tryMusicXML(decoder.decode(rootBuf));
   }
   catch (ex) {
-    console.warn(ex);
+    console.warn(ex.toString());
     return false;
   }
 }
@@ -75,24 +75,29 @@ function tryiRealPro(ireal) {
     return true;
   }
   catch (ex) {
-    console.warn(ex);
+    console.warn(ex.toString());
     return false;
   }
 }
 
 function handleFileSelect(e) {
   document.getElementById('file-error').textContent = '';
-  var reader = new FileReader();
+  const reader = new FileReader();
+  const file = e.target.files[0];
   reader.onloadend = async function(ee) {
-    const file = e.target.files[0];
     const decoder = new TextDecoder();
     const text = decoder.decode(ee.target.result);
     if (file.type === 'text/xml' && tryMusicXML(text)) return;
     if (file.type.includes('musicxml') && (tryMusicXML(text) || await tryCompressedMusicXML(ee.target.result))) return;
     if (tryiRealPro(text)) return;
-    document.getElementById('file-error').textContent = 'This file was not recognized as either iRealPro or MusicXML.';
+    document.getElementById('file-error').textContent = 'This file is not recognized as either iReal Pro or MusicXML.';
   };
-  reader.readAsArrayBuffer(e.target.files[0]);
+  if (file.size < 5*1000*1000) {
+    reader.readAsArrayBuffer(file);
+  }
+  else {
+    document.getElementById('file-error').textContent = 'This file is too large.';
+  }
 }
 
 let musicXml = '';
