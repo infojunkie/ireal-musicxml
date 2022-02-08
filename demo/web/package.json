@@ -21,6 +21,8 @@
     "abcjs": "^5.12.0",
     "jquery": "^3.5.1",
     "opensheetmusicdisplay": "file:opensheetmusicdisplay.min.js",
+    "sane-domparser-error": "^0.2.0",
+    "unzipit": "^1.4.0",
     "verovio": "^3.7.0",
     "xml2abc": "https://wim.vree.org/js/xml2abc.tgz"
   }

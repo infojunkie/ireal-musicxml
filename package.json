@@ -1,6 +1,6 @@
 {
   "name": "ireal-musicxml",
-  "version": "1.5.3",
+  "version": "1.5.4",
   "description": "iReal Pro to MusicXML converter",
   "author": "Karim Ratib <karim.ratib@gmail.com> (https://github.com/infojunkie)",
   "license": "MIT",
@@ -44,7 +44,7 @@
     "validate-with-xmllint": "^1.2.0",
     "webpack": "^5.38.1",
     "webpack-cli": "^4.7.2",
-    "xmldom": "^0.4.0",
+    "@xmldom/xmldom": "^0.8.0",
     "xpath.js": "^1.1.0"
   },
   "dependencies": {
