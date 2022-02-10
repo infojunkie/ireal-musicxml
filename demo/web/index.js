@@ -220,17 +220,17 @@ function convertChords(openSheetMusicDisplay) {
   openSheetMusicDisplay.cursor.reset();
   const iterator = openSheetMusicDisplay.cursor.Iterator;
   while (!iterator.EndReached) {
-    const voices = iterator.CurrentVoiceEntries;
-    for (var i = 0; i < voices.length; i++) {
-      const v = voices[i];
-      v.parentSourceStaffEntry?.chordSymbolContainers?.forEach(osmdChord => {
+    iterator.CurrentVoiceEntries?.forEach(voiceEntry => {
+      if (!voiceEntry.notes.every(note => note.notehead.shape === osmd.NoteHeadShape.SLASH)) return;
+      voiceEntry.parentVoice.audible = false;
+      voiceEntry.parentSourceStaffEntry?.chordSymbolContainers?.forEach(osmdChord => {
         const chordText = osmd.ChordSymbolContainer.calculateChordText(osmdChord);
         const parseChord = chordSymbol.chordParserFactory();
         const renderChord = chordSymbol.chordRendererFactory({ useShortNamings: true, printer: 'raw' });
         const chord = parseChord(chordText);
         console.log(renderChord(chord));
       });
-    }
+    });
     iterator.moveToNext();
   }
 }
