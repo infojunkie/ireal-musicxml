@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "abcjs": "^5.12.0",
+    "chord-symbol": "^3.0.0",
     "jquery": "^3.5.1",
     "opensheetmusicdisplay": "file:opensheetmusicdisplay.min.js",
     "sane-domparser-error": "^0.2.0",

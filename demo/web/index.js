@@ -1,8 +1,9 @@
 const osmd = require('opensheetmusicdisplay');
 const abcjs = require('abcjs');
 const xml2abc = require('xml2abc');
-const unzip = require("unzipit");
+const unzip = require('unzipit');
 const parserError = require('sane-domparser-error');
+const chordSymbol = require('chord-symbol');
 const ireal2musicxml = require('../../lib/ireal-musicxml');
 const jazz1350 = require('../../test/data/jazz1350.txt');
 const $ = window.$ = require('jquery');
@@ -177,6 +178,7 @@ function displaySheet(musicXml) {
       .load(musicXml)
       .then(() => {
         openSheetMusicDisplay.render();
+        convertChords(openSheetMusicDisplay);
         createPlaybackControl(openSheetMusicDisplay);
       });
   }
@@ -212,6 +214,25 @@ function displaySheet(musicXml) {
 function handleJazz1350() {
   const playlist = new ireal2musicxml.Playlist(jazz1350);
   populateSheets(playlist);
+}
+
+function convertChords(openSheetMusicDisplay) {
+  openSheetMusicDisplay.cursor.reset();
+  const iterator = openSheetMusicDisplay.cursor.Iterator;
+  while (!iterator.EndReached) {
+    const voices = iterator.CurrentVoiceEntries;
+    for (var i = 0; i < voices.length; i++) {
+      const v = voices[i];
+      v.parentSourceStaffEntry?.chordSymbolContainers?.forEach(osmdChord => {
+        const chordText = osmd.ChordSymbolContainer.calculateChordText(osmdChord);
+        const parseChord = chordSymbol.chordParserFactory();
+        const renderChord = chordSymbol.chordRendererFactory({ useShortNamings: true, printer: 'raw' });
+        const chord = parseChord(chordText);
+        console.log(renderChord(chord));
+      });
+    }
+    iterator.moveToNext();
+  }
 }
 
 function createPlaybackControl(openSheetMusicDisplay) {
