@@ -247,8 +247,11 @@ function convertChords(openSheetMusicDisplay) {
       // Get the chord to be played.
       const chordText = osmd.ChordSymbolContainer.calculateChordText(osmdChord);
       const parseChord = chordSymbol.chordParserFactory();
-      const chord = parseChord(chordText);
-      chord.normalized.notes.forEach(note => {
+      const chord = parseChord(chordText.replace(/\(.*\)/, ''));
+      if (!chord.normalized) {
+        console.error(`Failed to parse the chord "${chordText}"`);
+      }
+      chord.normalized?.notes.forEach(note => {
         const chordTone = new osmd.Note(
           chordEntry,
           chordEntry.ParentSourceStaffEntry,
