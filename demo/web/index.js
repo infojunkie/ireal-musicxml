@@ -6,6 +6,7 @@ const parserError = require('sane-domparser-error');
 const chordSymbol = require('chord-symbol');
 const ireal2musicxml = require('../../lib/ireal-musicxml');
 const jazz1350 = require('../../test/data/jazz1350.txt');
+const pitchToNoteName = require('abcjs/src/synth/pitch-to-note-name');
 const $ = window.$ = require('jquery');
 
 // Current state.
@@ -177,8 +178,8 @@ function displaySheet(musicXml) {
     openSheetMusicDisplay
       .load(musicXml)
       .then(() => {
-        openSheetMusicDisplay.render();
         convertChords(openSheetMusicDisplay);
+        openSheetMusicDisplay.render();
         createPlaybackControl(openSheetMusicDisplay);
       });
   }
@@ -217,22 +218,46 @@ function handleJazz1350() {
 }
 
 function convertChords(openSheetMusicDisplay) {
-  openSheetMusicDisplay.cursor.reset();
-  const iterator = openSheetMusicDisplay.cursor.Iterator;
-  while (!iterator.EndReached) {
-    iterator.CurrentVoiceEntries?.forEach(voiceEntry => {
-      if (!voiceEntry.notes.every(note => note.notehead.shape === osmd.NoteHeadShape.SLASH)) return;
-      voiceEntry.parentVoice.audible = false;
-      voiceEntry.parentSourceStaffEntry?.chordSymbolContainers?.forEach(osmdChord => {
-        const chordText = osmd.ChordSymbolContainer.calculateChordText(osmdChord);
-        const parseChord = chordSymbol.chordParserFactory();
-        const renderChord = chordSymbol.chordRendererFactory({ useShortNamings: true, printer: 'raw' });
-        const chord = parseChord(chordText);
-        console.log(renderChord(chord));
-      });
+  const leadSheet = openSheetMusicDisplay.sheet.instruments.find(i => i.nameLabel.text == 'Lead sheet');
+  if (!leadSheet) return;
+
+  // Assume single voice for lead sheet.
+  const leadVoice = leadSheet.Voices[0];
+  const chordVoice = new osmd.Voice(leadSheet, leadVoice.VoiceId + 1);
+
+  leadVoice.VoiceEntries.forEach(voiceEntry => {
+    // Create the chord tones in the second voice.
+    const chordEntry = new osmd.VoiceEntry(
+      voiceEntry.Timestamp,
+      chordVoice,
+      voiceEntry.ParentSourceStaffEntry
+    );
+
+    const leadNote = voiceEntry.Notes[0];
+
+    voiceEntry.parentSourceStaffEntry.chordSymbolContainers?.forEach(osmdChord => {
+      // Get the chord to be played.
+      const chordText = osmd.ChordSymbolContainer.calculateChordText(osmdChord);
+      const parseChord = chordSymbol.chordParserFactory();
+      const renderChord = chordSymbol.chordRendererFactory({ useShortNamings: true, printer: 'raw' });
+      const chord = parseChord(chordText);
+      chord.normalized.notes.forEach(note => {
+        const tone = new osmd.Note(
+          chordEntry,
+          chordEntry.ParentSourceStaffEntry,
+          leadNote.length,
+          leadNote.pitch, // FIXME
+          leadNote.SourceMeasure,
+          false
+        );
+        chordEntry.addNote(tone);
+      })
     });
-    iterator.moveToNext();
-  }
+  });
+
+  leadSheet.Voices.push(chordVoice);
+  leadVoice.audible = false;
+  console.log(openSheetMusicDisplay.sheet);
 }
 
 function createPlaybackControl(openSheetMusicDisplay) {
