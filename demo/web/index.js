@@ -271,7 +271,7 @@ function convertChords(openSheetMusicDisplay) {
   chordVoice.Visible = false;
 
   // Update the data model.
-  openSheetMusicDisplay.updateGraphic();
+  //openSheetMusicDisplay.updateGraphic();
   openSheetMusicDisplay.sheet.fillStaffList();
   [new osmd.DynamicsCalculator(), new osmd.PlaybackNoteGenerator()].forEach(calc => calc.calculate(openSheetMusicDisplay.sheet));
 }
