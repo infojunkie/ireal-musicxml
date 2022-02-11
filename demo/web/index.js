@@ -6,7 +6,6 @@ const parserError = require('sane-domparser-error');
 const chordSymbol = require('chord-symbol');
 const ireal2musicxml = require('../../lib/ireal-musicxml');
 const jazz1350 = require('../../test/data/jazz1350.txt');
-const pitchToNoteName = require('abcjs/src/synth/pitch-to-note-name');
 const $ = window.$ = require('jquery');
 
 // Current state.
@@ -179,7 +178,6 @@ function displaySheet(musicXml) {
       .load(musicXml)
       .then(() => {
         convertChords(openSheetMusicDisplay);
-        openSheetMusicDisplay.render();
         createPlaybackControl(openSheetMusicDisplay);
       });
   }
@@ -235,29 +233,47 @@ function convertChords(openSheetMusicDisplay) {
 
     const leadNote = voiceEntry.Notes[0];
 
+    const noteMap = {
+      'A': osmd.NoteEnum.A,
+      'B': osmd.NoteEnum.B,
+      'C': osmd.NoteEnum.C,
+      'D': osmd.NoteEnum.D,
+      'E': osmd.NoteEnum.E,
+      'F': osmd.NoteEnum.F,
+      'G': osmd.NoteEnum.G,
+    }
+
     voiceEntry.parentSourceStaffEntry.chordSymbolContainers?.forEach(osmdChord => {
       // Get the chord to be played.
       const chordText = osmd.ChordSymbolContainer.calculateChordText(osmdChord);
       const parseChord = chordSymbol.chordParserFactory();
-      const renderChord = chordSymbol.chordRendererFactory({ useShortNamings: true, printer: 'raw' });
       const chord = parseChord(chordText);
       chord.normalized.notes.forEach(note => {
-        const tone = new osmd.Note(
+        const chordTone = new osmd.Note(
           chordEntry,
           chordEntry.ParentSourceStaffEntry,
           leadNote.length,
-          leadNote.pitch, // FIXME
+          new osmd.Pitch(
+            noteMap[note[0]],
+            0,
+            note[1] === '#' ? osmd.AccidentalEnum.SHARP : (note[1] === 'b' ? osmd.AccidentalEnum.FLAT : osmd.AccidentalEnum.NONE)
+          ),
           leadNote.SourceMeasure,
           false
         );
-        chordEntry.addNote(tone);
+        chordEntry.addNote(chordTone);
       })
     });
   });
 
   leadSheet.Voices.push(chordVoice);
-  leadVoice.audible = false;
-  console.log(openSheetMusicDisplay.sheet);
+  leadVoice.Audible = false;
+  chordVoice.Visible = false;
+
+  // Update the data model.
+  openSheetMusicDisplay.updateGraphic();
+  openSheetMusicDisplay.sheet.fillStaffList();
+  [new osmd.DynamicsCalculator(), new osmd.PlaybackNoteGenerator()].forEach(calc => calc.calculate(openSheetMusicDisplay.sheet));
 }
 
 function createPlaybackControl(openSheetMusicDisplay) {
