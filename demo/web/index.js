@@ -277,6 +277,37 @@ function convertChords(openSheetMusicDisplay) {
   //openSheetMusicDisplay.updateGraphic();
   openSheetMusicDisplay.sheet.fillStaffList();
   [new osmd.DynamicsCalculator(), new osmd.PlaybackNoteGenerator()].forEach(calc => calc.calculate(openSheetMusicDisplay.sheet));
+
+  // Register the chord player listener.
+  openSheetMusicDisplay.renderingManager.addListener(new ChordPlayer(openSheetMusicDisplay));
+}
+
+class ChordPlayer {
+  constructor(openSheetMusicDisplay) {
+    this.openSheetMusicDisplay = openSheetMusicDisplay;
+  }
+
+  userDisplayInteraction(relativePosition, positionInSheetUnits, type) {
+    switch (type) {
+        case 3: // osmd.InteractionType.TouchDown:
+        case 0: // osmd.InteractionType.SingleTouch:
+        case 1: { // osmd.InteractionType.DoubleTouch: {
+          const ve = this.openSheetMusicDisplay.renderingManager.graphicalMusicSheet.GetNearestGraphicalObject(
+            positionInSheetUnits,
+            osmd.GraphicalVoiceEntry.name
+          );
+          if (ve) {
+            try {
+              this.openSheetMusicDisplay.PlaybackManager.playVoiceEntry(ve.sourceStaffEntry.voiceEntries[1]);
+            }
+            catch (ex) {
+              // Do nothing.
+            }
+          }
+        }
+        break;
+    }
+  }
 }
 
 function createPlaybackControl(openSheetMusicDisplay) {
