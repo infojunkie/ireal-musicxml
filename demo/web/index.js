@@ -149,15 +149,20 @@ function populateSheets(playlist) {
 }
 
 function resetSheet() {
-  document.getElementById('sheet').innerHTML = '';
-  document.getElementById('sheet').style.cssText = 'height: 100vh';
-  document.getElementsByClassName('control-panel').forEach(e => e.remove());
-  document.getElementsByClassName('playback-buttons').forEach(e => e.remove());
-
   if (openSheetMusicDisplay) {
     openSheetMusicDisplay.PlaybackManager.pause();
     openSheetMusicDisplay.PlaybackManager.reset();
+    openSheetMusicDisplay.reset();
+    delete openSheetMusicDisplay;
+    openSheetMusicDisplay = null;
   }
+
+  document.getElementById('sheet').remove();
+  document.getElementsByClassName('control-panel').forEach(e => e.remove());
+  document.getElementsByClassName('playback-buttons').forEach(e => e.remove());
+  sheet = document.createElement('div');
+  sheet.id = 'sheet';
+  document.getElementById('sheet-container').appendChild(sheet);
 }
 
 function displaySheet(musicXml) {
@@ -342,7 +347,7 @@ window.addEventListener('load', function () {
   });
   document.getElementById('jazz1350').addEventListener('click', handleJazz1350, false);
 
-  document.getElementById('vrv-version').innerText = '(WASM) 3.8.0-dev';
+  document.getElementById('vrv-version').innerText = '(WASM) 3.9.0-dev';
   document.getElementById('abc-version').innerText = abcjs.signature;
   document.getElementById('osmd-version').innerText = new osmd.OpenSheetMusicDisplay('sheet').Version;
 })
