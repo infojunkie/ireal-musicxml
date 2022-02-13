@@ -264,6 +264,7 @@ function convertChords(openSheetMusicDisplay) {
           leadNote.SourceMeasure,
           false
         );
+        chordTone.PrintObject = false;
         chordEntry.addNote(chordTone);
       })
     });
@@ -274,7 +275,7 @@ function convertChords(openSheetMusicDisplay) {
   chordVoice.Visible = false;
 
   // Update the data model.
-  //openSheetMusicDisplay.updateGraphic();
+  openSheetMusicDisplay.updateGraphic();
   openSheetMusicDisplay.sheet.fillStaffList();
   [new osmd.DynamicsCalculator(), new osmd.PlaybackNoteGenerator()].forEach(calc => calc.calculate(openSheetMusicDisplay.sheet));
 
@@ -294,14 +295,16 @@ class ChordPlayer {
         case 1: { // osmd.InteractionType.DoubleTouch: {
           const ve = this.openSheetMusicDisplay.renderingManager.graphicalMusicSheet.GetNearestGraphicalObject(
             positionInSheetUnits,
-            osmd.GraphicalVoiceEntry.name
+            osmd.GraphicalVoiceEntry.name,
+            1, 1, 1,
+            (object => 'sourceStaffEntry' in object)
           );
           if (ve) {
             try {
               this.openSheetMusicDisplay.PlaybackManager.playVoiceEntry(ve.sourceStaffEntry.voiceEntries[1]);
             }
             catch (ex) {
-              // Do nothing.
+              console.error(ex);
             }
           }
         }
