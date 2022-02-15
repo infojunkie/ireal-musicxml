@@ -285,6 +285,7 @@ function convertChords(openSheetMusicDisplay) {
   [new osmd.DynamicsCalculator(), new osmd.PlaybackNoteGenerator()].forEach(calc => calc.calculate(openSheetMusicDisplay.sheet));
 
   // Register the chord player listener.
+  openSheetMusicDisplay.renderingManager.Listeners.pop();
   openSheetMusicDisplay.renderingManager.addListener(new ChordPlayer(openSheetMusicDisplay));
 }
 
@@ -298,7 +299,7 @@ class ChordPlayer {
         case 3: // osmd.InteractionType.TouchDown:
         case 0: // osmd.InteractionType.SingleTouch:
         case 1: { // osmd.InteractionType.DoubleTouch: {
-          const ve = this.openSheetMusicDisplay.renderingManager.graphicalMusicSheet.GetNearestGraphicalObject(
+          const ve = this.openSheetMusicDisplay.RenderingManager.GraphicalMusicSheet.GetNearestGraphicalObject(
             positionInSheetUnits,
             osmd.GraphicalVoiceEntry.name,
             1, 1, 1,
@@ -306,6 +307,7 @@ class ChordPlayer {
           );
           if (ve) {
             try {
+              this.openSheetMusicDisplay.RenderingManager.setStartPosition(ve.parentVerticalContainer.AbsoluteTimestamp);
               this.openSheetMusicDisplay.PlaybackManager.playVoiceEntry(ve.sourceStaffEntry.voiceEntries[1]);
             }
             catch (ex) {
