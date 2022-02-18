@@ -21,10 +21,11 @@
     "abcjs": "^5.12.0",
     "chord-symbol": "^3.0.0",
     "jquery": "^3.5.1",
+    "node-polyfill-webpack-plugin": "^1.1.4",
     "opensheetmusicdisplay": "file:opensheetmusicdisplay.min.js",
     "sane-domparser-error": "^0.2.0",
     "unzipit": "^1.4.0",
-    "verovio": "^3.7.0",
+    "verovio": "^3.8.1",
     "xml2abc": "https://wim.vree.org/js/xml2abc.tgz"
   }
 }

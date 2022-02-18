@@ -1,5 +1,6 @@
 const path = require('path');
 const CompressionPlugin = require("compression-webpack-plugin");
+const NodePolyfillPlugin = require("node-polyfill-webpack-plugin")
 
 module.exports = {
   mode: 'development',
@@ -15,7 +16,12 @@ module.exports = {
     port: 9000,
     watchContentBase: true
   },
-  plugins: [new CompressionPlugin()],
+  plugins: [new CompressionPlugin(), new NodePolyfillPlugin()],
+  resolve: {
+    fallback: {
+      'fs': false
+    }
+  },
   module: {
     rules: [
       {

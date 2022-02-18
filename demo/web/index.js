@@ -7,6 +7,7 @@ const chordSymbol = require('chord-symbol');
 const ireal2musicxml = require('../../lib/ireal-musicxml');
 const jazz1350 = require('../../test/data/jazz1350.txt');
 const $ = window.$ = require('jquery');
+const verovio = require('verovio');
 
 // Current state.
 let musicXml = null;
@@ -187,13 +188,13 @@ function displaySheet(musicXml) {
       });
   }
   else if (renderer === 'vrv') {
-    const app = new Verovio.App(document.getElementById('sheet'), {
-      defaultView: 'document', // default is 'responsive', alternative is 'document'
-      defaultZoom: 3, // 0-7, default is 4
-      enableResponsive: true, // default is true
-      enableDocument: true // default is true
+    const tk = new verovio.toolkit();
+    let svg = tk.renderData(musicXml, {
+      breaks: 'encoded',
+      adjustPageHeight: true,
+      scale: 50
     });
-    app.loadData(musicXml);
+    document.getElementById('sheet').innerHTML = svg;
   }
   else if (renderer === 'abc') {
     const xmldata = $.parseXML(musicXml);
@@ -349,7 +350,9 @@ window.addEventListener('load', function () {
   });
   document.getElementById('jazz1350').addEventListener('click', handleJazz1350, false);
 
-  document.getElementById('vrv-version').innerText = '(WASM) 3.9.0-dev';
+  verovio.module.onRuntimeInitialized = async _ => {
+    document.getElementById('vrv-version').innerText = new verovio.toolkit().getVersion();
+  }
   document.getElementById('abc-version').innerText = abcjs.signature;
   document.getElementById('osmd-version').innerText = new osmd.OpenSheetMusicDisplay('sheet').Version;
 })
