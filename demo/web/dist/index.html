@@ -3,6 +3,8 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>iReal Pro to MusicXML</title>
 	<script src="ireal2musicxml-demo.js"></script>
+	<script src="wildwebmidi.js"></script>
+	<script src="midiplayer.js"></script>
 	<link rel="stylesheet"href="https://unpkg.com/material-components-web@7.0.0/dist/material-components-web.min.css"/>
 	<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons"/>
 	<style>
@@ -68,7 +70,7 @@ Or simply use this <a href="javascript:;" id="jazz1350">playlist of 1350 jazz st
 	<label for="abc"><span id="abc-version"></span></label>
 </div>
 
-<div id="sheet-container"><div id="sheet"></div></div>
+<div id="sheet-container"><div id="midiPlayer" class="hide"></div><div id="sheet"></div></div>
 
 </body>
 </html>

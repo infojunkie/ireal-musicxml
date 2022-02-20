@@ -1,4 +1,5 @@
 const osmd = require('opensheetmusicdisplay');
+const verovio = require('verovio');
 const abcjs = require('abcjs');
 const xml2abc = require('xml2abc');
 const unzip = require('unzipit');
@@ -6,8 +7,7 @@ const parserError = require('sane-domparser-error');
 const chordSymbol = require('chord-symbol');
 const ireal2musicxml = require('../../lib/ireal-musicxml');
 const jazz1350 = require('../../test/data/jazz1350.txt');
-const $ = window.$ = require('jquery');
-const verovio = require('verovio');
+const $ = window.jQuery = window.$ = require('jquery');
 
 // Current state.
 let musicXml = null;
@@ -188,13 +188,14 @@ function displaySheet(musicXml) {
       });
   }
   else if (renderer === 'vrv') {
-    const tk = new verovio.toolkit();
-    let svg = tk.renderData(musicXml, {
+    const vrv = new verovio.toolkit();
+    const svg = vrv.renderData(musicXml, {
       breaks: 'encoded',
       adjustPageHeight: true,
       scale: 50
     });
     document.getElementById('sheet').innerHTML = svg;
+    createVerovioPlaybackControl(vrv);
   }
   else if (renderer === 'abc') {
     const xmldata = $.parseXML(musicXml);
@@ -214,6 +215,84 @@ function displaySheet(musicXml) {
 
     abcjs.renderAbc('sheet', abc);
   }
+}
+
+class VerovioPlaybackManager {
+  constructor(vrv) {
+    this.vrv = vrv;
+    this.midi = vrv.renderToMIDI();
+
+    this.ids = [];
+    this.playing = false;
+
+    $("#midiPlayer").midiPlayer({
+      color: "#c00",
+      onUpdate: this.midiUpdate.bind(this),
+      onStop: this.midiStop.bind(this),
+      width: 250
+    });
+  }
+
+  bpmChanged(newBpm) {}
+  volumeChanged(instrumentId, newVolume) {}
+  volumeMute(instrumentId) {}
+  volumeUnmute(instrumentId) {}
+
+  play() {
+    if (this.playing) {
+      $("#player").midiPlayer.resume();
+    }
+    else {
+      const base64midi = this.vrv.renderToMIDI();
+      const song = 'data:audio/midi;base64,' + base64midi;
+      $("#player").midiPlayer.play(song);
+      this.playing = true;
+    }
+  }
+
+  pause() { $("#player").midiPlayer.pause(); }
+  reset() { $("#player").midiPlayer.seek(0); }
+
+  midiUpdate(time) {
+    var vrvTime = Math.max(0, time - 400);
+    var elementsattime = this.vrv.getElementsAtTime(vrvTime);
+    if (true/*elementsattime.page > 0*/) {
+        // if (elementsattime.page != page) {
+        //     page = elementsattime.page;
+        //     load_page();
+        // }
+        if ((elementsattime.notes.length > 0) && (this.ids != elementsattime.notes)) {
+            this.ids.forEach(function(noteid) {
+                if ($.inArray(noteid, elementsattime.notes) == -1) {
+                    $("#" + noteid ).attr("fill", "#000");
+                    $("#" + noteid ).attr("stroke", "#000");
+                }
+            });
+            this.ids = elementsattime.notes;
+            this.ids.forEach(function(noteid) {
+                if ($.inArray(noteid, elementsattime.notes) != -1) {
+                    $("#" + noteid ).attr("fill", "#c00");
+                    $("#" + noteid ).attr("stroke", "#c00");;
+                }
+            });
+        }
+    }
+  }
+
+  midiStop() {
+    this.playing = false;
+    this.ids.forEach(function(noteid) {
+        $("#" + noteid ).attr("fill", "#000");
+        $("#" + noteid ).attr("stroke", "#000");
+    });
+    $("#player").hide();
+  }
+
+}
+
+function createVerovioPlaybackControl(vrv) {
+  const playbackControlPanel = new osmd.ControlPanel();
+  playbackControlPanel.addListener(new VerovioPlaybackManager(vrv));
 }
 
 function handleJazz1350() {
