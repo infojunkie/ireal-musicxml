@@ -30,14 +30,12 @@ CircularAudioBuffer.prototype.filledBuffers = function () {
 
 // returns whether buffers are all filled
 CircularAudioBuffer.prototype.full = function () {
-    //console.debug(this.filledBuffers());
     return this.filledBuffers() >= this.slots - 1;
 }
 
 // returns a reference to next available buffer to be filled
 CircularAudioBuffer.prototype.prepare = function () {
     if (this.full()) {
-        //console.log('buffers full!!')
         return
     }
     var buffer = this.buffers[ this.filled++];
@@ -78,18 +76,15 @@ function initAudio() {
 
     source.connect(scriptNode);
     source.start(0);
-    console.debug("initAudio");
 }
 
 function startAudio() {
     scriptNode.connect(audioCtx.destination);
-    console.debug("startAudio");
 }
 
 function pauseAudio() {
     circularBuffer.reset();
     scriptNode.disconnect();
-	console.debug("pauseAudio");
 }
 
 
@@ -126,14 +121,12 @@ function updateProgress(current, total) {
     }
     if (millisec > midiPlayer_lastMillisec) {
         if (midiPlayer_onUpdate != null) midiPlayer_onUpdate(millisec * midiPlayer_updateRate);
-        //console.log(millisec * UPDATE_RATE);
     }
     midiPlayer_lastMillisec = millisec;
 }
 
 function completeConversion(status) {
     midiPlayer_drainBuffer = true;
-    console.debug('completeConversion');
     midiPlayer_convertionJob = null;
     // Not a pause
     if (_EM_signalStop != 2) {
@@ -176,10 +169,7 @@ var MidiPlayer = {
     noInitialRun: true,
     totalDependencies: 1,
     monitorRunDependencies: function(left) {
-        //console.log(this.totalDependencies);
-        //console.log(left);
         if ((left == 0) && !midiPlayer_isLoaded) {
-          console.log("MidiPlayer is loaded");
           midiPlayer_isLoaded = true;
         }
     }
@@ -197,7 +187,6 @@ function onAudioProcess(audioProcessingEvent) {
         return;
     }
     if (!generated) {
-        //console.log('buffer under run!!')
         generated = emptyBuffer;
     }
 
@@ -244,7 +233,6 @@ function convertDataURIToBinary(dataURI) {
 function convertFile(file, data) {
     midiPlayer_midiName = file;
     midiPlayer_input = null;
-    console.log('open ', midiPlayer_midiName);
     MidiPlayer['FS'].writeFile(midiPlayer_midiName, data, {
         encoding: 'binary'
     });
@@ -310,8 +298,6 @@ function runConversion() {
     var sleep = 10;
     circularBuffer.reset();
     startAudio();
-
-    console.log(midiPlayer_convertionJob);
 
     MidiPlayer.ccall('wildwebmidi',
         null,[ 'string', 'string', 'number'],[midiPlayer_convertionJob.sourceMidi, midiPlayer_convertionJob.targetPath, sleep], {

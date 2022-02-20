@@ -244,7 +244,7 @@ class VerovioPlaybackManager {
     }
     else {
       const base64midi = this.vrv.renderToMIDI();
-      const song = 'data:audio/midi;base64,' + base64midi;
+      const song = `data:audio/midi;base64,${base64midi}`;
       $("#player").midiPlayer.play(song);
       this.playing = true;
     }
@@ -257,37 +257,35 @@ class VerovioPlaybackManager {
     var vrvTime = Math.max(0, time - 400);
     var elementsattime = this.vrv.getElementsAtTime(vrvTime);
     if (true/*elementsattime.page > 0*/) {
-        // if (elementsattime.page != page) {
-        //     page = elementsattime.page;
-        //     load_page();
-        // }
-        if ((elementsattime.notes.length > 0) && (this.ids != elementsattime.notes)) {
-            this.ids.forEach(function(noteid) {
-                if ($.inArray(noteid, elementsattime.notes) == -1) {
-                    $("#" + noteid ).attr("fill", "#000");
-                    $("#" + noteid ).attr("stroke", "#000");
-                }
-            });
-            this.ids = elementsattime.notes;
-            this.ids.forEach(function(noteid) {
-                if ($.inArray(noteid, elementsattime.notes) != -1) {
-                    $("#" + noteid ).attr("fill", "#c00");
-                    $("#" + noteid ).attr("stroke", "#c00");;
-                }
-            });
-        }
+      // if (elementsattime.page != page) {
+      //     page = elementsattime.page;
+      //     load_page();
+      // }
+      if ((elementsattime.notes.length > 0) && (this.ids != elementsattime.notes)) {
+        this.ids.forEach(function(noteid) {
+          if ($.inArray(noteid, elementsattime.notes) == -1) {
+            $(`#${noteid}`).attr("fill", "#000");
+            $(`#${noteid}`).attr("stroke", "#000");
+          }
+        });
+        this.ids = elementsattime.notes;
+        this.ids.forEach(function(noteid) {
+          if ($.inArray(noteid, elementsattime.notes) != -1) {
+            $(`#${noteid}`).attr("fill", "#c00");
+            $(`#${noteid}`).attr("stroke", "#c00");;
+          }
+        });
+      }
     }
   }
 
   midiStop() {
     this.playing = false;
     this.ids.forEach(function(noteid) {
-        $("#" + noteid ).attr("fill", "#000");
-        $("#" + noteid ).attr("stroke", "#000");
+      $(`#${noteid}`).attr("fill", "#000");
+      $(`#${noteid}`).attr("stroke", "#000");
     });
-    $("#player").hide();
   }
-
 }
 
 function createVerovioPlaybackControl(vrv) {
