@@ -170,6 +170,8 @@ function displaySheet(musicXml) {
 
   const renderer = document.querySelector('input[name="renderer"]:checked').value;
   if (renderer === 'osmd') {
+    const rules = new osmd.EngravingRules();
+    rules.UseDefaultVoiceInteractionListener = false;
     openSheetMusicDisplay = new osmd.OpenSheetMusicDisplay('sheet', {
       // set options here
       backend: 'svg',
@@ -178,7 +180,7 @@ function displaySheet(musicXml) {
       newSystemFromXML: true,
       newPageFromXML: true,
       followCursor: true,
-    });
+    }, rules);
     openSheetMusicDisplay
       .load(musicXml)
       .then(() => {
@@ -285,8 +287,7 @@ function convertChords(openSheetMusicDisplay) {
   [new osmd.DynamicsCalculator(), new osmd.PlaybackNoteGenerator()].forEach(calc => calc.calculate(openSheetMusicDisplay.sheet));
 
   // Register the chord player listener.
-  openSheetMusicDisplay.renderingManager.Listeners.pop();
-  openSheetMusicDisplay.renderingManager.addListener(new ChordPlayer(openSheetMusicDisplay));
+  openSheetMusicDisplay.RenderingManager.addListener(new ChordPlayer(openSheetMusicDisplay));
 }
 
 class ChordPlayer {
