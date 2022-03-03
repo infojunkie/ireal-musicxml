@@ -112,7 +112,9 @@ function handleSheetSelect(e) {
 
 function handleNotationChange() {
   const sheets = document.getElementById('sheets');
-  displaySong(JSON.parse(sheets.options[sheets.selectedIndex].value));
+  if (sheets.selectedIndex >= 0) {
+    displaySong(JSON.parse(sheets.options[sheets.selectedIndex].value));
+  }
 }
 
 function displaySong(song) {
@@ -231,6 +233,8 @@ function convertChords(openSheetMusicDisplay) {
   const chordVoice = new osmd.Voice(leadSheet, leadVoice.VoiceId + 1);
 
   leadVoice.VoiceEntries.forEach(voiceEntry => {
+    if (!voiceEntry.parentSourceStaffEntry.chordSymbolContainers?.length) return;
+
     // Create the chord tones in the second voice.
     const chordEntry = new osmd.VoiceEntry(
       voiceEntry.Timestamp,
