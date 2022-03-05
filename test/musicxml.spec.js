@@ -187,7 +187,7 @@ describe('MusicXML', function() {
       { m: "^7", k: "major-seventh" },
       { m: "-7", k: "minor-seventh" },
       { m: "7", k: "dominant" },
-      { m: "7sus", k: "dominant" },
+      { m: "7sus", k: "dominant", d: [ { d:3, t:'subtract' }, { d:4, t:'add' } ] },
       { m: "^", k: "major-seventh" },
       { m: "-", k: "minor" },
       { m: "7alt", k: "dominant" },
@@ -252,6 +252,14 @@ describe('MusicXML', function() {
         modifiers: chord.m
       });
       assert.strictEqual(chordKind, chord.k, `Expected D${chord.m} kind`);
+      if (chord.d) {
+        assert.strictEqual(chord.d.length, chordDegrees.length);
+        chord.d.forEach((degree, i) => {
+          assert.strictEqual(degree.d, chordDegrees[i]['_content'][0]['degree-value']);
+          if (degree.a) assert.strictEqual(degree.a, chordDegrees[i]['_content'][1]['degree-alter']);
+          assert.strictEqual(degree.t, chordDegrees[i]['_content'][2]['degree-type']);
+        })
+      }
     });
   });
 });
