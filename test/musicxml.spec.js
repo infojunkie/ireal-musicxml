@@ -187,7 +187,7 @@ describe('MusicXML', function() {
       { m: "^7", k: "major-seventh" },
       { m: "-7", k: "minor-seventh" },
       { m: "7", k: "dominant" },
-      { m: "7sus", k: "dominant", d: [ { d:3, t:'subtract' }, { d:4, t:'add' } ] },
+      { m: "7sus", k: "dominant", d: [ { d:'3', t:'subtract' }, { d:'4', t:'add' } ] },
       { m: "^", k: "major-seventh" },
       { m: "-", k: "minor" },
       { m: "7alt", k: "dominant" },
@@ -195,7 +195,7 @@ describe('MusicXML', function() {
       { m: "6", k: "major-sixth" },
       { m: "-6", k: "minor-sixth" },
       { m: "o7", k: "diminished-seventh" },
-      { m: "ø7", k: "half-diminished" },
+      { m: "ø7", k: "half-diminished", d: [] },
       { m: "^9", k: "major-ninth" },
       { m: "-9", k: "minor-ninth" },
       { m: "9", k: "dominant-ninth" },
@@ -224,7 +224,7 @@ describe('MusicXML', function() {
       { m: "7b9", k: "dominant" },
       { m: "7#9", k: "dominant" },
       { m: "7b5", k: "dominant" },
-      { m: "7#5", k: "dominant" },
+      { m: "7#5", k: "augmented-seventh", d: [] },
       { m: "7b13", k: "dominant" },
       { m: "7#11", k: "dominant" },
       { m: "9#11", k: "dominant-ninth" },
@@ -234,14 +234,14 @@ describe('MusicXML', function() {
       { m: "7b13sus", k: "dominant" },
       { m: "7add3sus", k: "dominant" },
       { m: "9b5", k: "dominant-ninth" },
-      { m: "9#5", k: "dominant-ninth" },
+      { m: "9#5", k: "augmented-seventh", d: [{ d:'9', t:'add' }] },
       { m: "13b9", k: "dominant-13th" },
       { m: "13#9", k: "dominant-13th" },
       { m: "7b9b13", k: "dominant" },
-      { m: "7b9#5", k: "dominant" },
+      { m: "7b9#5", k: "augmented-seventh", d: [{ d:'9', a:-1, t:'add' }] },
       { m: "7b9b5", k: "dominant" },
       { m: "7b9#9", k: "dominant" },
-      { m: "7#9#5", k: "dominant" },
+      { m: "7#9#5", k: "augmented-seventh", d: [{ d:'9', a:1, t:'add' }] },
       { m: "7#9b5", k: "dominant" },
       { m: "7#9#11", k: "dominant" },
       { m: "7b9#11", k: "dominant" },
@@ -253,11 +253,11 @@ describe('MusicXML', function() {
       });
       assert.strictEqual(chordKind, chord.k, `Expected D${chord.m} kind`);
       if (chord.d) {
-        assert.strictEqual(chord.d.length, chordDegrees.length);
+        assert.strictEqual(chordDegrees.length, chord.d.length, `Expected D${chord.m} to have ${chord.d.length} degrees`);
         chord.d.forEach((degree, i) => {
-          assert.strictEqual(degree.d, chordDegrees[i]['_content'][0]['degree-value']);
-          if (degree.a) assert.strictEqual(degree.a, chordDegrees[i]['_content'][1]['degree-alter']);
-          assert.strictEqual(degree.t, chordDegrees[i]['_content'][2]['degree-type']);
+          assert.strictEqual(chordDegrees[i]['_content'][0]['degree-value'], degree.d);
+          if (degree.a) assert.strictEqual(chordDegrees[i]['_content'][1]['degree-alter'], degree.a);
+          assert.strictEqual(chordDegrees[i]['_content'][2]['degree-type'], degree.t);
         })
       }
     });

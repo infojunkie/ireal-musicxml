@@ -960,12 +960,32 @@ export class MusicXML {
 
     // Detect other chord kinds by explicit interval comparison.
     [
-      { intervals: ['1', '4', '5'], kind: 'suspended-fourth' },
-      { intervals: ['1', '5', '9'], kind: 'suspended-second' },
-      { intervals: ['1', 'b3', 'b5', 'b7'], kind: 'half-diminished' }
+      { intervals: ['1', '4', '5'], kind: 'suspended-fourth', strict: true },
+      { intervals: ['1', '5', '9'], kind: 'suspended-second', strict: true },
+      { intervals: ['1', 'b3', 'b5', 'b7'], kind: 'half-diminished', strict: true },
+      { intervals: ['1', '3', '#5', 'b7'], kind: 'augmented-seventh', strict: false }
     ].some(chord => {
-      if (parsedChord.normalized.intervals.length === chord.intervals.length && parsedChord.normalized.intervals.every((s, i) => s === chord.intervals[i])) {
+      if (
+        (!chord.strict || parsedChord.normalized.intervals.length === chord.intervals.length) &&
+        chord.intervals.every((s, i) => s === parsedChord.normalized.intervals[i])
+      ) {
         chordKind = chord.kind;
+
+        // Remove the intervals from the parsedChord to avoid duplication below.
+        chord.intervals.forEach(i => {
+          parsedChord.normalized.alterations = parsedChord.normalized.alterations.filter(p => p === i);
+          parsedChord.normalized.adds = parsedChord.normalized.adds.filter(p => p === i);
+          parsedChord.normalized.omits = parsedChord.normalized.omits.filter(p => p === i);
+        });
+
+        // Add the missing intervals from the parsedChord to the adds.
+        parsedChord.normalized.intervals.forEach(i => {
+          if (!chord.intervals.includes(i)) {
+            parsedChord.normalized.adds.push(i);
+          }
+        })
+
+        // Stop looping.
         return true;
       }
     });
@@ -974,8 +994,8 @@ export class MusicXML {
     const chordDegrees = [];
     if (parsedChord.normalized.isSuspended && !chordKind.includes('suspended')) {
       chordDegrees.push(
-        this.convertChordDegree(3, 'subtract', 0),
-        this.convertChordDegree(4, 'add', 0)
+        this.convertChordDegree('3', 'subtract', 0),
+        this.convertChordDegree('4', 'add', 0)
       );
     }
 
