@@ -214,7 +214,7 @@ describe('MusicXML', function() {
       { m: "-#5", k: "minor" },
       { m: "^7#5", k: "major-seventh" },
       { m: "add9", k: "major" },
-      { m: "-7b5", k: "half-diminished" },
+      { m: "-7b5", k: "half-diminished", d: [] },
       { m: "ø9", k: "minor-ninth" },
       { m: "2", k: "major" },
       { m: "5", k: "power" },

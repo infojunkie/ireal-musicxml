@@ -73,20 +73,16 @@ describe('Bug Fixes', function() {
 
     [
       { m: "7b5", d: [{ v: '5', t: 'alter' }] },
-      { m: "7#5", d: [{ v: '5', t: 'alter' }] },
       { m: "7b13", d: [{ v: '13', t: 'add' }] },
       { m: "7#11", d: [{ v: '11', t: 'add' }] },
       { m: "9#11", d: [{ v: '11', t: 'add' }] },
       { m: "13#11", d: [{ v: '11', t: 'add' }] }, // That's what chord-symbol returns so OK
       { m: "9b5", d: [{ v: '5', t: 'alter' }] },
-      { m: "9#5", d: [{ v: '5', t: 'alter' }] },
       { m: "13b9", d: [{ v: '9', t: 'alter' }] },
       { m: "13#9", d: [{ v: '9', t: 'alter' }] },
       { m: "7b9b13", d: [{ v: '9', t: 'add' },{ v: '13', t: 'add' }] },
-      { m: "7b9#5", d: [{ v: '5', t: 'alter' },{ v: '9', t: 'add' }] },
       { m: "7b9b5", d: [{ v: '5', t: 'alter' },{ v: '9', t: 'add' }] },
       { m: "7b9#9", d: [{ v: '9', t: 'add' },{ v: '9', t: 'add' }] },
-      { m: "7#9#5", d: [{ v: '5', t: 'alter' },{ v: '9', t: 'add' }] },
       { m: "7#9b5", d: [{ v: '5', t: 'alter' },{ v: '9', t: 'add' }] },
       { m: "7#9#11", d: [{ v: '9', t: 'add' },{ v: '11', t: 'add' }] },
       { m: "7b9#11", d: [{ v: '9', t: 'add' },{ v: '11', t: 'add' }] },
