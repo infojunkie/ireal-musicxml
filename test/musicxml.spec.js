@@ -245,7 +245,7 @@ describe('MusicXML', function() {
       { m: "7#9b5", k: "dominant" },
       { m: "7#9#11", k: "dominant" },
       { m: "7b9#11", k: "dominant" },
-//      { m: "sus2", k: "suspended-second" }
+      { m: "sus2", k: "suspended-second" }
     ].forEach(chord => {
       const { rootStep, rootAlter, chordKind, chordDegrees, chordText } = musicXml.convertChordSymbol({
         note: 'D',
