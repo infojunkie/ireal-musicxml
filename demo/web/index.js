@@ -160,8 +160,8 @@ function resetSheet() {
   }
 
   document.getElementById('sheet').remove();
-  document.getElementsByClassName('control-panel').forEach(e => e.remove());
-  document.getElementsByClassName('playback-buttons').forEach(e => e.remove());
+  document.querySelectorAll('.control-panel').forEach(e => e.remove());
+  document.querySelectorAll('.playback-buttons').forEach(e => e.remove());
   sheet = document.createElement('div');
   sheet.id = 'sheet';
   document.getElementById('sheet-container').appendChild(sheet);
