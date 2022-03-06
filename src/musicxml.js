@@ -12,7 +12,7 @@ export class MusicXML {
 
   static sequenceAttributes = [
     // Expected order of attribute elements.
-    // https://usermanuals.musicxml.com/MusicXML/Content/EL-MusicXML-attributes.htm
+    // https://www.w3.org/2021/06/musicxml40/musicxml-reference/elements/attributes/
     'divisions',
     'key',
     'time',
@@ -28,7 +28,7 @@ export class MusicXML {
 
   static sequenceNote = [
     // Expected order of note elements.
-    // https://usermanuals.musicxml.com/MusicXML/Content/CT-MusicXML-note.htm
+    // https://www.w3.org/2021/06/musicxml40/musicxml-reference/elements/note/
     'pitch',
     'rest',
     'unpitched',
@@ -51,7 +51,7 @@ export class MusicXML {
 
   static sequenceNotations = [
     // Expected order of notations elements.
-    // https://usermanuals.musicxml.com/MusicXML/Content/EL-MusicXML-notations.htm
+    // https://www.w3.org/2021/06/musicxml40/musicxml-reference/elements/notations/
     'accidental-mark',
     'arpeggiate',
     'articulations',
@@ -70,7 +70,7 @@ export class MusicXML {
 
   static sequenceBarline = [
     // Expected order of barline elements.
-    // https://usermanuals.musicxml.com/MusicXML/Content/CT-MusicXML-barline.htm
+    // https://www.w3.org/2021/06/musicxml40/musicxml-reference/elements/barline/
     'bar-style',
     'footnote',
     'level',
@@ -479,7 +479,7 @@ export class MusicXML {
 
       // Comments and repeats.
       // TODO Handle measure offset.
-      // https://usermanuals.musicxml.com/MusicXML/Content/EL-MusicXML-offset.htm
+      // https://www.w3.org/2021/06/musicxml40/musicxml-reference/elements/offset/
       cell.comments.map(c => c.trim()).forEach(comment => {
         const repeatFn = MusicXML.getMap(MusicXML.mapRepeats, comment);
         if (repeatFn) {
