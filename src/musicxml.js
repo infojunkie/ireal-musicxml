@@ -990,13 +990,11 @@ export class MusicXML {
       }
     });
 
-    // Add chord degrees.
+    // Handle suspended chords other than triads.
     const chordDegrees = [];
     if (parsedChord.normalized.isSuspended && !chordKind.includes('suspended')) {
-      chordDegrees.push(
-        this.convertChordDegree('3', 'subtract', 0),
-        this.convertChordDegree('4', 'add', 0)
-      );
+      parsedChord.normalized.adds.push('4');
+      parsedChord.normalized.omits.push('3');
     }
 
     parsedChord.normalized.alterations.forEach(alteration => {
