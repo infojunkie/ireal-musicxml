@@ -144,7 +144,7 @@ export class ConversionOptions {
    */
   octave?: number;
   /**
-   * Shape of note head to use, as per https://usermanuals.musicxml.com/MusicXML/Content/ST-MusicXML-notehead-value.htm
+   * Shape of note head to use, as per https://www.w3.org/2021/06/musicxml40/musicxml-reference/data-types/notehead-value/
    */
   notehead?: string;
 }
