@@ -2,7 +2,6 @@
 
 ## Sources
 - iReal Pro [app](https://irealpro.com/), [forum](https://irealb.com/forums/) and [support docs](https://irealpro.com/support/)
-- [`ireal-parse`](https://github.com/realtimerealbook/ireal-parse/blob/master/docs/legend.md)
 - [`ireal-renderer`](https://github.com/daumling/ireal-renderer)
 
 ## Application model and playback algorithm
