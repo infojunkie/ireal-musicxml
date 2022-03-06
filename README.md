@@ -51,5 +51,5 @@ npm run test
 Check out the demos for example usage under `demo/`.
 
 # Documentation
-- More information [about the iReal Pro format](doc/ireal.md).
+- More information [about the iReal Pro format](doc/irealpro.md).
 - More information [about the MusicXML format](https://w3c.github.io/musicxml/).
