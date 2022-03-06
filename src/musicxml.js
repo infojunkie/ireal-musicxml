@@ -959,7 +959,9 @@ export class MusicXML {
 
       // chord-symbol considers dominant-11th to be suspended - but that's not _necessarily_ the case.
       // https://en.wikipedia.org/wiki/Eleventh_chord
-      parsedChord.normalized.isSuspended = false;
+      if (chordKind === 'dominant-11th') {
+        parsedChord.normalized.isSuspended = false;
+      }
     }
 
     // Detect other chord kinds by explicit interval comparison.
@@ -998,7 +1000,10 @@ export class MusicXML {
     const chordDegrees = [];
     if (parsedChord.normalized.isSuspended && !chordKind.includes('suspended')) {
       parsedChord.normalized.adds.push('4');
-      parsedChord.normalized.omits.push('3');
+      // Handle case of sus(add3)
+      if (!parsedChord.normalized.adds.includes('3')) {
+        parsedChord.normalized.omits.push('3');
+      }
     }
 
     // Add chord degrees.
