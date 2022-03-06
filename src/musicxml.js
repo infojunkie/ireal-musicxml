@@ -956,6 +956,10 @@ export class MusicXML {
         '13': '-13th'
       }
       chordKind = chordKind.split('-')[0] + MusicXML.getMap(mapExtensionKind, extension, '', `[${this.measure.number()}] Unhandled extension ${extension}`);
+
+      // chord-symbol considers dominant-11th to be suspended - but that's not _necessarily_ the case.
+      // https://en.wikipedia.org/wiki/Eleventh_chord
+      parsedChord.normalized.isSuspended = false;
     }
 
     // Detect other chord kinds by explicit interval comparison.
@@ -997,6 +1001,7 @@ export class MusicXML {
       parsedChord.normalized.omits.push('3');
     }
 
+    // Add chord degrees.
     parsedChord.normalized.alterations.forEach(alteration => {
       const degree = alteration.slice(1);
       chordDegrees.push(

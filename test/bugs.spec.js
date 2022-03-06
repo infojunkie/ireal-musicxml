@@ -64,40 +64,4 @@ describe('Bug Fixes', function() {
       assert.strictEqual(measures.length, test.measures);
     }
   });
-
-  it('Checks #25 Altered degree', async () => {
-    // We don't care about conversion - just add dummy data here.
-    const playlist = new Playlist(fs.readFileSync('test/data/playlist.html', 'utf-8'));
-    const musicXml = new MusicXML(playlist.songs[0], MusicXML.defaultOptions);
-    musicXml.measure = new MusicXML.Measure(1);
-
-    [
-      { m: "7b5", d: [{ v: '5', t: 'alter' }] },
-      { m: "7b13", d: [{ v: '13', t: 'add' }] },
-      { m: "7#11", d: [{ v: '11', t: 'add' }] },
-      { m: "9#11", d: [{ v: '11', t: 'add' }] },
-      { m: "13#11", d: [{ v: '11', t: 'add' }] }, // That's what chord-symbol returns so OK
-      { m: "9b5", d: [{ v: '5', t: 'alter' }] },
-      { m: "13b9", d: [{ v: '9', t: 'alter' }] },
-      { m: "13#9", d: [{ v: '9', t: 'alter' }] },
-      { m: "7b9b13", d: [{ v: '9', t: 'add' }, { v: '13', t: 'add' }] },
-      { m: "7b9b5", d: [{ v: '5', t: 'alter' }, { v: '9', t: 'add' }] },
-      { m: "7b9#9", d: [{ v: '9', t: 'add' }, { v: '9', t: 'add' }] },
-      { m: "7#9b5", d: [{ v: '5', t: 'alter' }, { v: '9', t: 'add' }] },
-      { m: "7#9#11", d: [{ v: '9', t: 'add' }, { v: '11', t: 'add' }] },
-      { m: "7b9#11", d: [{ v: '9', t: 'add' }, { v: '11', t: 'add' }] },
-    ].forEach(chord => {
-      const { rootStep, rootAlter, chordKind, chordDegrees, chordText } = musicXml.convertChordSymbol({
-        note: 'D',
-        modifiers: chord.m
-      });
-      const actualDegrees = chordDegrees.map(degree => {
-        return {
-          v: degree['_content'].filter(c => 'degree-value' in c)[0]['degree-value'],
-          t: degree['_content'].filter(c => 'degree-type' in c)[0]['degree-type'],
-        }
-      });
-      assert.deepStrictEqual(actualDegrees, chord.d, `Expected D${chord.m} degrees`);
-    });
-  });
 });
