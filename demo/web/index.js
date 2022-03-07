@@ -342,17 +342,24 @@ function createPlaybackControl(openSheetMusicDisplay) {
   openSheetMusicDisplay.PlaybackManager = playbackManager;
 }
 
+function handlePlayPauseKey(e) {
+  if (e.key === ' ') {
+    document.querySelector('.playpause-button').click();
+  }
+}
+
 window.addEventListener('load', function () {
   document.getElementById('playlist').addEventListener('change', handleFileSelect, false);
   document.getElementById('ireal').addEventListener('change', handleIRealChange, false);
   document.getElementById('sheets').addEventListener('change', handleSheetSelect, false);
-  document.querySelectorAll('input[name="renderer"]').forEach((input) => {
+  document.querySelectorAll('input[name="renderer"]').forEach(input => {
     input.addEventListener('change', handleRendererChange);
   });
-  document.querySelectorAll('input[name="notation"]').forEach((input) => {
+  document.querySelectorAll('input[name="notation"]').forEach(input => {
     input.addEventListener('change', handleNotationChange);
   });
   document.getElementById('jazz1350').addEventListener('click', handleJazz1350, false);
+  document.addEventListener('keyup', handlePlayPauseKey);
 
   document.getElementById('vrv-version').innerText = '(WASM) 3.9.0-dev';
   document.getElementById('abc-version').innerText = abcjs.signature;
