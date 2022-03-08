@@ -52,6 +52,8 @@ describe('MusicXML', function() {
     assert.strictEqual(composer[0].toString(), "Cedar Extra Name Walton");
     const firstMeasureDivisions = select(doc, '//measure/attributes/divisions/text()');
     assert.strictEqual(firstMeasureDivisions[0].toString(), "768");
+    const firstMeasureGroove = select(doc, '//measure/direction/sound/play/other-play[@type = "groove"]/text()');
+    assert.strictEqual(firstMeasureGroove[0].toString(), 'Up Tempo Swing');
     const firstChord = select(doc, '//measure/harmony/root/root-step/text()');
     assert.strictEqual(firstChord[0].toString(), "G");
     const keyFifths = select(doc, '//measure/attributes/key/fifths/text()');

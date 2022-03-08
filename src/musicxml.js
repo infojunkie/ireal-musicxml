@@ -173,12 +173,6 @@ export class MusicXML {
           _attrs: { 'type': 'composer' },
           _content: this.song.composer
         }, {
-          // TODO Find better MusicXML element
-          // https://github.com/w3c/musicxml/issues/347
-          _name: 'creator',
-          _attrs: { 'type': 'lyricist' },
-          _content: this.song.style + (this.song.groove ? ` (${this.song.groove})` : '')
-        }, {
           'encoding': [{
             'software': '@infojunkie/ireal-musicxml'
           }, {
@@ -319,6 +313,9 @@ export class MusicXML {
           if (this.song.bpm) {
             this.measure.body['_content'].push(this.convertTempo(this.song.bpm));
           }
+
+          // Add style and groove.
+          this.measure.body['_content'].push(this.convertStyleAndGroove(this.song.style, this.song.groove));
         }
 
         // Add starting barline.
@@ -1108,6 +1105,26 @@ export class MusicXML {
         'fifths': this.fifths
       }, {
         'mode': this.song.key.slice(-1) === '-' ? 'minor' : 'major'
+      }]
+    }
+  }
+
+  convertStyleAndGroove(style, groove) {
+    return {
+      _name: 'direction',
+      _attrs: { 'placement': 'above' },
+      _content: [{
+        'direction-type': [{
+          'words': style
+        }]
+      }, {
+        'sound': [{
+          'play': [{
+            _name: 'other-play',
+            _attrs: { 'type': 'groove' },
+            _content: groove || style
+          }]
+        }]
       }]
     }
   }
