@@ -175,6 +175,7 @@ function displaySheet(musicXml) {
     const rules = new osmd.EngravingRules();
     rules.UseDefaultVoiceInteractionListener = false;
     rules.UseJustifiedBuilder = false;
+    rules.resetChordAccidentalTexts(rules.ChordAccidentalTexts, true);
     openSheetMusicDisplay = new osmd.OpenSheetMusicDisplay('sheet', {
       // set options here
       backend: 'svg',
