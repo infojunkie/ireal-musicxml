@@ -7,6 +7,9 @@
 	<link rel="stylesheet"href="https://unpkg.com/material-components-web@7.0.0/dist/material-components-web.min.css"/>
 	<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons"/>
 	<style>
+		body {
+			background-color: wheat;
+		}
 		#sheet {
 			height: 100vh;
 		}
@@ -67,6 +70,11 @@ Or simply use this <a href="javascript:;" id="jazz1350">playlist of 1350 jazz st
 	<label for="vrv">Verovio <span id="vrv-version"></span></label>
 	<input type="radio" id="abc" name="renderer" value="abc"/>
 	<label for="abc"><span id="abc-version"></span></label>
+</div>
+
+<div>
+	MIDI output
+	<select id="outputs"></select>
 </div>
 
 <div id="sheet-container"><div id="sheet"></div></div>

@@ -13,7 +13,16 @@ module.exports = {
     contentBase: './dist',
     compress: true,
     port: 9000,
-    watchContentBase: true
+    watchContentBase: true,
+    proxy: {
+      '/convert': {
+        target: {
+          host: "0.0.0.0",
+          protocol: 'http:',
+          port: 3000
+        },
+      }
+    }
   },
   plugins: [new CompressionPlugin()],
   module: {

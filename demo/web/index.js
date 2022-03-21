@@ -7,10 +7,14 @@ const chordSymbol = require('chord-symbol');
 const ireal2musicxml = require('../../lib/ireal-musicxml');
 const jazz1350 = require('../../test/data/jazz1350.txt');
 const $ = window.$ = require('jquery');
+const midiParser = require('midi-json-parser');
+const midiPlayer = require('midi-player');
+const midiSlicer = require('midi-file-slicer');
 
 // Current state.
 let musicXml = null;
 let openSheetMusicDisplay = null;
+let midi = null;
 
 function handleIRealChange(e) {
   const playlist = new ireal2musicxml.Playlist(e.target.value);
@@ -152,8 +156,8 @@ function populateSheets(playlist) {
 
 function resetSheet() {
   if (openSheetMusicDisplay) {
-    openSheetMusicDisplay.PlaybackManager.pause();
-    openSheetMusicDisplay.PlaybackManager.reset();
+    // openSheetMusicDisplay.PlaybackManager.pause();
+    // openSheetMusicDisplay.PlaybackManager.reset();
     openSheetMusicDisplay.reset();
     delete openSheetMusicDisplay;
     openSheetMusicDisplay = null;
@@ -188,9 +192,37 @@ function displaySheet(musicXml) {
     openSheetMusicDisplay
       .load(musicXml)
       .then(() => {
-        convertChords(openSheetMusicDisplay);
-        createPlaybackControl(openSheetMusicDisplay);
-      });
+        const formData = new FormData();
+        formData.append('musicxml', new Blob([musicXml], { type: 'text/xml' }));
+        return fetch('/convert', { method: 'POST', body: formData });
+      })
+      .then(response => response.arrayBuffer(), reason => console.error(reason))
+      .then(buffer => midiParser.parseArrayBuffer(buffer), reason => console.error(reason))
+      .then(async json => {
+        const midiFileSlicer = new midiSlicer.MidiFileSlicer({ json });
+        const midiOutput = Array.from(midi.outputs).filter(o => o[1].id === document.getElementById('outputs').value)[0][1];
+        const player = midiPlayer.create({ json, midiOutput });
+
+        const offset = performance.now();
+        let lastTime = offset;
+        let measure = 1;
+        openSheetMusicDisplay.cursor.reset();
+        const displayEvents = (now) => {
+          midiFileSlicer.slice(lastTime - offset, now - offset).forEach(event => {
+            if (event.event.marker) {
+              measure = parseInt(event.event.marker.split(':')[1]) - 1;
+              openSheetMusicDisplay.cursor.iterator.currentMeasureIndex = measure;
+              openSheetMusicDisplay.cursor.iterator.currentMeasure = openSheetMusicDisplay.sheet.SourceMeasures[measure];
+              openSheetMusicDisplay.cursor.iterator.currentVoiceEntryIndex = -1;
+              openSheetMusicDisplay.cursor.next();
+            }
+          });
+          lastTime = now;
+          requestAnimationFrame(displayEvents);
+        };
+        requestAnimationFrame(displayEvents);
+        await player.play();
+      }, reason => console.error(reason));
   }
   else if (renderer === 'vrv') {
     const app = new Verovio.App(document.getElementById('sheet'), {
@@ -350,6 +382,19 @@ function handlePlayPauseKey(e) {
   }
 }
 
+function populateMidiOutputs(midiAccess) {
+  const outputs = document.getElementById('outputs');
+  const current = outputs.value;
+  outputs.innerHTML = '';
+  midiAccess.outputs.forEach(output => {
+    const option = document.createElement('option');
+    option.value = output.id;
+    option.text = output.name;
+    if (option.value === current) option.selected = true;
+    outputs.add(option);
+  });
+}
+
 window.addEventListener('load', function () {
   document.getElementById('playlist').addEventListener('change', handleFileSelect, false);
   document.getElementById('ireal').addEventListener('change', handleIRealChange, false);
@@ -366,4 +411,12 @@ window.addEventListener('load', function () {
   document.getElementById('vrv-version').innerText = '(WASM) 3.9.0-dev';
   document.getElementById('abc-version').innerText = abcjs.signature;
   document.getElementById('osmd-version').innerText = new osmd.OpenSheetMusicDisplay('sheet').Version;
+
+  navigator.requestMIDIAccess().then(midiAccess => {
+    populateMidiOutputs(midiAccess);
+    midiAccess.onstatechange = () => {
+      populateMidiOutputs(midiAccess);
+    }
+    midi = midiAccess;
+  }, error => { console.error(error); });
 })
