@@ -29,6 +29,7 @@ export class MusicXML {
   static sequenceNote = [
     // Expected order of note elements.
     // https://www.w3.org/2021/06/musicxml40/musicxml-reference/elements/note/
+    'cue',
     'pitch',
     'rest',
     'unpitched',
@@ -884,17 +885,18 @@ export class MusicXML {
     }
 
     return MusicXML.reorderSequence(this.measure, [noteType, {
+      _name: 'cue'
+    }, {
       'notehead': this.options.notehead
     }, {
       'duration': duration.duration
     }, {
       'voice': 1,
     }, {
-      'type': duration.type
-    }, { ...(tie && {
-      _name: 'tie',
-      _attrs: { 'type': tie }
-    })}, { ...(notations.length && {
+      _name: 'type',
+      _attrs: { 'size': 'full' },
+      _content: duration.type
+    }, { ...(notations.length && {
       'notations': MusicXML.reorderSequence(this.measure, notations, MusicXML.sequenceNotations)
     })}]
     .concat(Array(duration.dots).fill({ _name: 'dot' })), MusicXML.sequenceNote);
