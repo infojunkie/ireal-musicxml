@@ -896,10 +896,7 @@ export class MusicXML {
       _name: 'type',
       _attrs: { 'size': 'full' },
       _content: duration.type
-    }, { ...(tie && {
-      _name: 'tie',
-      _attrs: { 'type': tie }
-    })}, { ...(notations.length && {
+    }, { ...(notations.length && {
       'notations': MusicXML.reorderSequence(this.measure, notations, MusicXML.sequenceNotations)
     })}]
     .concat(Array(duration.dots).fill({ _name: 'dot' })), MusicXML.sequenceNote);
