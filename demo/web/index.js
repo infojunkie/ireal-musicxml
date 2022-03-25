@@ -3,7 +3,6 @@ const abcjs = require('abcjs');
 const xml2abc = require('xml2abc');
 const unzip = require('unzipit');
 const parserError = require('sane-domparser-error');
-const chordSymbol = require('chord-symbol');
 const ireal2musicxml = require('../../lib/ireal-musicxml');
 const jazz1350 = require('../../test/data/jazz1350.txt');
 const $ = window.$ = require('jquery');
@@ -14,7 +13,11 @@ const midiSlicer = require('midi-file-slicer');
 // Current state.
 let musicXml = null;
 let openSheetMusicDisplay = null;
-let midi = null;
+let midi = {
+  access: null,
+  json: null,
+  player: null
+}
 
 function handleIRealChange(e) {
   const playlist = new ireal2musicxml.Playlist(e.target.value);
@@ -155,17 +158,7 @@ function populateSheets(playlist) {
 }
 
 function resetSheet() {
-  if (openSheetMusicDisplay) {
-    // openSheetMusicDisplay.PlaybackManager.pause();
-    // openSheetMusicDisplay.PlaybackManager.reset();
-    openSheetMusicDisplay.reset();
-    delete openSheetMusicDisplay;
-    openSheetMusicDisplay = null;
-  }
-
   document.getElementById('sheet').remove();
-  document.querySelectorAll('.control-panel').forEach(e => e.remove());
-  document.querySelectorAll('.playback-buttons').forEach(e => e.remove());
   sheet = document.createElement('div');
   sheet.id = 'sheet';
   document.getElementById('sheet-container').appendChild(sheet);
@@ -190,39 +183,10 @@ function displaySheet(musicXml) {
       followCursor: true,
     }, rules);
     openSheetMusicDisplay
-      .load(musicXml)
-      .then(() => {
-        const formData = new FormData();
-        formData.append('musicxml', new Blob([musicXml], { type: 'text/xml' }));
-        return fetch('/convert', { method: 'POST', body: formData });
-      })
-      .then(response => response.arrayBuffer(), reason => console.error(reason))
-      .then(buffer => midiParser.parseArrayBuffer(buffer), reason => console.error(reason))
-      .then(async json => {
-        const midiFileSlicer = new midiSlicer.MidiFileSlicer({ json });
-        const midiOutput = Array.from(midi.outputs).filter(o => o[1].id === document.getElementById('outputs').value)[0][1];
-        const player = midiPlayer.create({ json, midiOutput });
-
-        const offset = performance.now();
-        let lastTime = offset;
-        let measure = 1;
-        openSheetMusicDisplay.cursor.reset();
-        const displayEvents = (now) => {
-          midiFileSlicer.slice(lastTime - offset, now - offset).forEach(event => {
-            if (event.event.marker) {
-              measure = parseInt(event.event.marker.split(':')[1]) - 1;
-              openSheetMusicDisplay.cursor.iterator.currentMeasureIndex = measure;
-              openSheetMusicDisplay.cursor.iterator.currentMeasure = openSheetMusicDisplay.sheet.SourceMeasures[measure];
-              openSheetMusicDisplay.cursor.iterator.currentVoiceEntryIndex = -1;
-              openSheetMusicDisplay.cursor.next();
-            }
-          });
-          lastTime = now;
-          requestAnimationFrame(displayEvents);
-        };
-        requestAnimationFrame(displayEvents);
-        await player.play();
-      }, reason => console.error(reason));
+    .load(musicXml)
+    .then(() => {
+      loadMidi(musicXml);
+    });
   }
   else if (renderer === 'vrv') {
     const app = new Verovio.App(document.getElementById('sheet'), {
@@ -258,129 +222,81 @@ function handleJazz1350() {
   populateSheets(playlist);
 }
 
-function convertChords(openSheetMusicDisplay) {
-  const leadSheet = openSheetMusicDisplay.sheet.instruments.find(i => i.nameLabel.text == 'Lead sheet');
-  if (!leadSheet) return;
-
-  // Assume single voice for lead sheet.
-  const leadVoice = leadSheet.Voices[0];
-  const chordVoice = new osmd.Voice(leadSheet, leadVoice.VoiceId + 1);
-
-  leadVoice.VoiceEntries.forEach(voiceEntry => {
-    if (!voiceEntry.parentSourceStaffEntry.chordSymbolContainers?.length) return;
-
-    // Create the chord tones in the second voice.
-    const chordEntry = new osmd.VoiceEntry(
-      voiceEntry.Timestamp,
-      chordVoice,
-      voiceEntry.ParentSourceStaffEntry
-    );
-
-    const leadNote = voiceEntry.Notes[0];
-
-    const noteMap = {
-      'A': osmd.NoteEnum.A,
-      'B': osmd.NoteEnum.B,
-      'C': osmd.NoteEnum.C,
-      'D': osmd.NoteEnum.D,
-      'E': osmd.NoteEnum.E,
-      'F': osmd.NoteEnum.F,
-      'G': osmd.NoteEnum.G,
-    }
-
-    voiceEntry.parentSourceStaffEntry.chordSymbolContainers?.forEach(osmdChord => {
-      // Get the chord to be played.
-      const chordText = osmd.ChordSymbolContainer.calculateChordText(osmdChord);
-      const parseChord = chordSymbol.chordParserFactory();
-      const chord = parseChord(chordText.replace(/\(alt .*\)/, ''));
-      if (!chord.normalized) {
-        console.error(`Failed to parse the chord "${chordText}"`);
-      }
-      chord.normalized?.notes.forEach(note => {
-        const chordTone = new osmd.Note(
-          chordEntry,
-          chordEntry.ParentSourceStaffEntry,
-          leadNote.length,
-          new osmd.Pitch(
-            noteMap[note[0]],
-            0,
-            note[1] === '#' ? osmd.AccidentalEnum.SHARP : (note[1] === 'b' ? osmd.AccidentalEnum.FLAT : osmd.AccidentalEnum.NONE)
-          ),
-          leadNote.SourceMeasure,
-          false
-        );
-        chordTone.PrintObject = false;
-        chordEntry.addNote(chordTone);
-      })
-    });
-  });
-
-  leadSheet.Voices.push(chordVoice);
-  leadVoice.Audible = false;
-  chordVoice.Visible = false;
-
-  // Update the data model.
-  openSheetMusicDisplay.updateGraphic();
-  openSheetMusicDisplay.sheet.fillStaffList();
-  [new osmd.DynamicsCalculator(), new osmd.PlaybackNoteGenerator()].forEach(calc => calc.calculate(openSheetMusicDisplay.sheet));
-
-  // Register the chord player listener.
-  openSheetMusicDisplay.RenderingManager.addListener(new ChordPlayer(openSheetMusicDisplay));
-}
-
-class ChordPlayer {
-  constructor(openSheetMusicDisplay) {
-    this.openSheetMusicDisplay = openSheetMusicDisplay;
-  }
-
-  userDisplayInteraction(relativePosition, positionInSheetUnits, type) {
-    switch (type) {
-        case 3: // osmd.InteractionType.TouchDown:
-        case 0: // osmd.InteractionType.SingleTouch:
-        case 1: { // osmd.InteractionType.DoubleTouch: {
-          const ve = this.openSheetMusicDisplay.RenderingManager.GraphicalMusicSheet.GetNearestGraphicalObject(
-            positionInSheetUnits,
-            osmd.GraphicalVoiceEntry.name,
-            1, 1, 1,
-            (object => 'sourceStaffEntry' in object)
-          );
-          if (ve) {
-            try {
-              this.openSheetMusicDisplay.RenderingManager.setStartPosition(ve.parentVerticalContainer.AbsoluteTimestamp);
-              this.openSheetMusicDisplay.PlaybackManager.playVoiceEntry(ve.sourceStaffEntry.voiceEntries[1]);
-            }
-            catch (ex) {
-              console.error(ex);
-            }
-          }
-        }
-        break;
-    }
-  }
-}
-
-function createPlaybackControl(openSheetMusicDisplay) {
-  const timingSource = new osmd.LinearTimingSource();
-  const playbackManager = new osmd.PlaybackManager(timingSource, undefined, new osmd.BasicAudioPlayer(), undefined);
-  playbackManager.DoPlayback = true;
-  playbackManager.DoPreCount = false;
-  playbackManager.PreCountMeasures = 1;
-  const playbackControlPanel = new osmd.ControlPanel();
-  playbackControlPanel.addListener(playbackManager);
-  timingSource.reset();
-  timingSource.pause();
-  timingSource.Settings = openSheetMusicDisplay.sheet.playbackSettings;
-  playbackManager.initialize(openSheetMusicDisplay.sheet.musicPartManager);
-  playbackManager.addListener(openSheetMusicDisplay.cursor);
-  playbackManager.reset();
-  openSheetMusicDisplay.PlaybackManager = playbackManager;
-}
-
 function handlePlayPauseKey(e) {
   if (e.key === ' ') {
-    document.querySelector('.playpause-button').click();
+    // TODO Handle spacebar to play/pause.
   }
 }
+
+async function loadMidi(musicXml) {
+  const formData = new FormData();
+  formData.append('musicxml', new Blob([musicXml], { type: 'text/xml' }));
+  try {
+    const response = await fetch('/convert', { method: 'POST', body: formData });
+    if (!response.ok) throw new Error(response.statusText);
+    const buffer = await response.arrayBuffer();
+    midi.json = await midiParser.parseArrayBuffer(buffer);
+  }
+  catch (e) {
+    console.error(e);
+  }
+}
+
+// Staff entry timestamp to actual time relative to measure start.
+function osmdTimestampToMillisecs(measure, timestamp) {
+  return timestamp.realValue * 4 * 60 * 1000 / measure.tempoInBPM;
+}
+
+function osmdMoveToStaffEntry(measureIndex, millisecs) {
+  const measure = openSheetMusicDisplay.sheet.sourceMeasures[measureIndex];
+  for (v = measure.verticalSourceStaffEntryContainers.length - 1; v >= 0; v--) {
+    const vsse = measure.verticalSourceStaffEntryContainers[v];
+    if (osmdTimestampToMillisecs(measure, vsse.timestamp) <= millisecs + Number.EPSILON) {
+      openSheetMusicDisplay.cursor.iterator.currentMeasureIndex = measureIndex;
+      openSheetMusicDisplay.cursor.iterator.currentMeasure = measure;
+      openSheetMusicDisplay.cursor.iterator.currentVoiceEntryIndex = v - 1;
+      openSheetMusicDisplay.cursor.next();
+      return;
+    }
+  }
+  console.error(`Could not find suitable staff entry at time ${millisecs} for measure ${measure.measureNumber}`);
+}
+
+function osmdRewind() {
+  openSheetMusicDisplay.cursor.reset();
+}
+
+async function playMidi() {
+  const midiFileSlicer = new midiSlicer.MidiFileSlicer({ json: midi.json });
+  const output = Array.from(midi.access.outputs).filter(o => o[1].id === document.getElementById('outputs').value)[0][1];
+  midi.player = midiPlayer.create({ json: midi.json, midiOutput: output });
+
+  const offset = performance.now();
+  let lastTime = offset;
+  let measureStartTime = offset;
+  let currentMeasure = 1;
+  osmdRewind();
+  const displayEvents = (now) => {
+    midiFileSlicer.slice(lastTime - offset, now - offset).forEach(event => {
+      if (event.event.marker) {
+        currentMeasure = parseInt(event.event.marker.split(':')[1]) - 1;
+        measureStartTime = now;
+      }
+      osmdMoveToStaffEntry(currentMeasure, now - measureStartTime);
+    });
+    lastTime = now;
+    requestAnimationFrame(displayEvents);
+  };
+  requestAnimationFrame(displayEvents);
+  await midi.player.play();
+}
+
+async function handleMidiOutputSelect(e) {}
+async function handleMidiRewind(e) {}
+async function handleMidiPlay(e) {
+  playMidi();
+}
+async function handleMidiPause(e) {}
 
 function populateMidiOutputs(midiAccess) {
   const outputs = document.getElementById('outputs');
@@ -417,6 +333,10 @@ window.addEventListener('load', function () {
     midiAccess.onstatechange = () => {
       populateMidiOutputs(midiAccess);
     }
-    midi = midiAccess;
+    document.getElementById('outputs').addEventListener('change', handleMidiOutputSelect, false);
+    document.getElementById('rewind').addEventListener('click', handleMidiRewind, false);
+    document.getElementById('play').addEventListener('click', handleMidiPlay, false);
+    document.getElementById('pause').addEventListener('click', handleMidiPause, false);
+    midi.access = midiAccess;
   }, error => { console.error(error); });
 })

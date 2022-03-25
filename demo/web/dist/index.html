@@ -4,28 +4,12 @@
 	<title>iReal Pro to MusicXML</title>
 	<script src="ireal2musicxml-demo.js"></script>
 	<script src="https://www.verovio.org/javascript/app/verovio-app.js"></script>
-	<link rel="stylesheet"href="https://unpkg.com/material-components-web@7.0.0/dist/material-components-web.min.css"/>
-	<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons"/>
 	<style>
 		body {
 			background-color: wheat;
 		}
 		#sheet {
 			height: 100vh;
-		}
-		.playback-buttons{
-			position: fixed;
-			bottom: 5px;
-			left: calc(50% - 56px);
-		}
-		.playpause-button .pause-icon {
-			display: none;
-		}
-		.playpause-button.playing .pause-icon {
-			display: block;
-		}
-		.playpause-button.playing .play-icon {
-			display: none;
 		}
 		.hide {
 			display: none;
@@ -75,6 +59,9 @@ Or simply use this <a href="javascript:;" id="jazz1350">playlist of 1350 jazz st
 <div>
 	MIDI output
 	<select id="outputs"></select>
+	<button class="midi" id="rewind">⏮</button>
+	<button class="midi" id="pause">⏸</button>
+	<button class="midi" id="play">⏵</button>
 </div>
 
 <div id="sheet-container"><div id="sheet"></div></div>
