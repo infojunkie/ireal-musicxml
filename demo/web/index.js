@@ -242,28 +242,55 @@ async function loadMidi(musicXml) {
   }
 }
 
-// Staff entry timestamp to actual time relative to measure start.
-function osmdTimestampToMillisecs(measure, timestamp) {
-  return timestamp.realValue * 4 * 60 * 1000 / measure.tempoInBPM;
-}
+class OpenSheetMusicDisplayPlayback {
+  constructor(openSheetMusicDisplay) {
+    this.openSheetMusicDisplay = openSheetMusicDisplay;
+    this.currentMeasureIndex = 1;
+    this.currentVoiceEntryIndex = 0;
+    this.moveToTop();
+  }
 
-function osmdMoveToStaffEntry(measureIndex, millisecs) {
-  const measure = openSheetMusicDisplay.sheet.sourceMeasures[measureIndex];
-  for (v = measure.verticalSourceStaffEntryContainers.length - 1; v >= 0; v--) {
-    const vsse = measure.verticalSourceStaffEntryContainers[v];
-    if (osmdTimestampToMillisecs(measure, vsse.timestamp) <= millisecs + Number.EPSILON) {
-      openSheetMusicDisplay.cursor.iterator.currentMeasureIndex = measureIndex;
-      openSheetMusicDisplay.cursor.iterator.currentMeasure = measure;
-      openSheetMusicDisplay.cursor.iterator.currentVoiceEntryIndex = v - 1;
-      openSheetMusicDisplay.cursor.next();
+
+  // Staff entry timestamp to actual time relative to measure start.
+  static timestampToMillisecs(measure, timestamp) {
+    return timestamp.realValue * 4 * 60 * 1000 / measure.tempoInBPM;
+  }
+
+  moveToMeasureTime(measureIndex, millisecs) {
+    const measure = this.openSheetMusicDisplay.sheet.sourceMeasures[measureIndex];
+
+    // If we're moving to a new measure, then start at the first staff entry without search.
+    if (this.currentMeasureIndex !== measureIndex) {
+      this.currentMeasureIndex = measureIndex;
+      this.currentVoiceEntryIndex = 0;
+      this.openSheetMusicDisplay.cursor.iterator.currentMeasureIndex = this.currentMeasureIndex;
+      this.openSheetMusicDisplay.cursor.iterator.currentMeasure = measure;
+      this.openSheetMusicDisplay.cursor.iterator.currentVoiceEntryIndex = this.currentVoiceEntryIndex - 1;
+      this.openSheetMusicDisplay.cursor.next();
       return;
     }
-  }
-  console.error(`Could not find suitable staff entry at time ${millisecs} for measure ${measure.measureNumber}`);
-}
 
-function osmdRewind() {
-  openSheetMusicDisplay.cursor.reset();
+    // Same measure, new time.
+    for (let v = measure.verticalSourceStaffEntryContainers.length - 1; v >= 0; v--) {
+      const vsse = measure.verticalSourceStaffEntryContainers[v];
+      if (OpenSheetMusicDisplayPlayback.timestampToMillisecs(measure, vsse.timestamp) <= millisecs + Number.EPSILON) {
+        // If same staff entry, do nothing.
+        if (this.currentVoiceEntryIndex === v) return;
+
+        this.currentVoiceEntryIndex = v;
+        this.openSheetMusicDisplay.cursor.iterator.currentMeasureIndex = this.currentMeasureIndex;
+        this.openSheetMusicDisplay.cursor.iterator.currentMeasure = measure;
+        this.openSheetMusicDisplay.cursor.iterator.currentVoiceEntryIndex = this.currentVoiceEntryIndex - 1;
+        this.openSheetMusicDisplay.cursor.next();
+        return;
+      }
+    }
+    console.error(`Could not find suitable staff entry at time ${millisecs} for measure ${measure.measureNumber}`);
+  }
+
+  moveToTop() {
+    this.openSheetMusicDisplay.cursor.reset();
+  }
 }
 
 async function playMidi() {
@@ -275,15 +302,18 @@ async function playMidi() {
   let lastTime = offset;
   let measureStartTime = offset;
   let currentMeasure = 1;
-  osmdRewind();
+  const score = new OpenSheetMusicDisplayPlayback(openSheetMusicDisplay);
+
   const displayEvents = (now) => {
     midiFileSlicer.slice(lastTime - offset, now - offset).forEach(event => {
       if (event.event.marker) {
         currentMeasure = parseInt(event.event.marker.split(':')[1]) - 1;
         measureStartTime = now;
       }
-      osmdMoveToStaffEntry(currentMeasure, now - measureStartTime);
     });
+    score.moveToMeasureTime(currentMeasure, now - measureStartTime);
+
+    // Next round.
     lastTime = now;
     requestAnimationFrame(displayEvents);
   };
