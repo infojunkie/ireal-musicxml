@@ -247,7 +247,8 @@ class OpenSheetMusicDisplayPlayback {
     this.openSheetMusicDisplay = openSheetMusicDisplay;
     this.currentMeasureIndex = 1;
     this.currentVoiceEntryIndex = 0;
-    this.moveToTop();
+    this.openSheetMusicDisplay.cursor.show();
+    this.openSheetMusicDisplay.cursor.reset();
   }
 
 
@@ -256,17 +257,22 @@ class OpenSheetMusicDisplayPlayback {
     return timestamp.realValue * 4 * 60 * 1000 / measure.tempoInBPM;
   }
 
+  updateCursor(measureIndex, voiceEntryIndex) {
+    const measure = this.openSheetMusicDisplay.sheet.sourceMeasures[measureIndex];
+    this.currentMeasureIndex = measureIndex;
+    this.currentVoiceEntryIndex = voiceEntryIndex;
+    this.openSheetMusicDisplay.cursor.iterator.currentMeasureIndex = this.currentMeasureIndex;
+    this.openSheetMusicDisplay.cursor.iterator.currentMeasure = measure;
+    this.openSheetMusicDisplay.cursor.iterator.currentVoiceEntryIndex = this.currentVoiceEntryIndex - 1;
+    this.openSheetMusicDisplay.cursor.next();
+  }
+
   moveToMeasureTime(measureIndex, millisecs) {
     const measure = this.openSheetMusicDisplay.sheet.sourceMeasures[measureIndex];
 
     // If we're moving to a new measure, then start at the first staff entry without search.
     if (this.currentMeasureIndex !== measureIndex) {
-      this.currentMeasureIndex = measureIndex;
-      this.currentVoiceEntryIndex = 0;
-      this.openSheetMusicDisplay.cursor.iterator.currentMeasureIndex = this.currentMeasureIndex;
-      this.openSheetMusicDisplay.cursor.iterator.currentMeasure = measure;
-      this.openSheetMusicDisplay.cursor.iterator.currentVoiceEntryIndex = this.currentVoiceEntryIndex - 1;
-      this.openSheetMusicDisplay.cursor.next();
+      this.updateCursor(measureIndex, 0);
       return;
     }
 
@@ -275,13 +281,9 @@ class OpenSheetMusicDisplayPlayback {
       const vsse = measure.verticalSourceStaffEntryContainers[v];
       if (OpenSheetMusicDisplayPlayback.timestampToMillisecs(measure, vsse.timestamp) <= millisecs + Number.EPSILON) {
         // If same staff entry, do nothing.
-        if (this.currentVoiceEntryIndex === v) return;
-
-        this.currentVoiceEntryIndex = v;
-        this.openSheetMusicDisplay.cursor.iterator.currentMeasureIndex = this.currentMeasureIndex;
-        this.openSheetMusicDisplay.cursor.iterator.currentMeasure = measure;
-        this.openSheetMusicDisplay.cursor.iterator.currentVoiceEntryIndex = this.currentVoiceEntryIndex - 1;
-        this.openSheetMusicDisplay.cursor.next();
+        if (this.currentVoiceEntryIndex !== v) {
+          this.updateCursor(measureIndex, v);
+        }
         return;
       }
     }
@@ -311,7 +313,7 @@ async function playMidi() {
         measureStartTime = now;
       }
     });
-    score.moveToMeasureTime(currentMeasure, now - measureStartTime);
+    score.moveToMeasureTime(currentMeasure, Math.max(0, now - measureStartTime));
 
     // Next round.
     lastTime = now;
