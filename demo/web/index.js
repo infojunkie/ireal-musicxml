@@ -16,7 +16,8 @@ let openSheetMusicDisplay = null;
 let midi = {
   access: null,
   json: null,
-  player: null
+  player: null,
+  score: null
 }
 
 function handleIRealChange(e) {
@@ -248,7 +249,6 @@ class OpenSheetMusicDisplayPlayback {
     this.currentMeasureIndex = 1;
     this.currentVoiceEntryIndex = 0;
     this.openSheetMusicDisplay.cursor.show();
-    this.openSheetMusicDisplay.cursor.reset();
   }
 
 
@@ -304,7 +304,7 @@ async function playMidi() {
   let lastTime = offset;
   let measureStartTime = offset;
   let currentMeasure = 1;
-  const score = new OpenSheetMusicDisplayPlayback(openSheetMusicDisplay);
+  midi.score = new OpenSheetMusicDisplayPlayback(openSheetMusicDisplay);
 
   const displayEvents = (now) => {
     midiFileSlicer.slice(lastTime - offset, now - offset).forEach(event => {
@@ -313,22 +313,37 @@ async function playMidi() {
         measureStartTime = now;
       }
     });
-    score.moveToMeasureTime(currentMeasure, Math.max(0, now - measureStartTime));
+    midi.score.moveToMeasureTime(currentMeasure, Math.max(0, now - measureStartTime));
 
     // Next round.
-    lastTime = now;
-    requestAnimationFrame(displayEvents);
+    if (midi.player.playing) {
+      lastTime = now;
+      requestAnimationFrame(displayEvents);
+    }
   };
   requestAnimationFrame(displayEvents);
   await midi.player.play();
 }
 
-async function handleMidiOutputSelect(e) {}
-async function handleMidiRewind(e) {}
-async function handleMidiPlay(e) {
-  playMidi();
+async function pauseMidi() {
+  if (midi.player) {
+    midi.player.pause();
+  }
 }
-async function handleMidiPause(e) {}
+
+async function rewindMidi() {
+  if (midi.player) {
+    midi.player.stop();
+  }
+  if (midi.score) {
+    midi.score.moveToTop();
+  }
+}
+
+async function handleMidiOutputSelect(e) {}
+async function handleMidiRewind(e) { rewindMidi(); }
+async function handleMidiPlay(e) { playMidi(); }
+async function handleMidiPause(e) { pauseMidi(); }
 
 function populateMidiOutputs(midiAccess) {
   const outputs = document.getElementById('outputs');
