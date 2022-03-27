@@ -174,10 +174,6 @@ function displaySheet(musicXml) {
 
   const renderer = document.querySelector('input[name="renderer"]:checked').value;
   if (renderer === 'osmd') {
-    const rules = new osmd.EngravingRules();
-    rules.UseDefaultVoiceInteractionListener = false;
-    rules.UseJustifiedBuilder = false;
-    rules.resetChordAccidentalTexts(rules.ChordAccidentalTexts, true);
     openSheetMusicDisplay = new osmd.OpenSheetMusicDisplay('sheet', {
       // set options here
       backend: 'svg',
@@ -186,7 +182,8 @@ function displaySheet(musicXml) {
       newSystemFromXML: true,
       newPageFromXML: true,
       followCursor: true,
-    }, rules);
+    });
+    openSheetMusicDisplay.rules.resetChordAccidentalTexts(openSheetMusicDisplay.rules.ChordAccidentalTexts, true);
     openSheetMusicDisplay
     .load(musicXml)
     .then(() => {
