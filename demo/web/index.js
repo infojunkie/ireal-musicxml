@@ -17,7 +17,11 @@ let midi = {
   access: null,
   json: null,
   player: null,
-  score: null
+  score: null,
+  startTime: null,
+  pauseTime: null,
+  currentMeasureIndex: null,
+  currentMeasureStartTime: null,
 }
 
 function handleIRealChange(e) {
@@ -237,6 +241,10 @@ async function loadMidi(musicXml) {
     if (!response.ok) throw new Error(response.statusText);
     const buffer = await response.arrayBuffer();
     midi.json = await midiParser.parseArrayBuffer(buffer);
+    if (midi.player) {
+      midi.player.stop();
+      midi.player = null;
+    }
   }
   catch (e) {
     console.error(e);
@@ -295,39 +303,55 @@ class OpenSheetMusicDisplayPlayback {
   }
 }
 
-async function playMidi() {
+async function playMidi(force = false) {
   const midiFileSlicer = new midiSlicer.MidiFileSlicer({ json: midi.json });
   const output = Array.from(midi.access.outputs).filter(o => o[1].id === document.getElementById('outputs').value)[0][1];
-  midi.player = midiPlayer.create({ json: midi.json, midiOutput: output });
 
-  const offset = performance.now();
-  let lastTime = offset;
-  let measureStartTime = offset;
-  let currentMeasure = 1;
-  midi.score = new OpenSheetMusicDisplayPlayback(openSheetMusicDisplay);
+  if (force || !midi.player) {
+    midi.player = midiPlayer.create({ json: midi.json, midiOutput: output });
+  }
 
+  const now = performance.now();
+  if (midi.player.state === 2) {
+    midi.startTime += now - midi.pauseTime;
+    midi.currentMeasureStartTime += now - midi.pauseTime;
+  }
+  else {
+    midi.startTime = now;
+    midi.currentMeasureIndex = 1;
+    midi.currentMeasureStartTime = midi.startTime;
+    midi.score = new OpenSheetMusicDisplayPlayback(openSheetMusicDisplay);
+  }
+  let lastTime = now;
   const displayEvents = (now) => {
-    midiFileSlicer.slice(lastTime - offset, now - offset).forEach(event => {
+    midiFileSlicer.slice(lastTime - midi.startTime, now - midi.startTime).forEach(event => {
       if (event.event.marker) {
-        currentMeasure = parseInt(event.event.marker.split(':')[1]) - 1;
-        measureStartTime = now;
+        midi.currentMeasureIndex = parseInt(event.event.marker.split(':')[1]) - 1;
+        midi.currentMeasureStartTime = now;
       }
     });
-    midi.score.moveToMeasureTime(currentMeasure, Math.max(0, now - measureStartTime));
+    midi.score.moveToMeasureTime(midi.currentMeasureIndex, Math.max(0, now - midi.currentMeasureStartTime));
 
-    // Next round.
-    if (midi.player.playing) {
+    // Schedule next cursor movement if still playing.
+    if (midi.player.state === 1) {
       lastTime = now;
       requestAnimationFrame(displayEvents);
     }
   };
   requestAnimationFrame(displayEvents);
-  await midi.player.play();
+
+  if (midi.player.state === 2) {
+    await midi.player.resume();
+  }
+  else {
+    await midi.player.play();
+  }
 }
 
 async function pauseMidi() {
   if (midi.player) {
     midi.player.pause();
+    midi.pauseTime = performance.now();
   }
 }
 
