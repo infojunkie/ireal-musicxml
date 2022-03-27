@@ -132,7 +132,7 @@ function handleNotationChange() {
 function displaySong(song) {
   const title = `${song.title.replace(/[/\\?%*:|"'<>]/g, '-')}.musicxml`;
   musicXml = song.musicXml || ireal2musicxml.MusicXML.convert(song, {
-    notation: document.querySelector('input[name="notation"]:checked').value
+    notation: 'rhythmic' //document.querySelector('input[name="notation"]:checked').value
   });
   const a = document.createElement('a');
   a.setAttribute('href', 'data:text/xml;charset=utf-8,' + encodeURIComponent(musicXml));
@@ -290,6 +290,7 @@ async function loadMidi(musicXml) {
     if (!response.ok) throw new Error(response.statusText);
     const buffer = await response.arrayBuffer();
     midi.json = await midiParser.parseArrayBuffer(buffer);
+    if (midi.player) midi.player.stop();
     const output = Array.from(midi.access.outputs).filter(o => o[1].id === document.getElementById('outputs').value)[0][1];
     midi.player = midiPlayer.create({ json: midi.json, midiOutput: output });
     document.getElementById('player').style.visibility = 'visible';
@@ -382,9 +383,9 @@ window.addEventListener('load', function () {
   document.querySelectorAll('input[name="renderer"]').forEach(input => {
     input.addEventListener('change', handleRendererChange);
   });
-  document.querySelectorAll('input[name="notation"]').forEach(input => {
-    input.addEventListener('change', handleNotationChange);
-  });
+  // document.querySelectorAll('input[name="notation"]').forEach(input => {
+  //   input.addEventListener('change', handleNotationChange);
+  // });
   document.getElementById('jazz1350').addEventListener('click', handleJazz1350, false);
   document.addEventListener('keyup', handlePlayPauseKey);
 
