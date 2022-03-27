@@ -184,6 +184,7 @@ function displaySheet(musicXml) {
       followCursor: true,
     });
     openSheetMusicDisplay.rules.resetChordAccidentalTexts(openSheetMusicDisplay.rules.ChordAccidentalTexts, true);
+    openSheetMusicDisplay.rules.resetChordSymbolLabelTexts(openSheetMusicDisplay.rules.ChordSymbolLabelTexts);
     openSheetMusicDisplay
     .load(musicXml)
     .then(() => {
