@@ -14,6 +14,19 @@
 		.hide {
 			display: none;
 		}
+		#player {
+			visibility: hidden;
+			position: fixed;
+			bottom: 0;
+			width: 100%;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			z-index: 1000;
+		}
+		.player {
+			margin: 5px;
+		}
 	</style>
 </head>
 <body>
@@ -59,9 +72,13 @@ Or simply use this <a href="javascript:;" id="jazz1350">playlist of 1350 jazz st
 <div>
 	MIDI output
 	<select id="outputs"></select>
-	<button class="midi" id="rewind">⏮</button>
-	<button class="midi" id="pause">⏸</button>
-	<button class="midi" id="play">⏵</button>
+	Don't forget to connect this output to a MIDI synth like FluidSynth, TiMidity, or <a href="https://mmontag.github.io/dx7-synth-js/" target="_blank">DX7 Synth</a>.
+</div>
+
+<div id="player">
+	<button class="player" id="rewind">⏮</button>
+	<button class="player" id="pause">⏸</button>
+	<button class="player" id="play">⏵</button>
 </div>
 
 <div id="sheet-container"><div id="sheet"></div></div>

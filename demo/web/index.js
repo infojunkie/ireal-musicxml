@@ -230,24 +230,6 @@ function handlePlayPauseKey(e) {
   }
 }
 
-async function loadMidi(musicXml) {
-  const formData = new FormData();
-  formData.append('musicxml', new Blob([musicXml], { type: 'text/xml' }));
-  try {
-    const response = await fetch('/convert', { method: 'POST', body: formData });
-    if (!response.ok) throw new Error(response.statusText);
-    const buffer = await response.arrayBuffer();
-    midi.json = await midiParser.parseArrayBuffer(buffer);
-    if (midi.player) {
-      midi.player.stop();
-      midi.player = null;
-    }
-  }
-  catch (e) {
-    console.error(e);
-  }
-}
-
 class OpenSheetMusicDisplayPlayback {
   constructor(openSheetMusicDisplay) {
     this.openSheetMusicDisplay = openSheetMusicDisplay;
@@ -300,14 +282,25 @@ class OpenSheetMusicDisplayPlayback {
   }
 }
 
-async function playMidi(force = false) {
-  const midiFileSlicer = new midiSlicer.MidiFileSlicer({ json: midi.json });
-  const output = Array.from(midi.access.outputs).filter(o => o[1].id === document.getElementById('outputs').value)[0][1];
-
-  if (force || !midi.player) {
+async function loadMidi(musicXml) {
+  const formData = new FormData();
+  formData.append('musicxml', new Blob([musicXml], { type: 'text/xml' }));
+  try {
+    const response = await fetch('/convert', { method: 'POST', body: formData });
+    if (!response.ok) throw new Error(response.statusText);
+    const buffer = await response.arrayBuffer();
+    midi.json = await midiParser.parseArrayBuffer(buffer);
+    const output = Array.from(midi.access.outputs).filter(o => o[1].id === document.getElementById('outputs').value)[0][1];
     midi.player = midiPlayer.create({ json: midi.json, midiOutput: output });
+    document.getElementById('player').style.visibility = 'visible';
   }
+  catch (e) {
+    document.getElementById('player').style.visibility = 'hidden';
+    console.error(e);
+  }
+}
 
+async function playMidi() {
   const now = performance.now();
   if (midi.player.state === 2) {
     midi.startTime += now - midi.pauseTime;
@@ -319,6 +312,9 @@ async function playMidi(force = false) {
     midi.currentMeasureStartTime = midi.startTime;
     midi.score = new OpenSheetMusicDisplayPlayback(openSheetMusicDisplay);
   }
+
+  const midiFileSlicer = new midiSlicer.MidiFileSlicer({ json: midi.json });
+
   let lastTime = now;
   const displayEvents = (now) => {
     midiFileSlicer.slice(lastTime - midi.startTime, now - midi.startTime).forEach(event => {
