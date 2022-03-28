@@ -110,7 +110,7 @@ function handleFileSelect(e) {
     if (tryiRealPro(text)) return;
     document.getElementById('file-error').textContent = 'This file is not recognized as either iReal Pro or MusicXML.';
   };
-  if (file.size < 5*1000*1000) {
+  if (file.size < 1*1024*1024) {
     reader.readAsArrayBuffer(file);
   }
   else {
