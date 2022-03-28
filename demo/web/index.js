@@ -130,7 +130,7 @@ function handleNotationChange() {
 }
 
 function displaySong(song) {
-  const title = `${song.title.replace(/[/\\?%*:|"'<>]/g, '-')}.musicxml`;
+  const title = `${song.title.replace(/[/\\?%*:|"'<>\s]/g, '-')}.musicxml`;
   musicXml = song.musicXml || ireal2musicxml.MusicXML.convert(song, {
     notation: 'rhythmic' //document.querySelector('input[name="notation"]:checked').value
   });
