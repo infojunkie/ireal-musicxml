@@ -297,6 +297,7 @@ async function loadMidi(musicXml) {
     document.getElementById('player').style.visibility = 'visible';
   }
   catch (e) {
+    document.getElementById('file-error').textContent = 'Could not convert the file to MIDI.';
     document.getElementById('player').style.visibility = 'hidden';
     console.error(e);
   }
