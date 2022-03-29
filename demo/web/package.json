@@ -23,7 +23,7 @@
     "jquery": "^3.5.1",
     "midi-file-slicer": "^6.0.58",
     "midi-json-parser": "^8.0.54",
-    "midi-player": "^7.0.50",
+    "midi-player": "git://github.com/infojunkie/midi-player.git#infojunkie",
     "opensheetmusicdisplay": "file:opensheetmusicdisplay.min.js",
     "sane-domparser-error": "^0.2.0",
     "unzipit": "^1.4.0",
