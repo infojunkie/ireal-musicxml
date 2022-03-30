@@ -322,7 +322,7 @@ async function loadMidi(musicXml) {
   const formData = new FormData();
   formData.append('musicxml', new Blob([musicXml], { type: 'text/xml' }));
   try {
-    const response = await fetch('/convert', { method: 'POST', body: formData });
+    const response = await fetch('mma/convert', { method: 'POST', body: formData });
     if (!response.ok) throw new Error(response.statusText);
     const buffer = await response.arrayBuffer();
     midi.json = await midiParser.parseArrayBuffer(buffer);

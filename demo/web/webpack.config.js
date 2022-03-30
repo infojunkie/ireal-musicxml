@@ -16,12 +16,9 @@ module.exports = {
     port: 9000,
     watchContentBase: true,
     proxy: {
-      '/convert': {
-        target: {
-          host: "0.0.0.0",
-          protocol: 'http:',
-          port: 3000
-        },
+      '/mma/convert': {
+        target: 'http://localhost:3000',
+        pathRewrite: { '/mma': '' }
       }
     }
   },
