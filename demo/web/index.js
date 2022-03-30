@@ -239,12 +239,12 @@ function handlePlayPauseKey(e) {
 }
 
 class OpenSheetMusicDisplayPlayback {
-  constructor(renderer) {
-    this.renderer = renderer;
+  constructor(osmd) {
+    this.osmd = osmd;
     this.currentMeasureIndex = 1;
     this.currentVoiceEntryIndex = 0;
-    this.renderer.cursor.show();
-    this.renderer.cursor.reset();
+    this.osmd.cursor.show();
+    this.osmd.cursor.reset();
   }
 
   // Staff entry timestamp to actual time relative to measure start.
@@ -253,17 +253,17 @@ class OpenSheetMusicDisplayPlayback {
   }
 
   updateCursor(measureIndex, voiceEntryIndex) {
-    const measure = this.renderer.sheet.sourceMeasures[measureIndex];
+    const measure = this.osmd.sheet.sourceMeasures[measureIndex];
     this.currentMeasureIndex = measureIndex;
     this.currentVoiceEntryIndex = voiceEntryIndex;
-    this.renderer.cursor.iterator.currentMeasureIndex = this.currentMeasureIndex;
-    this.renderer.cursor.iterator.currentMeasure = measure;
-    this.renderer.cursor.iterator.currentVoiceEntryIndex = this.currentVoiceEntryIndex - 1;
-    this.renderer.cursor.next();
+    this.osmd.cursor.iterator.currentMeasureIndex = this.currentMeasureIndex;
+    this.osmd.cursor.iterator.currentMeasure = measure;
+    this.osmd.cursor.iterator.currentVoiceEntryIndex = this.currentVoiceEntryIndex - 1;
+    this.osmd.cursor.next();
   }
 
   moveToTime(scoreMillisecs, measureIndex, measureMillisecs) {
-    const measure = this.renderer.sheet.sourceMeasures[measureIndex];
+    const measure = this.osmd.sheet.sourceMeasures[measureIndex];
 
     // If we're moving to a new measure, then start at the first staff entry without search.
     if (this.currentMeasureIndex !== measureIndex) {
