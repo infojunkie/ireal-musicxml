@@ -1,18 +1,18 @@
 const osmd = require('opensheetmusicdisplay');
-const abcjs = require('abcjs');
-const xml2abc = require('xml2abc');
+const verovio = require('verovio');
+//const abcjs = require('abcjs');
+//const xml2abc = require('xml2abc');
 const unzip = require('unzipit');
 const parserError = require('sane-domparser-error');
 const ireal2musicxml = require('../../lib/ireal-musicxml');
 const jazz1350 = require('../../test/data/jazz1350.txt');
-const $ = window.$ = require('jquery');
 const midiParser = require('midi-json-parser');
 const midiPlayer = require('midi-player');
 const midiSlicer = require('midi-file-slicer');
 
 // Current state.
 let musicXml = null;
-let openSheetMusicDisplay = null;
+let renderer = null;
 let midi = {
   access: null,
   json: null,
@@ -164,17 +164,21 @@ function populateSheets(playlist) {
 
 function resetSheet() {
   document.getElementById('sheet').remove();
-  sheet = document.createElement('div');
+  const sheet = document.createElement('div');
   sheet.id = 'sheet';
   document.getElementById('sheet-container').appendChild(sheet);
+
+  // Delete previous objects
+  delete midi.score; midi.score = null;
+  delete renderer; renderer = null;
 }
 
 function displaySheet(musicXml) {
   resetSheet();
 
-  const renderer = document.querySelector('input[name="renderer"]:checked').value;
-  if (renderer === 'osmd') {
-    openSheetMusicDisplay = new osmd.OpenSheetMusicDisplay('sheet', {
+  const r = document.querySelector('input[name="renderer"]:checked').value;
+  if (r === 'osmd') {
+    renderer = new osmd.OpenSheetMusicDisplay('sheet', {
       // set options here
       backend: 'svg',
       drawFromMeasureNumber: 1,
@@ -183,24 +187,26 @@ function displaySheet(musicXml) {
       newPageFromXML: true,
       followCursor: true,
     });
-    openSheetMusicDisplay.rules.resetChordAccidentalTexts(openSheetMusicDisplay.rules.ChordAccidentalTexts, true);
-    openSheetMusicDisplay.rules.resetChordSymbolLabelTexts(openSheetMusicDisplay.rules.ChordSymbolLabelTexts);
-    openSheetMusicDisplay
+    renderer.rules.resetChordAccidentalTexts(renderer.rules.ChordAccidentalTexts, true);
+    renderer.rules.resetChordSymbolLabelTexts(renderer.rules.ChordSymbolLabelTexts);
+    renderer
     .load(musicXml)
-    .then(() => {
-      loadMidi(musicXml);
-    });
+    .then(() => loadMidi(musicXml))
+    .then(() => { midi.score = new OpenSheetMusicDisplayPlayback(renderer); });
   }
-  else if (renderer === 'vrv') {
-    const app = new Verovio.App(document.getElementById('sheet'), {
-      defaultView: 'document', // default is 'responsive', alternative is 'document'
-      defaultZoom: 3, // 0-7, default is 4
-      enableResponsive: true, // default is true
-      enableDocument: true // default is true
+  else if (r === 'vrv') {
+    renderer = new verovio.toolkit();
+    const svg = renderer.renderData(musicXml, {
+      breaks: 'encoded',
+      adjustPageHeight: true,
+      scale: 50
     });
-    app.loadData(musicXml);
+    document.getElementById('sheet').innerHTML = svg;
+    loadMidi(musicXml)
+    .then(() => { midi.score = new VerovioPlayback(renderer); });
   }
-  else if (renderer === 'abc') {
+/*
+  else if (r === 'abc') {
     const xmldata = $.parseXML(musicXml);
     const result = xml2abc.vertaal(xmldata, {
       u:0, b:0, n:0,  // unfold repeats (1), bars per line, chars per line
@@ -218,6 +224,7 @@ function displaySheet(musicXml) {
 
     abcjs.renderAbc('sheet', abc);
   }
+*/
 }
 
 function handleJazz1350() {
@@ -232,13 +239,13 @@ function handlePlayPauseKey(e) {
 }
 
 class OpenSheetMusicDisplayPlayback {
-  constructor(openSheetMusicDisplay) {
-    this.openSheetMusicDisplay = openSheetMusicDisplay;
+  constructor(renderer) {
+    this.renderer = renderer;
     this.currentMeasureIndex = 1;
     this.currentVoiceEntryIndex = 0;
-    this.openSheetMusicDisplay.cursor.show();
+    this.renderer.cursor.show();
+    this.renderer.cursor.reset();
   }
-
 
   // Staff entry timestamp to actual time relative to measure start.
   static timestampToMillisecs(measure, timestamp) {
@@ -246,17 +253,17 @@ class OpenSheetMusicDisplayPlayback {
   }
 
   updateCursor(measureIndex, voiceEntryIndex) {
-    const measure = this.openSheetMusicDisplay.sheet.sourceMeasures[measureIndex];
+    const measure = this.renderer.sheet.sourceMeasures[measureIndex];
     this.currentMeasureIndex = measureIndex;
     this.currentVoiceEntryIndex = voiceEntryIndex;
-    this.openSheetMusicDisplay.cursor.iterator.currentMeasureIndex = this.currentMeasureIndex;
-    this.openSheetMusicDisplay.cursor.iterator.currentMeasure = measure;
-    this.openSheetMusicDisplay.cursor.iterator.currentVoiceEntryIndex = this.currentVoiceEntryIndex - 1;
-    this.openSheetMusicDisplay.cursor.next();
+    this.renderer.cursor.iterator.currentMeasureIndex = this.currentMeasureIndex;
+    this.renderer.cursor.iterator.currentMeasure = measure;
+    this.renderer.cursor.iterator.currentVoiceEntryIndex = this.currentVoiceEntryIndex - 1;
+    this.renderer.cursor.next();
   }
 
-  moveToMeasureTime(measureIndex, millisecs) {
-    const measure = this.openSheetMusicDisplay.sheet.sourceMeasures[measureIndex];
+  moveToTime(scoreMillisecs, measureIndex, measureMillisecs) {
+    const measure = this.renderer.sheet.sourceMeasures[measureIndex];
 
     // If we're moving to a new measure, then start at the first staff entry without search.
     if (this.currentMeasureIndex !== measureIndex) {
@@ -267,7 +274,7 @@ class OpenSheetMusicDisplayPlayback {
     // Same measure, new time.
     for (let v = measure.verticalSourceStaffEntryContainers.length - 1; v >= 0; v--) {
       const vsse = measure.verticalSourceStaffEntryContainers[v];
-      if (OpenSheetMusicDisplayPlayback.timestampToMillisecs(measure, vsse.timestamp) <= millisecs + Number.EPSILON) {
+      if (OpenSheetMusicDisplayPlayback.timestampToMillisecs(measure, vsse.timestamp) <= measureMillisecs + Number.EPSILON) {
         // If same staff entry, do nothing.
         if (this.currentVoiceEntryIndex !== v) {
           this.updateCursor(measureIndex, v);
@@ -275,11 +282,39 @@ class OpenSheetMusicDisplayPlayback {
         return;
       }
     }
-    console.error(`Could not find suitable staff entry at time ${millisecs} for measure ${measure.measureNumber}`);
+    console.error(`Could not find suitable staff entry at time ${measureMillisecs} for measure ${measure.measureNumber}`);
+  }
+}
+
+class VerovioPlayback {
+  constructor(vrv) {
+    this.vrv = vrv;
+    this.ids = [];
   }
 
-  moveToTop() {
-    this.openSheetMusicDisplay.cursor.reset();
+  moveToTime(scoreMillisecs, measureIndex, measureMillisecs) {
+    const elementsattime = this.vrv.getElementsAtTime(Math.max(0, scoreMillisecs));
+    if (true/*elementsattime.page > 0*/) {
+      // if (elementsattime.page != page) {
+      //     page = elementsattime.page;
+      //     load_page();
+      // }
+      if ((elementsattime.notes.length > 0) && (this.ids != elementsattime.notes)) {
+        this.ids.forEach(noteid => {
+          if (!elementsattime.notes.includes(noteid)) {
+            const note = document.getElementById(noteid);
+            note.setAttribute('fill', '#000');
+            note.setAttribute('stroke', '#000');
+          }
+        });
+        this.ids = elementsattime.notes;
+        this.ids.forEach(noteid => {
+          const note = document.getElementById(noteid);
+          note.setAttribute('fill', '#c00');
+          note.setAttribute('stroke', '#c00');
+        });
+      }
+    }
   }
 }
 
@@ -313,7 +348,6 @@ async function playMidi() {
     midi.startTime = now;
     midi.currentMeasureIndex = 1;
     midi.currentMeasureStartTime = midi.startTime;
-    midi.score = new OpenSheetMusicDisplayPlayback(openSheetMusicDisplay);
   }
 
   const midiFileSlicer = new midiSlicer.MidiFileSlicer({ json: midi.json });
@@ -326,7 +360,7 @@ async function playMidi() {
         midi.currentMeasureStartTime = now;
       }
     });
-    midi.score.moveToMeasureTime(midi.currentMeasureIndex, Math.max(0, now - midi.currentMeasureStartTime));
+    midi.score.moveToTime(now - midi.startTime, midi.currentMeasureIndex, Math.max(0, now - midi.currentMeasureStartTime));
 
     // Schedule next cursor movement if still playing.
     if (midi.player.state === 1) {
@@ -356,7 +390,7 @@ async function rewindMidi() {
     midi.player.stop();
   }
   if (midi.score) {
-    midi.score.moveToTop();
+    midi.score.moveToTime(0, 0, 0);
   }
 }
 
@@ -391,8 +425,10 @@ window.addEventListener('load', function () {
   document.getElementById('jazz1350').addEventListener('click', handleJazz1350, false);
   document.addEventListener('keyup', handlePlayPauseKey);
 
-  document.getElementById('vrv-version').innerText = '(WASM) 3.9.0-dev';
-  document.getElementById('abc-version').innerText = abcjs.signature;
+  verovio.module.onRuntimeInitialized = async _ => {
+    document.getElementById('vrv-version').innerText = new verovio.toolkit().getVersion();
+  }
+//  document.getElementById('abc-version').innerText = abcjs.signature;
   document.getElementById('osmd-version').innerText = new osmd.OpenSheetMusicDisplay('sheet').Version;
 
   navigator.requestMIDIAccess().then(midiAccess => {
