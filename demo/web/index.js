@@ -9,7 +9,6 @@ const jazz1350 = require('../../test/data/jazz1350.txt');
 const midiParser = require('midi-json-parser');
 const midiPlayer = require('midi-player');
 const midiSlicer = require('midi-file-slicer');
-const midiEncoder = require('json-midi-message-encoder');
 
 // Current state.
 let musicXml = null;
@@ -17,7 +16,6 @@ let renderer = null;
 let midi = {
   access: null,
   json: null,
-  channels: null,
   player: null,
   score: null,
   startTime: null,
@@ -329,15 +327,6 @@ async function loadMidi(musicXml) {
     const buffer = await response.arrayBuffer();
     midi.json = await midiParser.parseArrayBuffer(buffer);
 
-    // Keep the channels because we'll need them on pause / stop.
-    midi.channels = midi.json.tracks.reduce((channels, track) => {
-      const event = track.find(event => 'channel' in event);
-      if (event) {
-        channels.push(event['channel']);
-      }
-      return channels
-    }, []);
-
     if (midi.player) midi.player.stop();
     const output = Array.from(midi.access.outputs).filter(o => o[1].id === document.getElementById('outputs').value)[0][1];
     midi.player = midiPlayer.create({ json: midi.json, midiOutput: output });
@@ -390,22 +379,7 @@ async function playMidi() {
   }
 }
 
-async function midiAllSoundsOff() {
-  const output = Array.from(midi.access.outputs).filter(o => o[1].id === document.getElementById('outputs').value)[0][1];
-  midi.channels.forEach(channel => {
-    const allSoundOff = new Uint8Array(midiEncoder.encode({
-      channel,
-      controlChange: {
-        type: 120, // All Sound Off https://nickfever.com/Music/midi-cc-list
-        value: 127
-      }
-    }));
-    output.send(allSoundOff, 500);
-  });
-}
-
 async function pauseMidi() {
-  midiAllSoundsOff();
   if (midi.player) {
     midi.player.pause();
     midi.pauseTime = performance.now();
@@ -413,7 +387,6 @@ async function pauseMidi() {
 }
 
 async function rewindMidi() {
-  midiAllSoundsOff();
   if (midi.player) {
     midi.player.stop();
   }
