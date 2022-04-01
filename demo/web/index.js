@@ -10,6 +10,10 @@ const midiParser = require('midi-json-parser');
 const midiPlayer = require('midi-player');
 const midiSlicer = require('midi-file-slicer');
 
+const PLAYER_STOPPED = 0;
+const PLAYER_PLAYING = 1;
+const PLAYER_PAUSED = 2;
+
 // Current state.
 let musicXml = null;
 let renderer = null;
@@ -191,7 +195,7 @@ function displaySheet(musicXml) {
     renderer.rules.resetChordSymbolLabelTexts(renderer.rules.ChordSymbolLabelTexts);
     renderer
     .load(musicXml)
-    .then(() => loadMidi(musicXml))
+    .then(() => loadMidi())
     .then(() => { midi.score = new OpenSheetMusicDisplayPlayback(renderer); });
   }
   else if (r === 'vrv') {
@@ -202,7 +206,7 @@ function displaySheet(musicXml) {
       scale: 50
     });
     document.getElementById('sheet').innerHTML = svg;
-    loadMidi(musicXml)
+    loadMidi()
     .then(() => { midi.score = new VerovioPlayback(renderer); });
   }
 /*
@@ -241,7 +245,7 @@ function handlePlayPauseKey(e) {
 class OpenSheetMusicDisplayPlayback {
   constructor(osmd) {
     this.osmd = osmd;
-    this.currentMeasureIndex = 1;
+    this.currentMeasureIndex = 0;
     this.currentVoiceEntryIndex = 0;
     this.osmd.cursor.show();
     this.osmd.cursor.reset();
@@ -256,10 +260,16 @@ class OpenSheetMusicDisplayPlayback {
     const measure = this.osmd.sheet.sourceMeasures[measureIndex];
     this.currentMeasureIndex = measureIndex;
     this.currentVoiceEntryIndex = voiceEntryIndex;
-    this.osmd.cursor.iterator.currentMeasureIndex = this.currentMeasureIndex;
-    this.osmd.cursor.iterator.currentMeasure = measure;
-    this.osmd.cursor.iterator.currentVoiceEntryIndex = this.currentVoiceEntryIndex - 1;
-    this.osmd.cursor.next();
+
+    if (measureIndex === 0 && voiceEntryIndex === 0) {
+      this.osmd.cursor.reset();
+    }
+    else {
+      this.osmd.cursor.iterator.currentMeasureIndex = this.currentMeasureIndex;
+      this.osmd.cursor.iterator.currentMeasure = measure;
+      this.osmd.cursor.iterator.currentVoiceEntryIndex = this.currentVoiceEntryIndex - 1;
+      this.osmd.cursor.next();
+    }
   }
 
   moveToTime(scoreMillisecs, measureIndex, measureMillisecs) {
@@ -318,7 +328,7 @@ class VerovioPlayback {
   }
 }
 
-async function loadMidi(musicXml) {
+async function loadMidi() {
   const formData = new FormData();
   formData.append('musicxml', new Blob([musicXml], { type: 'text/xml' }));
   try {
@@ -341,13 +351,13 @@ async function loadMidi(musicXml) {
 
 async function playMidi() {
   const now = performance.now();
-  if (midi.player.state === 2) {
+  if (midi.player.state === PLAYER_PAUSED) {
     midi.startTime += now - midi.pauseTime;
     midi.currentMeasureStartTime += now - midi.pauseTime;
   }
   else {
     midi.startTime = now;
-    midi.currentMeasureIndex = 1;
+    midi.currentMeasureIndex = 0;
     midi.currentMeasureStartTime = midi.startTime;
   }
 
@@ -355,6 +365,8 @@ async function playMidi() {
 
   let lastTime = now;
   const displayEvents = (now) => {
+    if (midi.player.state !== PLAYER_PLAYING) return;
+
     midiFileSlicer.slice(lastTime - midi.startTime, now - midi.startTime).forEach(event => {
       if (event.event.marker) {
         midi.currentMeasureIndex = parseInt(event.event.marker.split(':')[1]) - 1;
@@ -364,14 +376,14 @@ async function playMidi() {
     midi.score.moveToTime(now - midi.startTime, midi.currentMeasureIndex, Math.max(0, now - midi.currentMeasureStartTime));
 
     // Schedule next cursor movement if still playing.
-    if (midi.player.state === 1) {
+    if (midi.player.state === PLAYER_PLAYING) {
       lastTime = now;
       requestAnimationFrame(displayEvents);
     }
   };
   requestAnimationFrame(displayEvents);
 
-  if (midi.player.state === 2) {
+  if (midi.player.state === PLAYER_PAUSED) {
     await midi.player.resume();
   }
   else {
@@ -382,8 +394,8 @@ async function playMidi() {
 async function pauseMidi() {
   if (midi.player) {
     midi.player.pause();
-    midi.pauseTime = performance.now();
   }
+  midi.pauseTime = performance.now();
 }
 
 async function rewindMidi() {
@@ -395,7 +407,9 @@ async function rewindMidi() {
   }
 }
 
-async function handleMidiOutputSelect(e) {}
+async function handleMidiOutputSelect(e) {
+  loadMidi().then(() => rewindMidi());
+}
 async function handleMidiRewind(e) { rewindMidi(); }
 async function handleMidiPlay(e) { playMidi(); }
 async function handleMidiPause(e) { pauseMidi(); }
