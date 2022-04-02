@@ -26,7 +26,8 @@
     "node-polyfill-webpack-plugin": "^1.1.4",
     "opensheetmusicdisplay": "file:opensheetmusicdisplay.min.js",
     "sane-domparser-error": "^0.2.0",
+    "standardized-audio-context": "^25.3.21",
     "unzipit": "^1.4.0",
-    "verovio": "^3.9.0"
+    "webaudiofont": "^2.7.1"
   }
 }

@@ -9,10 +9,14 @@ const jazz1350 = require('../../test/data/jazz1350.txt');
 const midiParser = require('midi-json-parser');
 const midiPlayer = require('midi-player');
 const midiSlicer = require('midi-file-slicer');
+const WebAudioFontPlayer = require('webaudiofont');
+const { AudioContext } = require('standardized-audio-context');
 
 const PLAYER_STOPPED = 0;
 const PLAYER_PLAYING = 1;
 const PLAYER_PAUSED = 2;
+
+const MIDI_DRUMS ='9';
 
 // Current state.
 let musicXml = null;
@@ -248,6 +252,94 @@ function handlePlayPauseKey(e) {
   }
 }
 
+class SoundFontOutput {
+  constructor(json) {
+    this.audioContext = new AudioContext();
+    this.player = new WebAudioFontPlayer();
+    this.notes = [];
+    this.channels = json.tracks.reduce((channels, track) => {
+      const pc = track.find(e => 'programChange' in e);
+      if (pc) {
+        if (pc.channel !== MIDI_DRUMS) {
+          const instrumentNumber = this.player.loader.findInstrument(pc.programChange.programNumber);
+          channels[pc.channel] = {
+            instrumentInfo: this.player.loader.instrumentInfo(instrumentNumber),
+          }
+          this.player.loader.startLoad(this.audioContext, channels[pc.channel].instrumentInfo.url, channels[pc.channel].instrumentInfo.variable);
+        }
+        else {
+          channels[MIDI_DRUMS] = { beats: {} };
+          [...new Set(track.filter(e => 'noteOn' in e).map(e => e.noteOn.noteNumber))].forEach(beat => {
+            const drumNumber = this.player.loader.findDrum(beat);
+            channels[MIDI_DRUMS].beats[beat] = {
+              drumInfo: this.player.loader.drumInfo(drumNumber),
+            }
+          });
+        }
+      }
+      return channels;
+    }, {});
+    this.output = Array.from(midi.access.outputs.values())[0];
+    this.input = Array.from(midi.access.inputs.values())[0];
+    this.input.onmidimessage = this.receive.bind(this);
+  }
+
+  send(data, timestamp) {
+    this.output.send(data, timestamp);
+  }
+
+  receive(message) {
+    const { data } = message;
+    const channel = data[0] & 0xf;
+    const type = data[0] >> 4;
+    const pitch = data[1];
+    const velocity = data[2];
+    switch (type) {
+    case 9:
+      if (velocity === 0) {
+        this.noteOff(pitch);
+      }
+      else {
+        this.noteOn(channel, pitch, velocity);
+      }
+      break;
+    case 8:
+      this.noteOff(pitch);
+      break;
+    case 11:
+      switch (pitch) {
+        case 120:
+          this.player.cancelQueue(this.audioContext);
+      }
+    }
+  }
+
+  noteOn(channel, pitch, velocity) {
+    this.noteOff(pitch);
+    const variable = channel === MIDI_DRUMS ?
+      this.channels[channel].beats[pitch].drumInfo.variable :
+      this.channels[channel].instrumentInfo.variable;
+    const envelope = this.player.queueWaveTable(this.audioContext, this.audioContext.destination, window[variable], 0, pitch, 123456789, velocity / 100);
+    this.notes.push({ pitch, envelope });
+  }
+
+  noteOff(pitch) {
+    for (let i = 0; i < this.notes.length; i++) {
+      if (this.notes[i].pitch === pitch) {
+        if (this.notes[i].envelope) {
+          this.notes[i].envelope.cancel();
+        }
+        this.notes.splice(i, 1);
+        return;
+      }
+    }
+  }
+
+  clear() {
+    this.player.cancelQueue(this.audioContext);
+  }
+}
+
 class OpenSheetMusicDisplayPlayback {
   constructor(osmd) {
     this.osmd = osmd;
@@ -353,13 +445,14 @@ async function loadMidi() {
     midi.json = await midiParser.parseArrayBuffer(buffer);
 
     if (midi.player) midi.player.stop();
-    const output = Array.from(midi.access.outputs).filter(o => o[1].id === document.getElementById('outputs').value)[0][1];
-    midi.player = midiPlayer.create({ json: midi.json, midiOutput: output });
+    midi.player = midiPlayer.create({ json: midi.json, midiOutput: midiOutput() });
     document.getElementById('player').style.visibility = 'visible';
+    document.getElementById('outputs').disabled = false;
   }
   catch (e) {
     document.getElementById('file-error').textContent = 'Could not convert the file to MIDI.';
     document.getElementById('player').style.visibility = 'hidden';
+    document.getElementById('outputs').disabled = true;
     console.error(e);
   }
 }
@@ -427,11 +520,19 @@ async function handleMidiRewind(e) { rewindMidi(); }
 async function handleMidiPlay(e) { playMidi(); }
 async function handleMidiPause(e) { pauseMidi(); }
 
+function midiOutput() {
+  const outputs = document.getElementById('outputs');
+  if (outputs.value === 'local') {
+    return new SoundFontOutput(midi.json, Array.from(midi.access.outputs.values())[0]);
+  }
+  return Array.from(midi.access.outputs.values()).find(output => output.id === outputs.value);
+}
+
 function populateMidiOutputs(midiAccess) {
   const outputs = document.getElementById('outputs');
   const current = outputs.value;
   outputs.innerHTML = '';
-  midiAccess.outputs.forEach(output => {
+  [{ id: 'local', name: '(local synth)' }].concat(...midiAccess.outputs.values()).forEach(output => {
     const option = document.createElement('option');
     option.value = output.id;
     option.text = output.name;
