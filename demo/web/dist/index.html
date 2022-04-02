@@ -3,29 +3,35 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>iReal Pro to MusicXML</title>
 	<script src="ireal2musicxml-demo.js"></script>
-	<script src="https://www.verovio.org/javascript/app/verovio-app.js"></script>
-	<link rel="stylesheet"href="https://unpkg.com/material-components-web@7.0.0/dist/material-components-web.min.css"/>
-	<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons"/>
+	<script src="verovio-toolkit.js"></script>
 	<style>
+		body {
+			background-color: wheat;
+		}
 		#sheet {
 			height: 100vh;
 		}
-		.playback-buttons{
-			position: fixed;
-			bottom: 5px;
-			left: calc(50% - 56px);
-		}
-		.playpause-button .pause-icon {
-			display: none;
-		}
-		.playpause-button.playing .pause-icon {
-			display: block;
-		}
-		.playpause-button.playing .play-icon {
-			display: none;
-		}
 		.hide {
 			display: none;
+		}
+		#player {
+			visibility: hidden;
+			position: fixed;
+			bottom: 0;
+			width: 100%;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			z-index: 1000;
+		}
+		.player {
+			font-size: larger;
+			margin: 5px;
+		}
+		#file-error {
+			border: 1px;
+			background-color: brown;
+			color: lightgray;
 		}
 	</style>
 </head>
@@ -43,14 +49,14 @@
 	<input type="text" size="50" id="ireal" name="ireal" placeholder="irealb://... or irealbook://..."/>
 </div>
 
-Or simply use this <a href="javascript:;" id="jazz1350">playlist of 1350 jazz standards</a>.
+Or simply click this <a href="javascript:;" id="jazz1350">playlist of 1350 jazz standards</a>.
 
 <div>
 	Sheets
 	<select id="sheets"></select>
 	<span id="download"></span>
 </div>
-
+<!--
 <div>
 	Chord notation
 	<input type="radio" id="rhythmic" name="notation" value="rhythmic" checked/>
@@ -58,15 +64,29 @@ Or simply use this <a href="javascript:;" id="jazz1350">playlist of 1350 jazz st
 	<input type="radio" id="slash" name="notation" value="slash"/>
 	<label for="slash">Slash</label>
 </div>
-
+-->
 <div>
 	Renderer
 	<input type="radio" id="osmd" name="renderer" value="osmd" checked/>
 	<label for="osmd">OpenSheetMusicDisplay <span id="osmd-version"></span></label>
 	<input type="radio" id="vrv" name="renderer" value="vrv"/>
 	<label for="vrv">Verovio <span id="vrv-version"></span></label>
+	<!--
 	<input type="radio" id="abc" name="renderer" value="abc"/>
 	<label for="abc"><span id="abc-version"></span></label>
+	-->
+</div>
+
+<div>
+	MIDI output
+	<select id="outputs"></select>
+	Don't forget to connect this output to a MIDI synth like FluidSynth, TiMidity, or <a href="https://mmontag.github.io/dx7-synth-js/" target="_blank">DX7 Synth</a>.
+</div>
+
+<div id="player">
+	<button class="player" id="rewind">⏮</button>
+	<button class="player" id="pause">⏸</button>
+	<button class="player" id="play">⏵</button>
 </div>
 
 <div id="sheet-container"><div id="sheet"></div></div>
