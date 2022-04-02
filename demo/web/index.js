@@ -237,8 +237,14 @@ function handleJazz1350() {
 }
 
 function handlePlayPauseKey(e) {
-  if (e.key === ' ') {
-    // TODO Handle spacebar to play/pause.
+  if (e.key === ' ' && midi.player) {
+    e.preventDefault();
+    if (midi.player.state === PLAYER_PLAYING) {
+      pauseMidi();
+    }
+    else {
+      playMidi();
+    }
   }
 }
 
@@ -308,7 +314,6 @@ class VerovioPlayback {
       }
       return measures;
     }, []);
-    console.log(this.measures);
   }
 
   moveToTime(scoreMillisecs, measureIndex, measureMillisecs) {
@@ -417,9 +422,7 @@ async function rewindMidi() {
   }
 }
 
-async function handleMidiOutputSelect(e) {
-  loadMidi().then(() => rewindMidi());
-}
+async function handleMidiOutputSelect(e) { loadMidi().then(() => rewindMidi()); }
 async function handleMidiRewind(e) { rewindMidi(); }
 async function handleMidiPlay(e) { playMidi(); }
 async function handleMidiPause(e) { pauseMidi(); }
@@ -448,7 +451,7 @@ window.addEventListener('load', function () {
   //   input.addEventListener('change', handleNotationChange);
   // });
   document.getElementById('jazz1350').addEventListener('click', handleJazz1350, false);
-  document.addEventListener('keyup', handlePlayPauseKey);
+  window.addEventListener('keydown', handlePlayPauseKey);
 
 //  verovio.module.onRuntimeInitialized = async _ => {
     document.getElementById('vrv-version').innerText = new verovio.toolkit().getVersion();
