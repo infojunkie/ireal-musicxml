@@ -278,7 +278,7 @@ class OpenSheetMusicDisplayPlayback {
     }
   }
 
-  moveToTime(scoreMillisecs, measureIndex, measureMillisecs) {
+  moveToMeasureTime(measureIndex, measureMillisecs) {
     const measure = this.osmd.sheet.sourceMeasures[measureIndex];
 
     // If we're moving to a new measure, then start at the first staff entry without search.
@@ -316,7 +316,7 @@ class VerovioPlayback {
     }, []);
   }
 
-  moveToTime(scoreMillisecs, measureIndex, measureMillisecs) {
+  moveToMeasureTime(measureIndex, measureMillisecs) {
     const time = this.measures[measureIndex].timestamp + measureMillisecs;
     const elementsattime = this.vrv.getElementsAtTime(Math.max(0, time));
     if (true/*elementsattime.page > 0*/) {
@@ -388,7 +388,7 @@ async function playMidi() {
         midi.currentMeasureStartTime = now;
       }
     });
-    midi.score.moveToTime(now - midi.startTime, midi.currentMeasureIndex, Math.max(0, now - midi.currentMeasureStartTime));
+    midi.score.moveToMeasureTime(midi.currentMeasureIndex, Math.max(0, now - midi.currentMeasureStartTime));
 
     // Schedule next cursor movement if still playing.
     if (midi.player.state === PLAYER_PLAYING) {
@@ -418,7 +418,7 @@ async function rewindMidi() {
     midi.player.stop();
   }
   if (midi.score) {
-    midi.score.moveToTime(0, 0, 0);
+    midi.score.moveToMeasureTime(0, 0);
   }
 }
 
