@@ -1,5 +1,5 @@
 const osmd = require('opensheetmusicdisplay');
-const verovio = require('verovio');
+//const verovio = require('verovio');
 //const abcjs = require('abcjs');
 //const xml2abc = require('xml2abc');
 const unzip = require('unzipit');
@@ -300,10 +300,20 @@ class VerovioPlayback {
   constructor(vrv) {
     this.vrv = vrv;
     this.ids = [];
+    this.measures = this.vrv.renderToTimemap({ includeMeasures: true, includeRests: true }).reduce((measures, event) => {
+      if ('measureOn' in event) {
+        measures.push({
+          timestamp: event.tstamp
+        });
+      }
+      return measures;
+    }, []);
+    console.log(this.measures);
   }
 
   moveToTime(scoreMillisecs, measureIndex, measureMillisecs) {
-    const elementsattime = this.vrv.getElementsAtTime(Math.max(0, scoreMillisecs));
+    const time = this.measures[measureIndex].timestamp + measureMillisecs;
+    const elementsattime = this.vrv.getElementsAtTime(Math.max(0, time));
     if (true/*elementsattime.page > 0*/) {
       // if (elementsattime.page != page) {
       //     page = elementsattime.page;
@@ -440,9 +450,9 @@ window.addEventListener('load', function () {
   document.getElementById('jazz1350').addEventListener('click', handleJazz1350, false);
   document.addEventListener('keyup', handlePlayPauseKey);
 
-  verovio.module.onRuntimeInitialized = async _ => {
+//  verovio.module.onRuntimeInitialized = async _ => {
     document.getElementById('vrv-version').innerText = new verovio.toolkit().getVersion();
-  }
+//  }
 //  document.getElementById('abc-version').innerText = abcjs.signature;
   document.getElementById('osmd-version').innerText = new osmd.OpenSheetMusicDisplay('sheet').Version;
 
