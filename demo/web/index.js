@@ -6,9 +6,9 @@ const unzip = require('unzipit');
 const parserError = require('sane-domparser-error');
 const ireal2musicxml = require('../../lib/ireal-musicxml');
 const jazz1350 = require('../../test/data/jazz1350.txt');
-const midiParser = require('midi-json-parser');
-const midiPlayer = require('midi-player');
-const midiSlicer = require('midi-file-slicer');
+const { parseArrayBuffer } = require('midi-json-parser');
+const { create } = require('midi-player');
+const { MidiFileSlicer } = require('midi-file-slicer');
 const WebAudioFontPlayer = require('webaudiofont');
 const { AudioContext } = require('standardized-audio-context');
 
@@ -16,7 +16,7 @@ const PLAYER_STOPPED = 0;
 const PLAYER_PLAYING = 1;
 const PLAYER_PAUSED = 2;
 
-const MIDI_DRUMS ='9';
+const MIDI_DRUMS = 9;
 
 // Current state.
 let musicXml = null;
@@ -262,49 +262,54 @@ class SoundFontOutput {
       if (pc) {
         if (pc.channel !== MIDI_DRUMS) {
           const instrumentNumber = this.player.loader.findInstrument(pc.programChange.programNumber);
-          channels[pc.channel] = {
-            instrumentInfo: this.player.loader.instrumentInfo(instrumentNumber),
-          }
-          this.player.loader.startLoad(this.audioContext, channels[pc.channel].instrumentInfo.url, channels[pc.channel].instrumentInfo.variable);
+          const instrumentInfo = this.player.loader.instrumentInfo(instrumentNumber);
+          channels[pc.channel] = { instrumentInfo };
+          this.player.loader.startLoad(this.audioContext, instrumentInfo.url, instrumentInfo.variable);
         }
         else {
           channels[MIDI_DRUMS] = { beats: {} };
           [...new Set(track.filter(e => 'noteOn' in e).map(e => e.noteOn.noteNumber))].forEach(beat => {
             const drumNumber = this.player.loader.findDrum(beat);
-            channels[MIDI_DRUMS].beats[beat] = {
-              drumInfo: this.player.loader.drumInfo(drumNumber),
-            }
+            const drumInfo = this.player.loader.drumInfo(drumNumber);
+            channels[MIDI_DRUMS].beats[beat] = { drumInfo };
+            this.player.loader.startLoad(this.audioContext, drumInfo.url, drumInfo.variable);
           });
         }
       }
       return channels;
     }, {});
-    this.output = Array.from(midi.access.outputs.values())[0];
-    this.input = Array.from(midi.access.inputs.values())[0];
-    this.input.onmidimessage = this.receive.bind(this);
+
+    // Start noteOff scheduling.
+    const noteOff = (now) => {
+      for (let i = 0; i < this.notes.length; i++) {
+        if (this.notes[i].timestamp <= now) {
+          if (this.notes[i].envelope) {
+            this.notes[i].envelope.cancel();
+          }
+          this.notes.splice(i, 1);
+        }
+      }
+      requestAnimationFrame(noteOff);
+    }
+    requestAnimationFrame(noteOff);
   }
 
   send(data, timestamp) {
-    this.output.send(data, timestamp);
-  }
-
-  receive(message) {
-    const { data } = message;
     const channel = data[0] & 0xf;
     const type = data[0] >> 4;
     const pitch = data[1];
     const velocity = data[2];
     switch (type) {
     case 9:
-      if (velocity === 0) {
-        this.noteOff(pitch);
+      if (velocity > 0) {
+        this.noteOn(channel, pitch, timestamp, velocity);
       }
       else {
-        this.noteOn(channel, pitch, velocity);
+        this.noteOff(channel, pitch, timestamp);
       }
       break;
     case 8:
-      this.noteOff(pitch);
+      this.noteOff(channel, pitch, timestamp);
       break;
     case 11:
       switch (pitch) {
@@ -314,23 +319,20 @@ class SoundFontOutput {
     }
   }
 
-  noteOn(channel, pitch, velocity) {
+  noteOn(channel, pitch, timestamp, velocity) {
     this.noteOff(pitch);
     const variable = channel === MIDI_DRUMS ?
       this.channels[channel].beats[pitch].drumInfo.variable :
       this.channels[channel].instrumentInfo.variable;
-    const envelope = this.player.queueWaveTable(this.audioContext, this.audioContext.destination, window[variable], 0, pitch, 123456789, velocity / 100);
-    this.notes.push({ pitch, envelope });
+    const when = this.audioContext.currentTime + (timestamp - performance.now()) / 1000;
+    const envelope = this.player.queueWaveTable(this.audioContext, this.audioContext.destination, window[variable], when, pitch, 123456789, velocity / 100);
+    this.notes.push({ channel, pitch, envelope });
   }
 
-  noteOff(pitch) {
+  noteOff(channel, pitch, timestamp) {
     for (let i = 0; i < this.notes.length; i++) {
-      if (this.notes[i].pitch === pitch) {
-        if (this.notes[i].envelope) {
-          this.notes[i].envelope.cancel();
-        }
-        this.notes.splice(i, 1);
-        return;
+      if (this.notes[i].pitch === pitch && this.notes[i].channel === channel) {
+        this.notes[i].timestamp = timestamp;
       }
     }
   }
@@ -346,7 +348,6 @@ class OpenSheetMusicDisplayPlayback {
     this.currentMeasureIndex = 0;
     this.currentVoiceEntryIndex = 0;
     this.osmd.cursor.show();
-    this.osmd.cursor.reset();
   }
 
   // Staff entry timestamp to actual time relative to measure start.
@@ -406,6 +407,8 @@ class VerovioPlayback {
       }
       return measures;
     }, []);
+
+    this.moveToMeasureTime(0, 0);
   }
 
   moveToMeasureTime(measureIndex, measureMillisecs) {
@@ -442,10 +445,10 @@ async function loadMidi() {
     const response = await fetch('mma/convert', { method: 'POST', body: formData });
     if (!response.ok) throw new Error(response.statusText);
     const buffer = await response.arrayBuffer();
-    midi.json = await midiParser.parseArrayBuffer(buffer);
+    midi.json = await parseArrayBuffer(buffer);
 
     if (midi.player) midi.player.stop();
-    midi.player = midiPlayer.create({ json: midi.json, midiOutput: midiOutput() });
+    midi.player = create({ json: midi.json, midiOutput: midiOutput() });
     document.getElementById('player').style.visibility = 'visible';
     document.getElementById('outputs').disabled = false;
   }
@@ -469,7 +472,7 @@ async function playMidi() {
     midi.currentMeasureStartTime = midi.startTime;
   }
 
-  const midiFileSlicer = new midiSlicer.MidiFileSlicer({ json: midi.json });
+  const midiFileSlicer = new MidiFileSlicer({ json: midi.json });
 
   let lastTime = now;
   const displayEvents = (now) => {
@@ -523,7 +526,7 @@ async function handleMidiPause(e) { pauseMidi(); }
 function midiOutput() {
   const outputs = document.getElementById('outputs');
   if (outputs.value === 'local') {
-    return new SoundFontOutput(midi.json, Array.from(midi.access.outputs.values())[0]);
+    return new SoundFontOutput(midi.json);
   }
   return Array.from(midi.access.outputs.values()).find(output => output.id === outputs.value);
 }
@@ -532,7 +535,7 @@ function populateMidiOutputs(midiAccess) {
   const outputs = document.getElementById('outputs');
   const current = outputs.value;
   outputs.innerHTML = '';
-  [{ id: 'local', name: '(local synth)' }].concat(...midiAccess.outputs.values()).forEach(output => {
+  [{ id: 'local', name: '(local synth)' }].concat(...(midiAccess ? midiAccess.outputs.values() : [])).forEach(output => {
     const option = document.createElement('option');
     option.value = output.id;
     option.text = output.name;
@@ -562,13 +565,14 @@ window.addEventListener('load', function () {
 
   navigator.requestMIDIAccess().then(midiAccess => {
     populateMidiOutputs(midiAccess);
-    midiAccess.onstatechange = () => {
-      populateMidiOutputs(midiAccess);
-    }
+    midiAccess.onstatechange = () => populateMidiOutputs(midiAccess);
     document.getElementById('outputs').addEventListener('change', handleMidiOutputSelect, false);
     document.getElementById('rewind').addEventListener('click', handleMidiRewind, false);
     document.getElementById('play').addEventListener('click', handleMidiPlay, false);
     document.getElementById('pause').addEventListener('click', handleMidiPause, false);
     midi.access = midiAccess;
-  }, error => { console.error(error); });
+  }, error => {
+    populateMidiOutputs(null);
+    console.error(error);
+  });
 })
