@@ -325,7 +325,7 @@ class SoundFontOutput {
       this.channels[channel].beats[pitch].drumInfo.variable :
       this.channels[channel].instrumentInfo.variable;
     const when = this.audioContext.currentTime + (timestamp - performance.now()) / 1000;
-    const envelope = this.player.queueWaveTable(this.audioContext, this.audioContext.destination, window[variable], when, pitch, 123456789, velocity / 100);
+    const envelope = this.player.queueWaveTable(this.audioContext, this.audioContext.destination, window[variable], when, pitch, 100000, velocity / 100);
     this.notes.push({ channel, pitch, envelope });
   }
 
@@ -563,16 +563,15 @@ window.addEventListener('load', function () {
 //  document.getElementById('abc-version').innerText = abcjs.signature;
   document.getElementById('osmd-version').innerText = new osmd.OpenSheetMusicDisplay('sheet').Version;
 
-  navigator.requestMIDIAccess().then(midiAccess => {
+  populateMidiOutputs(null);
+  document.getElementById('outputs').addEventListener('change', handleMidiOutputSelect, false);
+  document.getElementById('rewind').addEventListener('click', handleMidiRewind, false);
+  document.getElementById('play').addEventListener('click', handleMidiPlay, false);
+  document.getElementById('pause').addEventListener('click', handleMidiPause, false);
+
+  if (navigator.requestMIDIAccess) navigator.requestMIDIAccess().then(midiAccess => {
     populateMidiOutputs(midiAccess);
     midiAccess.onstatechange = () => populateMidiOutputs(midiAccess);
-    document.getElementById('outputs').addEventListener('change', handleMidiOutputSelect, false);
-    document.getElementById('rewind').addEventListener('click', handleMidiRewind, false);
-    document.getElementById('play').addEventListener('click', handleMidiPlay, false);
-    document.getElementById('pause').addEventListener('click', handleMidiPause, false);
     midi.access = midiAccess;
-  }, error => {
-    populateMidiOutputs(null);
-    console.error(error);
-  });
+  }, error => console.error(error));
 })
