@@ -7,12 +7,12 @@ import {DOMParser} from '@xmldom/xmldom';
 import {Playlist} from '../src/parser';
 import {MusicXML} from '../src/musicxml';
 
-let jazz1350 = null;
+let jazz = null;
 let playlist = null;
 let strange = null;
 
 before(() => {
-  jazz1350 = new Playlist(fs.readFileSync('test/data/jazz1350.txt', 'utf-8'));
+  jazz = new Playlist(fs.readFileSync('test/data/jazz.txt', 'utf-8'));
   playlist = new Playlist(fs.readFileSync('test/data/playlist.html', 'utf-8'));
   strange = new Playlist(fs.readFileSync('test/data/strange.html', 'utf-8'));
 })
@@ -104,7 +104,7 @@ describe('MusicXML', function() {
   });
 
   it('should correctly handle invisible roots', async function() {
-    const song = jazz1350.songs.find(song => song.cells.some(cell => cell.chord && cell.chord.note === 'W'));
+    const song = jazz.songs.find(song => song.cells.some(cell => cell.chord && cell.chord.note === 'W'));
     assert.notStrictEqual(song, undefined);
     const musicXml = MusicXML.convert(song);
     await validateXMLWithXSD(musicXml, 'test/data/musicxml.xsd');
@@ -112,7 +112,7 @@ describe('MusicXML', function() {
   });
 
   it('should correctly handle uneven bar spacings', async function() {
-    const song = jazz1350.songs.find(song => song.title === 'Take Five');
+    const song = jazz.songs.find(song => song.title === 'Take Five');
     assert.notStrictEqual(song, undefined);
     const musicXml = MusicXML.convert(song);
     await validateXMLWithXSD(musicXml, 'test/data/musicxml.xsd');
@@ -129,7 +129,7 @@ describe('MusicXML', function() {
   });
 
   it ('should correctly handle comments and repeats', async function() {
-    const song = jazz1350.songs.find(song => song.title === 'Butterfly');
+    const song = jazz.songs.find(song => song.title === 'Butterfly');
     assert.notStrictEqual(song, undefined);
     const musicXml = MusicXML.convert(song);
     await validateXMLWithXSD(musicXml, 'test/data/musicxml.xsd');
@@ -156,7 +156,7 @@ describe('MusicXML', function() {
   });
 
   it('should correctly distinguish between rhythmic notation and slash notation', async function() {
-    const song = jazz1350.songs.find(song => song.title === 'Take Five');
+    const song = jazz.songs.find(song => song.title === 'Take Five');
     assert.notStrictEqual(song, undefined);
     {
       const musicXml = MusicXML.convert(song, { notation: 'rhythmic' });

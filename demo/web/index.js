@@ -5,7 +5,7 @@ const osmd = require('opensheetmusicdisplay');
 const unzip = require('unzipit');
 const parserError = require('sane-domparser-error');
 const ireal2musicxml = require('../../lib/ireal-musicxml');
-const jazz1350 = require('../../test/data/jazz1350.txt');
+const jazz = require('../../test/data/jazz.txt');
 const { parseArrayBuffer } = require('midi-json-parser');
 const { create } = require('midi-player');
 const { MidiFileSlicer } = require('midi-file-slicer');
@@ -235,8 +235,8 @@ function displaySheet(musicXml) {
 */
 }
 
-function handleJazz1350() {
-  const playlist = new ireal2musicxml.Playlist(jazz1350);
+function handlejazz() {
+  const playlist = new ireal2musicxml.Playlist(jazz);
   populateSheets(playlist);
 }
 
@@ -554,7 +554,7 @@ window.addEventListener('load', function () {
   // document.querySelectorAll('input[name="notation"]').forEach(input => {
   //   input.addEventListener('change', handleNotationChange);
   // });
-  document.getElementById('jazz1350').addEventListener('click', handleJazz1350, false);
+  document.getElementById('jazz').addEventListener('click', handlejazz, false);
   window.addEventListener('keydown', handlePlayPauseKey);
 
 //  verovio.module.onRuntimeInitialized = async _ => {

@@ -7,10 +7,10 @@ import {DOMParser} from '@xmldom/xmldom';
 import {Playlist} from '../src/parser';
 import {MusicXML} from '../src/musicxml';
 
-let jazz1350 = null;
+let jazz = null;
 
 before(() => {
-  jazz1350 = new Playlist(fs.readFileSync('test/data/jazz1350.txt', 'utf-8'));
+  jazz = new Playlist(fs.readFileSync('test/data/jazz.txt', 'utf-8'));
 })
 
 describe('Bug Fixes', function() {
@@ -41,7 +41,7 @@ describe('Bug Fixes', function() {
       "Yesterday's Gardenias",
       "You Took Advantage Of Me"
     ]) {
-      const song = jazz1350.songs.find(song => song.title === title);
+      const song = jazz.songs.find(song => song.title === title);
       assert.notStrictEqual(song, undefined);
       const musicXml = MusicXML.convert(song);
       await validateXMLWithXSD(musicXml, 'test/data/musicxml.xsd');
@@ -51,10 +51,10 @@ describe('Bug Fixes', function() {
 
   it('Checks #20 Missing measures', async () => {
     for (const test of [
-      { title: "A Ballad", measures: 42 },
+      { title: "A Ballad", measures: 41 },
       { title: "After You", measures: 32 },
     ]) {
-      const song = jazz1350.songs.find(song => song.title === test.title);
+      const song = jazz.songs.find(song => song.title === test.title);
       assert.notStrictEqual(song, undefined);
       const musicXml = MusicXML.convert(song);
       await validateXMLWithXSD(musicXml, 'test/data/musicxml.xsd');

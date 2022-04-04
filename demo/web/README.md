@@ -1,11 +1,29 @@
 # Web Demo
 
-Web app to load an iReal Pro playlist from file or `ireal://` URI and display its sheets using [OpenSheetMusicDisplay](https://opensheetmusicdisplay.github.io/), [Verovio](https://www.verovio.org/index.xhtml), [abcjs](https://www.abcjs.net/).
+Web app to load an iReal Pro playlist from file or `ireal://` URI and display its sheets using [OpenSheetMusicDisplay](https://opensheetmusicdisplay.github.io/), [Verovio](https://www.verovio.org/index.xhtml), and other renderers.
 
 # Usage
 
-- `npm i`
-- `npm run develop`
+- `npm install && npm run develop`
+- For MIDI conversion and playback, clone [`musicxml-mma`](https://github.com/infojunkie/musicxml-mma) and run `npm install && npm run develop` there.
 - Open [http://localhost:9000/](http://localhost:9000/)
-- Upload [an iReal playlist](https://github.com/infojunkie/ireal-musicxml/raw/main/test/data/jazz1350.txt)
-- Paste an iReal URI `irealb://Bolivia%3DCedar%20Extra%20Name%20Walton%3D%3DUp%20Tempo%20Swing%3DD%3D%3D1r34LbKcu7s7bB(LZxLZE44T%5BA*Y%7D)%5EE(%20ZxLxZLxZLxZLxZLxb%5E7%20%207G%7Bi*X7-B%7CA13Xyb7%23F%7CQyX7%5EG%7CQy9Xb31bA%7CQyX7%5ED%7CQ13XyQZL)suyX7%5EF7%2311X7-G%7CQyX7h%23G%7CQyAX%2F7-B%7CQyX7-B%7CQy%20C7LZ%5EC%7CQyLxZLx9XyQ%7CxZLxZLxZL7G%7BB*Q%5DyX9%237A%7CQyX7%5EbBLZxLZb7B%7CQZx%20(E%5E)%7D%3D%3D0%3D0%3D%3D%3DMoanin'%3DTimmons%20Bobby%3D%3DMedium%20Swing%3DF-%3D%3D1r34LbKcu7eniF%3CAn%20BbyXZLQyX%7CrQyXZLyQX%7CrQyXZL%20n%2CFZLQr%7C%20%20*44T%7BA%207-b*BBb-%209b7F%7CQyX7-FZL%2397C%209b7GZL9bA%207B7LZB%5B%7D%20%20%3EoS%20%3CA7b9XyQyX9b7C%3EeniF%20l%20a.C.D%3C%7CQyX7hG%7CQ%5DY%7BS*GZL9b%20%20%7CrQF-7%20AyX%7CrQyXZLQyX%7CryQXZL9b7C%207GZL7bQLZXy%3E%3AsolBZL7B%3E%20%20%7D%5B%7CQyX7-FZL9%237C%20b97GZL9bA%207-bBB*F7b9%20eniF%3Cb-7%20Ab9LZG7b9XyQ%7CGh7XyQ%7C%3CD.S.%20al%20Fine%3EC7b9XyQ%5D%20%3D%3D0%3D0%3D%3D%3DNew%20Bolero%3DUdden%20Jeremy%3D%3DSlow%20Swing%3DC%3D%3D1r34LbKcu7yXx%7CQ6XyQ%7CD%7CQyXx%7CQyX7%5EbBQ%7CyXx%7CQyX-D%7CQyXxb%5E7XyF44T%5BQyX11%20LZx%20%7CQyXx%7CQyX6C%5B%5DQXyxZL%20-FZL%206bAZLAb%5E7%237bE%7CQbB%7CQy%7CBb6%20yX6bE%7CQyX-CZL%20b6EZL%20-CZL%207bBZLQ%7CAbXQyXx%7C7XyQ%7CC-XyQZ%20%3D%3D0%3D0%3D%3D%3DGirl%20From%20Ipanema%2C%20The%3DJobim%20Ant%C3%B4nio-Carlos%3D%3DBossa%20Nova%3DF%3D%3D1r34LbKcu7N%7CQyX4F%5E7XG%7CQyX7-GZL%20lcKyQX11%237GZL%20lcKQyb7%23114T%7BA*cKQyXyQ%7CGbB*%5D%20%20lcKQyX7%5EFN2ZL%20QyXQyX%7DQyX7%5BF%23%5E7X7%5EF1L%20lcK7XyQKGZL%20lcKQyX7DZLl%20cKQyX7-%23FZL%20lc-7XyQBZL%20l%5BA*%5DQyQKclb7C%7CQyX7-G%7CQyXb59b7D%7CQyX7-AZL%209b5XyX7bEZ%7CQyX7QKcl%20X11%237bG%7CQyX7-GLZ%20lcKQyX11%237GZLyQ%7CF%5EyX7%5EFGb7%20%20%20Z%3D%3D0%3D0%3D%3D%3DSong%20For%20My%20Father%3DSilver%20Horace%3D%3DLatin%3DF-%3D%3D1r34LbKcu7X7-F%7C4F-7Xs7C%7CQyX7bDZL%20lKcQyX7bEZL%20lcKQyusXyQ4T%7BA*%7CQyX7%20%20%7D*BD%207bEZL%20lcKQyX-7FZL%20lcKQyX7bE%5Bb7LZClcKQyF-7XyQKcl%20%20Z%3D%3D0%3D0%3D%3D%3DAll%20Blues%3DDavis%20Miles%3D%3DWaltz%3DG%3D%3D1r34LbKcu7G%2F7CZ7XyQKL%20x%20ZL%20lcKQyX7ZGL%20x%20ZL%20x%20ZL%20lcZ%20x%20LG43T%5BcKQyXl%20LZ%20L%20x%20ZL%20x%20ZL%20lcQKyX7G%7CZL%20x%20ZL%20xZD7%239cKQyXl%20LZEb7%239XyQ%7CD7%239XyQ%7CG7XyQKcl%20LZ%20x%20LZ%20x%20%20Z%3D%3D0%3D0%3D%3D%3DJazz%20Combo`
+
+# Theory of operation
+
+This demo grew from a simple showcase of the iReal Pro to MusicXML conversion library in this repo, to a full-fledged sheet music player, on its way to realize the vision of a musician's practice toolkit, currently codenamed ["Gig Book"](https://github.com/users/infojunkie/projects/2). It brings together a number of music technologies:
+
+- [MusicXML](https://github.com/w3c/musicxml) as the standard for music notation exchange.
+- [Web MIDI](https://developer.mozilla.org/en-US/docs/Web/API/Web_MIDI_API) and [Web Audio](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API) as powerful music-making Web APIs.
+- [OpenSheetMusicDisplay (OSMD)](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay) / [VexFlow](https://github.com/0xfe/vexflow) and [Verovio](https://github.com/rism-digital/verovio) as mature music notation engines for the Web.
+- [Musical MIDI Accompaniment (MMA)](https://www.mellowood.ca/mma/) as a programmable accompaniment generator using MIDI.
+- A number of well-suuported JavaScript libraries for MIDI and Web Audio, including [`midi-player`](https://github.com/chrisguttandin/midi-player), [`webaudiofont`](https://github.com/surikov/webaudiofont/).
+
+On my side, I developed the following modules to supplement the above and tie them together:
+- [`ireal-musicxml`](https://github.com/infojunkie/ireal-musicxml) to convert the treasure trove of lead sheet content created by the [iReal Pro community](https://www.irealpro.com/main-playlists/) into MusicXML where it can be edited and replayed by the many tools that support the standard.
+- [`musicxml-mma`](https://github.com/infojunkie/musicxml-mma) to convert MusicXML sheets into a format that the Musical MIDI Accompaniment (MMA) tool can process and convert to MIDI.
+- The [demo included here](https://blog.karimratib.me/demos/musicxml/) that ties everything together:
+  - Accept iReal Pro and MusicXML files as input
+  - Display them using OSMD or Verovio
+  - Convert them to MIDI
+  - Playback the MIDI file in synchronization with the score
+  - Send the MIDI output to external synths or to one that is included here
