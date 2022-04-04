@@ -7,7 +7,7 @@ iReal Pro to MusicXML converter
 
 # Demo
 
-[Check out the demo!](https://blog.karimratib.me/demos/musicxml/) You can upload the [iReal Pro jazz standards playlist](https://raw.githubusercontent.com/infojunkie/ireal-musicxml/main/test/data/jazz.txt) as a test.
+[Check out the demo!](https://blog.karimratib.me/demos/musicxml/) You can upload one of the [iReal Pro main playlists](https://www.irealpro.com/main-playlists/) as a test.
 
 # Usage
 
