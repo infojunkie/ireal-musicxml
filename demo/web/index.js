@@ -185,9 +185,10 @@ function resetSheet() {
   sheet.id = 'sheet';
   document.getElementById('sheet-container').appendChild(sheet);
 
-  // Delete previous objects
+  // Delete previous objects.
   delete midi.score; midi.score = null;
   delete renderer; renderer = null;
+  if (midi.player) midi.player.stop();
 }
 
 function displaySheet(musicXml) {
@@ -342,7 +343,7 @@ class SoundFontOutput {
       this.channels[channel].beats[pitch].drumInfo.variable :
       this.channels[channel].instrumentInfo.variable;
     const when = this.audioContext.currentTime + (timestamp - performance.now()) / 1000;
-    const envelope = this.player.queueWaveTable(this.audioContext, this.audioContext.destination, window[variable], when, pitch, 100000, velocity / 100);
+    const envelope = this.player.queueWaveTable(this.audioContext, this.audioContext.destination, window[variable], when, pitch, 100000, velocity / 127);
     this.notes.push({ channel, pitch, envelope });
   }
 
@@ -466,6 +467,8 @@ async function loadMidi() {
 
     if (midi.player) midi.player.stop();
     midi.player = create({ json: midi.json, midiOutput: midiOutput() });
+
+    document.getElementById('file-error').textContent = '';
     document.getElementById('player').style.visibility = 'visible';
     document.getElementById('outputs').disabled = false;
   }
