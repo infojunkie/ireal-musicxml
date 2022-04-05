@@ -5,12 +5,21 @@ const osmd = require('opensheetmusicdisplay');
 const unzip = require('unzipit');
 const parserError = require('sane-domparser-error');
 const ireal2musicxml = require('../../lib/ireal-musicxml');
-const jazz = require('../../test/data/jazz.txt');
 const { parseArrayBuffer } = require('midi-json-parser');
 const { create } = require('midi-player');
 const { MidiFileSlicer } = require('midi-file-slicer');
 const WebAudioFontPlayer = require('webaudiofont');
 const { AudioContext } = require('standardized-audio-context');
+
+const SAMPLES = {
+  'jazz': require('../../test/data/jazz.txt'),
+  'brazilian': require('../../test/data/brazilian.txt'),
+  'latin': require('../../test/data/latin.txt'),
+  'blues': require('../../test/data/blues.txt'),
+  'pop': require('../../test/data/pop.txt'),
+  'country': require('../../test/data/country.txt'),
+  'salma': require('../../test/data/salma-ya-salama.musicxml'),
+}
 
 const PLAYER_STOPPED = 0;
 const PLAYER_PLAYING = 1;
@@ -235,9 +244,17 @@ function displaySheet(musicXml) {
 */
 }
 
-function handlejazz() {
-  const playlist = new ireal2musicxml.Playlist(jazz);
-  populateSheets(playlist);
+function handleSampleSelect(e) {
+  if (!e.target.value) return;
+
+  const sample = e.target.value.split(':');
+  if (sample[1] === 'musicxml') {
+    tryMusicXML(SAMPLES[sample[0]]);
+  }
+  else {
+    const playlist = new ireal2musicxml.Playlist(SAMPLES[sample[0]]);
+    populateSheets(playlist);
+  }
 }
 
 function handlePlayPauseKey(e) {
@@ -554,7 +571,7 @@ window.addEventListener('load', function () {
   // document.querySelectorAll('input[name="notation"]').forEach(input => {
   //   input.addEventListener('change', handleNotationChange);
   // });
-  document.getElementById('jazz').addEventListener('click', handlejazz, false);
+  document.getElementById('samples').addEventListener('change', handleSampleSelect, false);
   window.addEventListener('keydown', handlePlayPauseKey);
 
 //  verovio.module.onRuntimeInitialized = async _ => {

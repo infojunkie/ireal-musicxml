@@ -31,7 +31,7 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.txt$/i,
+        test: /\.txt|\.musicxml$/i,
         use: [{
           loader: 'raw-loader',
           options: {
