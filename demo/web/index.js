@@ -590,8 +590,15 @@ window.addEventListener('load', function () {
   document.getElementById('pause').addEventListener('click', handleMidiPause, false);
 
   if (navigator.requestMIDIAccess) navigator.requestMIDIAccess().then(midiAccess => {
+    document.getElementById('firefox-midi').classList.add('hide');
     populateMidiOutputs(midiAccess);
     midiAccess.onstatechange = () => populateMidiOutputs(midiAccess);
     midi.access = midiAccess;
-  }, error => console.error(error));
+  }, error => {
+    const isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
+    if (isFirefox) {
+      document.getElementById('firefox-midi').classList.remove('hide');
+    }
+    console.error(error);
+  });
 })
