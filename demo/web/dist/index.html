@@ -45,7 +45,7 @@
 <div id="firefox-midi" class="hide">
 	Greetings Firefox user!
 	<p>In order to use the Web MIDI capabilities of this demo, you will need to install an add-on that enables it to request the permissions needed to access your MIDI devices.</p>
-	<p>Once you've downloaded the add-on, please refresh the page to activate Web MIDI in the demo.</p>
+	<p>Once you've downloaded the add-on and granted the permissions, please refresh the page to activate Web MIDI in the demo.</p>
 	<p>Thanks for your cooperation. You can <a href="site_permissions_for_blogkarimratibme-1.0-an+fx.xpi">download the add-on here.</a></p>
 </div>
 
@@ -56,21 +56,21 @@
 </div>
 
 <div>
-	<label for="ireal">Paste an iReal Pro song URI directly</label>&nbsp;
+	<label for="ireal">Or paste an iReal Pro song URI directly</label>&nbsp;
 	<input type="text" size="50" id="ireal" name="ireal" placeholder="irealb://... or irealbook://..."/>
 </div>
 
 <div>
-	<label for="samples">Choose a sample from the list here</label>&nbsp;
+	<label for="samples">Or simply choose a sample from the list here</label>&nbsp;
 	<select id="samples">
 		<option value="">-- Choose --</option>
-		<option value="jazz">iReal Pro Jazz 1400</option>
-		<option value="brazilian">iReal Pro Brazilian 150</option>
-		<option value="latin">iReal Pro Latin 50</option>
-		<option value="blues">iReal Pro Blues 50</option>
-		<option value="pop">iReal Pro Pop 400</option>
-		<option value="country">iReal Pro Country 50</option>
-		<option value="salma:musicxml">Salma ya Salama (MusicXML)</option>
+		<option value="ireal:jazz">iReal Pro Jazz 1400</option>
+		<option value="ireal:brazilian">iReal Pro Brazilian 150</option>
+		<option value="ireal:latin">iReal Pro Latin 50</option>
+		<option value="ireal:blues">iReal Pro Blues 50</option>
+		<option value="ireal:pop">iReal Pro Pop 400</option>
+		<option value="ireal:country">iReal Pro Country 50</option>
+		<option value="musicxml:salma">Salma ya Salama (MusicXML)</option>
 	</select>
 </div>
 

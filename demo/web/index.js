@@ -249,11 +249,11 @@ function handleSampleSelect(e) {
   if (!e.target.value) return;
 
   const sample = e.target.value.split(':');
-  if (sample[1] === 'musicxml') {
-    tryMusicXML(SAMPLES[sample[0]]);
+  if (sample[0] === 'musicxml') {
+    tryMusicXML(SAMPLES[sample[1]]);
   }
-  else {
-    const playlist = new ireal2musicxml.Playlist(SAMPLES[sample[0]]);
+  else if (sample[0] === 'ireal') {
+    const playlist = new ireal2musicxml.Playlist(SAMPLES[sample[1]]);
     populateSheets(playlist);
   }
 }
