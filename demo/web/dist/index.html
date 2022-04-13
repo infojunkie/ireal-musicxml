@@ -50,18 +50,7 @@
 </div>
 
 <div>
-	<label for="playlist">Upload an iReal Pro playlist or a MusicXML file</label>&nbsp;
-	<input type="file" id="playlist" name="playlist"/>
-	<span id="file-error"></span>
-</div>
-
-<div>
-	<label for="ireal">Or paste an iReal Pro song URI directly</label>&nbsp;
-	<input type="text" size="50" id="ireal" name="ireal" placeholder="irealb://... or irealbook://..."/>
-</div>
-
-<div>
-	<label for="samples">Or simply choose a sample from the list here</label>&nbsp;
+	<label for="samples">Choose a sample from the list here</label>&nbsp;
 	<select id="samples">
 		<option value="">-- Choose --</option>
 		<option value="ireal:jazz">iReal Pro Jazz 1400</option>
@@ -72,6 +61,17 @@
 		<option value="ireal:country">iReal Pro Country 50</option>
 		<option value="musicxml:salma">Salma ya Salama (MusicXML)</option>
 	</select>
+</div>
+
+<div>
+	<label for="playlist">Or upload an iReal Pro playlist or a MusicXML file</label>&nbsp;
+	<input type="file" id="playlist" name="playlist"/>
+	<span id="file-error"></span>
+</div>
+
+<div>
+	<label for="ireal">Or paste an iReal Pro song URI directly</label>&nbsp;
+	<input type="text" size="50" id="ireal" name="ireal" placeholder="irealb://... or irealbook://..."/>
 </div>
 
 <div>
@@ -88,6 +88,7 @@
 	<label for="slash">Slash</label>
 </div>
 -->
+
 <div>
 	Renderer
 	<input type="radio" id="osmd" name="renderer" value="osmd" checked/>
@@ -98,6 +99,12 @@
 	<input type="radio" id="abc" name="renderer" value="abc"/>
 	<label for="abc"><span id="abc-version"></span></label>
 	-->
+</div>
+
+<div>
+	<label for="grooves">Groove</label>
+	<input list="grooves-list" id="grooves" disabled/>
+	<datalist id="grooves-list" disabled></datalist>
 </div>
 
 <div>

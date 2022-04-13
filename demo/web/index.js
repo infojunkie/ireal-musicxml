@@ -10,6 +10,7 @@ const { create } = require('midi-player');
 const { MidiFileSlicer } = require('midi-file-slicer');
 const WebAudioFontPlayer = require('webaudiofont');
 const { AudioContext } = require('standardized-audio-context');
+const workerTimers = require('worker-timers');
 
 const SAMPLES = {
   'jazz': require('../../test/data/jazz.txt'),
@@ -35,6 +36,7 @@ let midi = {
   json: null,
   player: null,
   score: null,
+  grooves: null,
   startTime: null,
   pauseTime: null,
   currentMeasureIndex: null,
@@ -298,21 +300,21 @@ class SoundFontOutput {
     }, {});
 
     // Start noteOff scheduling.
-    const noteOff = (now) => {
+    const noteOff = () => {
       for (let i = 0; i < this.notes.length; i++) {
-        if (this.notes[i].timestamp <= now) {
+        if (this.notes[i].off && this.notes[i].off <= performance.now()) {
           if (this.notes[i].envelope) {
             this.notes[i].envelope.cancel();
           }
           this.notes.splice(i, 1);
         }
       }
-      requestAnimationFrame(noteOff);
+      workerTimers.setTimeout(noteOff, 25);
     }
-    requestAnimationFrame(noteOff);
+    workerTimers.setTimeout(noteOff, 25);
   }
 
-  send(data, timestamp) {
+  send(data, timestamp = performance.now()) {
     const channel = data[0] & 0xf;
     const type = data[0] >> 4;
     const pitch = data[1];
@@ -333,24 +335,29 @@ class SoundFontOutput {
       switch (pitch) {
         case 120:
           this.player.cancelQueue(this.audioContext);
+          break;
       }
+      break;
+    }
+    if (data.length > 3) {
+      this.send(data.slice(3), timestamp);
     }
   }
 
   noteOn(channel, pitch, timestamp, velocity) {
-    this.noteOff(pitch);
     const variable = channel === MIDI_DRUMS ?
       this.channels[channel].beats[pitch].drumInfo.variable :
       this.channels[channel].instrumentInfo.variable;
     const when = this.audioContext.currentTime + (timestamp - performance.now()) / 1000;
     const envelope = this.player.queueWaveTable(this.audioContext, this.audioContext.destination, window[variable], when, pitch, 100000, velocity / 127);
-    this.notes.push({ channel, pitch, envelope });
+    this.notes.push({ channel, pitch, envelope, off: null });
   }
 
   noteOff(channel, pitch, timestamp) {
     for (let i = 0; i < this.notes.length; i++) {
-      if (this.notes[i].pitch === pitch && this.notes[i].channel === channel) {
-        this.notes[i].timestamp = timestamp;
+      if (this.notes[i].pitch === pitch && this.notes[i].channel === channel && this.notes[i].off === null) {
+        this.notes[i].off = timestamp;
+        break;
       }
     }
   }
@@ -456,9 +463,10 @@ class VerovioPlayback {
   }
 }
 
-async function loadMidi() {
+async function loadMidi(groove = null) {
   const formData = new FormData();
   formData.append('musicxml', new Blob([musicXml], { type: 'text/xml' }));
+  if (groove && groove.toLowerCase() !== 'default') formData.append('globalGroove', groove);
   try {
     const response = await fetch('mma/convert', { method: 'POST', body: formData });
     if (!response.ok) throw new Error(response.statusText);
@@ -471,12 +479,18 @@ async function loadMidi() {
     document.getElementById('file-error').textContent = '';
     document.getElementById('player').style.visibility = 'visible';
     document.getElementById('outputs').disabled = false;
+    if (!groove) document.getElementById('grooves').value = '';
+    document.getElementById('grooves').disabled = false;
+    document.getElementById('grooves-list').disabled = false;
   }
-  catch (e) {
+  catch (ex) {
     document.getElementById('file-error').textContent = 'Could not convert the file to MIDI.';
     document.getElementById('player').style.visibility = 'hidden';
     document.getElementById('outputs').disabled = true;
-    console.error(e);
+    document.getElementById('grooves').value = '';
+    document.getElementById('grooves').disabled = true;
+    document.getElementById('grooves-list').disabled = true;
+    console.error(ex);
   }
 }
 
@@ -500,8 +514,15 @@ async function playMidi() {
 
     midiFileSlicer.slice(lastTime - midi.startTime, now - midi.startTime).forEach(event => {
       if (event.event.marker) {
-        midi.currentMeasureIndex = parseInt(event.event.marker.split(':')[1]) - 1;
-        midi.currentMeasureStartTime = now;
+        const marker = event.event.marker.split(':');
+        if (marker[0] === 'Measure') {
+          midi.currentMeasureIndex = parseInt(marker[1]) - 1;
+          midi.currentMeasureStartTime = now;
+        }
+        else if (marker[0] === 'Groove') {
+          document.getElementById('grooves').value = marker[1];
+          document.getElementById('grooves-list').value = marker[1];
+        }
       }
     });
     midi.score.moveToMeasureTime(midi.currentMeasureIndex, Math.max(0, now - midi.currentMeasureStartTime));
@@ -564,6 +585,36 @@ function populateMidiOutputs(midiAccess) {
   });
 }
 
+function handleGrooveSelect(e) {
+  if (midi.grooves.find(g => g === e.target.value)) {
+    loadMidi(e.target.value).then(() => rewindMidi());
+  }
+}
+
+async function populateGrooves() {
+  const grooves = document.getElementById('grooves');
+  const groovesList = document.getElementById('grooves-list');
+  midi.grooves = [];
+  try {
+    const response = await fetch('mma/grooves');
+    if (!response.ok) throw new Error(response.statusText);
+    const lines = await response.text();
+    ['Default', 'No groove override, just whatever is specified in the score.', 'None', 'No groove, just the chords.'].concat(lines.split('\n')).forEach((line, index, lines) => {
+      if (index % 2 === 1) {
+        const option = document.createElement('option');
+        option.value = lines[index-1].trim();
+        option.text = line.trim();
+        groovesList.appendChild(option);
+        midi.grooves.push(option.value);
+      }
+    });
+    grooves.addEventListener('change', handleGrooveSelect);
+  }
+  catch (ex) {
+    console.error(ex);
+  }
+}
+
 window.addEventListener('load', function () {
   document.getElementById('playlist').addEventListener('change', handleFileSelect, false);
   document.getElementById('ireal').addEventListener('change', handleIRealChange, false);
@@ -588,6 +639,8 @@ window.addEventListener('load', function () {
   document.getElementById('rewind').addEventListener('click', handleMidiRewind, false);
   document.getElementById('play').addEventListener('click', handleMidiPlay, false);
   document.getElementById('pause').addEventListener('click', handleMidiPause, false);
+
+  populateGrooves();
 
   if (navigator.requestMIDIAccess) navigator.requestMIDIAccess().then(midiAccess => {
     document.getElementById('firefox-midi').classList.add('hide');
