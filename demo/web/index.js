@@ -301,11 +301,10 @@ class SoundFontOutput {
 
     // Start noteOff scheduling.
     const noteOff = () => {
+      const now = performance.now();
       for (let i = 0; i < this.notes.length; i++) {
-        if (this.notes[i].off && this.notes[i].off <= performance.now()) {
-          if (this.notes[i].envelope) {
-            this.notes[i].envelope.cancel();
-          }
+        if (this.notes[i].off !== null && this.notes[i].off <= now) {
+          this.notes[i].envelope.cancel();
           this.notes.splice(i, 1);
         }
       }
@@ -364,6 +363,7 @@ class SoundFontOutput {
 
   clear() {
     this.player.cancelQueue(this.audioContext);
+    this.notes = [];
   }
 }
 
