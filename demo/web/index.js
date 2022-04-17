@@ -299,21 +299,23 @@ class SoundFontOutput {
       return channels;
     }, {});
 
-    // Start noteOff scheduling.
-    const noteOff = () => {
+    // Perform our own note scheduling.
+    const scheduleNotes = () => {
       const now = performance.now();
-      for (let i = 0; i < this.notes.length; i++) {
-        if (this.notes[i].off !== null && this.notes[i].off <= now) {
-          this.notes[i].envelope.cancel();
-          this.notes.splice(i, 1);
-        }
-      }
-      workerTimers.setTimeout(noteOff, 25);
+      this.notes.filter(note => note.envelope === null && note.on <= now).forEach(note => {
+        const instrument = note.channel === MIDI_DRUMS ?
+          this.channels[note.channel].beats[note.pitch].drumInfo.variable :
+          this.channels[note.channel].instrumentInfo.variable;
+        note.envelope = this.player.queueWaveTable(this.audioContext, this.audioContext.destination, window[instrument], 0, note.pitch, 100000, note.velocity / 127);
+      })
+      this.notes.filter(note => note.off !== null && note.off <= now).forEach(note => note.envelope.cancel());
+      this.notes = this.notes.filter(note => note.off === null || note.off > now);
+      workerTimers.setTimeout(scheduleNotes, 25);
     }
-    workerTimers.setTimeout(noteOff, 25);
+    workerTimers.setTimeout(scheduleNotes, 25);
   }
 
-  send(data, timestamp = performance.now()) {
+  send(data, timestamp) {
     const channel = data[0] & 0xf;
     const type = data[0] >> 4;
     const pitch = data[1];
@@ -333,7 +335,7 @@ class SoundFontOutput {
     case 11:
       switch (pitch) {
         case 120:
-          this.player.cancelQueue(this.audioContext);
+          this.clear();
           break;
       }
       break;
@@ -344,20 +346,13 @@ class SoundFontOutput {
   }
 
   noteOn(channel, pitch, timestamp, velocity) {
-    const variable = channel === MIDI_DRUMS ?
-      this.channels[channel].beats[pitch].drumInfo.variable :
-      this.channels[channel].instrumentInfo.variable;
-    const when = this.audioContext.currentTime + (timestamp - performance.now()) / 1000;
-    const envelope = this.player.queueWaveTable(this.audioContext, this.audioContext.destination, window[variable], when, pitch, 100000, velocity / 127);
-    this.notes.push({ channel, pitch, envelope, off: null });
+    this.notes.push({ channel, pitch, velocity, on: timestamp, envelope: null, off: null });
   }
 
   noteOff(channel, pitch, timestamp) {
-    for (let i = 0; i < this.notes.length; i++) {
-      if (this.notes[i].pitch === pitch && this.notes[i].channel === channel && this.notes[i].off === null) {
-        this.notes[i].off = timestamp;
-        break;
-      }
+    const note = this.notes.find(note => note.pitch === pitch && note.channel === channel && note.off === null);
+    if (note) {
+      note.off = timestamp;
     }
   }
 
