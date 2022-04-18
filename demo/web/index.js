@@ -432,22 +432,26 @@ class VerovioPlayback {
   }
 
   moveToMeasureTime(measureIndex, measureMillisecs) {
-    const time = this.measures[measureIndex].timestamp + measureMillisecs;
-    const elementsattime = this.vrv.getElementsAtTime(Math.max(0, time));
-    if (true/*elementsattime.page > 0*/) {
-      // if (elementsattime.page != page) {
-      //     page = elementsattime.page;
+    const time = Math.max(0,
+      Math.min(
+        measureIndex < this.measures.length - 1 ? this.measures[measureIndex + 1].timestamp - 1 : this.measures[measureIndex].timestamp + measureMillisecs,
+        this.measures[measureIndex].timestamp + measureMillisecs)
+    );
+    const elements = this.vrv.getElementsAtTime(time);
+    if (true/*elements.page > 0*/) {
+      // if (elements.page != page) {
+      //     page = elements.page;
       //     load_page();
       // }
-      if ((elementsattime.notes.length > 0) && (this.ids != elementsattime.notes)) {
+      if ((elements.notes.length > 0) && (this.ids != elements.notes)) {
         this.ids.forEach(noteid => {
-          if (!elementsattime.notes.includes(noteid)) {
+          if (!elements.notes.includes(noteid)) {
             const note = document.getElementById(noteid);
             note.setAttribute('fill', '#000');
             note.setAttribute('stroke', '#000');
           }
         });
-        this.ids = elementsattime.notes;
+        this.ids = elements.notes;
         this.ids.forEach(noteid => {
           const note = document.getElementById(noteid);
           note.setAttribute('fill', '#c00');
