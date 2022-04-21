@@ -464,7 +464,7 @@ class VerovioPlayback {
 
 async function loadMidi(groove = null) {
   const formData = new FormData();
-  formData.append('musicxml', new Blob([musicXml], { type: 'text/xml' }));
+  formData.append('musicXml', new Blob([musicXml], { type: 'text/xml' }));
   if (groove && groove.toLowerCase() !== 'default') formData.append('globalGroove', groove);
   try {
     const response = await fetch('mma/convert', { method: 'POST', body: formData });
