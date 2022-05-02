@@ -368,6 +368,19 @@ class OpenSheetMusicDisplayPlayback {
     this.currentMeasureIndex = 0;
     this.currentVoiceEntryIndex = 0;
     this.osmd.cursor.show();
+
+    // Build event listeners for target stave notes to position the cursor.
+    this.osmd.graphic.measureList.forEach(measureGroup => {
+      measureGroup.forEach(measure => {
+        measure.staffEntries.forEach((se, v) => {
+          se.graphicalVoiceEntries.forEach(gve => {
+            gve.mVexFlowStaveNote.attrs.el.addEventListener('click', event => {
+              this.updateCursor(measure.measureNumber - 1, v);
+            });
+          });
+        });
+      });
+    });
   }
 
   // Staff entry timestamp to actual time relative to measure start.
