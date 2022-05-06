@@ -5,8 +5,8 @@ const osmd = require('opensheetmusicdisplay');
 const unzip = require('unzipit');
 const parserError = require('sane-domparser-error');
 const ireal2musicxml = require('../../lib/ireal-musicxml');
-const { parseArrayBuffer } = require('midi-json-parser');
-const { create } = require('midi-player');
+const { parseArrayBuffer: parseMidiBuffer } = require('midi-json-parser');
+const { create: createMidiPlayer } = require('midi-player');
 const { MidiFileSlicer } = require('midi-file-slicer');
 const WebAudioFontPlayer = require('webaudiofont');
 const { AudioContext } = require('standardized-audio-context');
@@ -41,6 +41,7 @@ let midi = {
   pauseTime: null,
   currentMeasureIndex: null,
   currentMeasureStartTime: null,
+  mapMeasureToTimestamp: null,
 }
 
 function handleIRealChange(e) {
@@ -332,13 +333,6 @@ class SoundFontOutput {
     case 8:
       this.noteOff(channel, pitch, timestamp);
       break;
-    case 11:
-      switch (pitch) {
-        case 120:
-          this.clear();
-          break;
-      }
-      break;
     }
     if (data.length > 3) {
       this.send(data.slice(3), timestamp);
@@ -369,13 +363,14 @@ class OpenSheetMusicDisplayPlayback {
     this.currentVoiceEntryIndex = 0;
     this.osmd.cursor.show();
 
-    // Build event listeners for target stave notes to position the cursor.
+    // Setup event listeners for target stave notes to position the cursor.
     this.osmd.graphic.measureList.forEach(measureGroup => {
       measureGroup.forEach(measure => {
         measure.staffEntries.forEach((se, v) => {
           se.graphicalVoiceEntries.forEach(gve => {
             gve.mVexFlowStaveNote.attrs.el.addEventListener('click', event => {
               this.updateCursor(measure.measureNumber - 1, v);
+              seekMidi(measure.measureNumber - 1, OpenSheetMusicDisplayPlayback.timestampToMillisecs(measure.parentSourceMeasure, se.relInMeasureTimestamp));
             });
           });
         });
@@ -432,47 +427,77 @@ class VerovioPlayback {
   constructor(vrv) {
     this.vrv = vrv;
     this.ids = [];
-    this.measures = this.vrv.renderToTimemap({ includeMeasures: true, includeRests: true }).reduce((measures, event) => {
+    this.measures = [];
+
+    // Build measure timemap and setup event listeners on notes.
+    this.vrv.renderToTimemap({ includeMeasures: true, includeRests: true }).forEach(event => {
       if ('measureOn' in event) {
-        measures.push({
+        this.measures.push({
           timestamp: event.tstamp
         });
       }
-      return measures;
-    }, []);
+      const measureIndex = this.measures.length - 1;
+      Array(...(event.on || []), ...(event.restsOn || [])).forEach(noteid => {
+        document.getElementById(noteid).addEventListener('click', _ => {
+          console.log(noteid);
+          const measureMillisecs = event.tstamp - this.measures[measureIndex].timestamp;
+          this.moveToMeasureTime(measureIndex, measureMillisecs + 1);
+          seekMidi(measureIndex, measureMillisecs);
+        });
+      });
+    });
 
     this.moveToMeasureTime(0, 0);
   }
 
   moveToMeasureTime(measureIndex, measureMillisecs) {
-    const time = Math.max(0,
+    const timestamp = Math.max(0,
       Math.min(
-        measureIndex < this.measures.length - 1 ? this.measures[measureIndex + 1].timestamp - 1 : this.measures[measureIndex].timestamp + measureMillisecs,
+        measureIndex < this.measures.length - 1 ? this.measures[measureIndex + 1].timestamp : this.measures[measureIndex].timestamp + measureMillisecs,
         this.measures[measureIndex].timestamp + measureMillisecs)
     );
-    const elements = this.vrv.getElementsAtTime(time);
-    if (true/*elements.page > 0*/) {
-      // if (elements.page != page) {
-      //     page = elements.page;
-      //     load_page();
-      // }
-      if ((elements.notes.length > 0) && (this.ids != elements.notes)) {
-        this.ids.forEach(noteid => {
-          if (!elements.notes.includes(noteid)) {
-            const note = document.getElementById(noteid);
-            note.setAttribute('fill', '#000');
-            note.setAttribute('stroke', '#000');
-          }
-        });
-        this.ids = elements.notes;
-        this.ids.forEach(noteid => {
+    const elements = this.vrv.getElementsAtTime(timestamp);
+    if ((elements.notes.length > 0) && (this.ids != elements.notes)) {
+      this.ids.forEach(noteid => {
+        if (!elements.notes.includes(noteid)) {
           const note = document.getElementById(noteid);
-          note.setAttribute('fill', '#c00');
-          note.setAttribute('stroke', '#c00');
-        });
-      }
+          note.setAttribute('fill', '#000');
+          note.setAttribute('stroke', '#000');
+        }
+      });
+      this.ids = elements.notes;
+      this.ids.forEach(noteid => {
+        const note = document.getElementById(noteid);
+        note.setAttribute('fill', '#c00');
+        note.setAttribute('stroke', '#c00');
+      });
     }
   }
+}
+
+// Create a map of timestamp => measure number to help with cursor positioning
+function parseMeasures() {
+  let microsecondsPerQuarter = 500000;
+  let offset = 0;
+
+  midi.mapMeasureToTimestamp = new Map();
+
+  // Track 0 is the meta track with measures information.
+  midi.json.tracks[0].forEach(event => {
+    if ('setTempo' in event) {
+      microsecondsPerQuarter = event.setTempo.microsecondsPerQuarter;
+    }
+    offset += event.delta;
+    if ('marker' in event) {
+      const marker = event.marker.split(':');
+      if (marker[0] === 'Measure') {
+        const measureNumber = Number(marker[1]) - 1;
+        const timestamp = offset * (microsecondsPerQuarter / midi.json.division / 1000);
+        const timestamps = midi.mapMeasureToTimestamp.get(measureNumber) || [];
+        midi.mapMeasureToTimestamp.set(measureNumber, timestamps.concat(timestamp));
+      }
+    }
+  });
 }
 
 async function loadMidi(groove = null) {
@@ -483,10 +508,12 @@ async function loadMidi(groove = null) {
     const response = await fetch('mma/convert', { method: 'POST', body: formData });
     if (!response.ok) throw new Error(response.statusText);
     const buffer = await response.arrayBuffer();
-    midi.json = await parseArrayBuffer(buffer);
+    midi.json = await parseMidiBuffer(buffer);
+
+    parseMeasures();
 
     if (midi.player) midi.player.stop();
-    midi.player = create({ json: midi.json, midiOutput: midiOutput() });
+    midi.player = createMidiPlayer({ json: midi.json, midiOutput: midiOutput() });
 
     document.getElementById('file-error').textContent = '';
     document.getElementById('player').style.visibility = 'visible';
@@ -506,16 +533,26 @@ async function loadMidi(groove = null) {
   }
 }
 
+function seekMidi(measureIndex, measureMillisecs) {
+  const timestamp = midi.mapMeasureToTimestamp.get(measureIndex)[0] + measureMillisecs;
+  midi.player.seek(timestamp);
+  midi.currentMeasureIndex = measureIndex;
+  const now = performance.now();
+  midi.currentMeasureStartTime = now - measureMillisecs;
+  midi.startTime = now - timestamp;
+  midi.pauseTime = now;
+}
+
 async function playMidi() {
   const now = performance.now();
-  if (midi.player.state === PLAYER_PAUSED) {
+  if (midi.player.state === PLAYER_PAUSED || midi.startTime !== null) {
     midi.startTime += now - midi.pauseTime;
     midi.currentMeasureStartTime += now - midi.pauseTime;
   }
   else {
     midi.startTime = now;
     midi.currentMeasureIndex = 0;
-    midi.currentMeasureStartTime = midi.startTime;
+    midi.currentMeasureStartTime = now;
   }
 
   const midiFileSlicer = new MidiFileSlicer({ json: midi.json });
@@ -539,11 +576,9 @@ async function playMidi() {
     });
     midi.score.moveToMeasureTime(midi.currentMeasureIndex, Math.max(0, now - midi.currentMeasureStartTime));
 
-    // Schedule next cursor movement if still playing.
-    if (midi.player.state === PLAYER_PLAYING) {
-      lastTime = now;
-      requestAnimationFrame(displayEvents);
-    }
+    // Schedule next cursor movement.
+    lastTime = now;
+    requestAnimationFrame(displayEvents);
   };
   requestAnimationFrame(displayEvents);
 
@@ -552,6 +587,11 @@ async function playMidi() {
   }
   else {
     await midi.player.play();
+  }
+
+  // Reset.
+  if (midi.player.state !== PLAYER_PAUSED) {
+    midi.startTime = null;
   }
 }
 
@@ -569,6 +609,7 @@ async function rewindMidi() {
   if (midi.score) {
     midi.score.moveToMeasureTime(0, 0);
   }
+  midi.startTime = null;
 }
 
 async function handleMidiOutputSelect(e) { loadMidi().then(() => rewindMidi()); }
