@@ -12,16 +12,6 @@ const WebAudioFontPlayer = require('webaudiofont');
 const { AudioContext } = require('standardized-audio-context');
 const workerTimers = require('worker-timers');
 
-const SAMPLES = {
-  'jazz': require('../../test/data/jazz.txt'),
-  'brazilian': require('../../test/data/brazilian.txt'),
-  'latin': require('../../test/data/latin.txt'),
-  'blues': require('../../test/data/blues.txt'),
-  'pop': require('../../test/data/pop.txt'),
-  'country': require('../../test/data/country.txt'),
-  'salma': require('../../test/data/salma-ya-salama.musicxml'),
-}
-
 const PLAYER_STOPPED = 0;
 const PLAYER_PLAYING = 1;
 const PLAYER_PAUSED = 2;
@@ -42,6 +32,7 @@ let midi = {
   currentMeasureIndex: null,
   currentMeasureStartTime: null,
   mapMeasureToTimestamp: null,
+  firstMeasureNumber: null,
 }
 
 function handleIRealChange(e) {
@@ -135,6 +126,23 @@ function handleFileSelect(e) {
   }
   else {
     document.getElementById('file-error').textContent = 'This file is too large.';
+  }
+}
+
+async function handleSampleSelect(e) {
+  if (!e.target.value) return;
+  try {
+    const response = await fetch(e.target.value);
+    if (!response.ok) throw new Error(response.statusText);
+    const text = await response.text();
+    const type = response.headers.get('Content-Type') || '';
+    if (tryMusicXML(text)) return;
+    if (tryiRealPro(text)) return;
+    document.getElementById('file-error').textContent = 'This file is not recognized as either iReal Pro or MusicXML.';
+  }
+  catch (ex) {
+    console.error(ex.toString());
+    document.getElementById('file-error').textContent = 'Failed to load the selected file.';
   }
 }
 
@@ -248,19 +256,6 @@ function displaySheet(musicXml) {
 */
 }
 
-function handleSampleSelect(e) {
-  if (!e.target.value) return;
-
-  const sample = e.target.value.split(':');
-  if (sample[0] === 'musicxml') {
-    tryMusicXML(SAMPLES[sample[1]]);
-  }
-  else if (sample[0] === 'ireal') {
-    const playlist = new ireal2musicxml.Playlist(SAMPLES[sample[1]]);
-    populateSheets(playlist);
-  }
-}
-
 function handlePlayPauseKey(e) {
   if (e.key === ' ' && midi.player) {
     e.preventDefault();
@@ -303,12 +298,18 @@ class SoundFontOutput {
     // Perform our own note scheduling.
     const scheduleNotes = () => {
       const now = performance.now();
-      this.notes.filter(note => note.envelope === null && note.on <= now).forEach(note => {
-        const instrument = note.channel === MIDI_DRUMS ?
-          this.channels[note.channel].beats[note.pitch].drumInfo.variable :
-          this.channels[note.channel].instrumentInfo.variable;
-        note.envelope = this.player.queueWaveTable(this.audioContext, this.audioContext.destination, window[instrument], 0, note.pitch, 100000, note.velocity / 127);
-      })
+      // Module `webaudiofont` seems to drop notes randomly when they become too crowded.
+      // The commented code below was an experiment to rely on our own scheduling to instruct `webaudiofont` to play
+      // the notes immediately, instead of queueing them on the module's side. This experiment worked better in some cases,
+      // but failed miserably in others because more notes were dropped when scheduled immediately as per the commented code below.
+      // The currently used method is to queue the notes in `webaudiofont` when they are received in the method `noteOn()`.
+      //
+      // this.notes.filter(note => note.envelope === null && note.on <= now).forEach(note => {
+      //   const instrument = note.channel === MIDI_DRUMS ?
+      //     this.channels[note.channel].beats[note.pitch].drumInfo.variable :
+      //     this.channels[note.channel].instrumentInfo.variable;
+      //   note.envelope = this.player.queueWaveTable(this.audioContext, this.audioContext.destination, window[instrument], 0, note.pitch, 100000, note.velocity / 127);
+      // })
       this.notes.filter(note => note.off !== null && note.off <= now).forEach(note => note.envelope.cancel());
       this.notes = this.notes.filter(note => note.off === null || note.off > now);
       workerTimers.setTimeout(scheduleNotes, 25);
@@ -340,7 +341,18 @@ class SoundFontOutput {
   }
 
   noteOn(channel, pitch, timestamp, velocity) {
-    this.notes.push({ channel, pitch, velocity, on: timestamp, envelope: null, off: null });
+    // Refer to the discussion in `scheduleNotes()` about queuing the notes in `webaudiofont`,
+    // as opposed to scheduling them ourselves. For now, we're doing the former which drop some notes, but overall works better.
+    //
+    // this.notes.push({ channel, pitch, velocity, on: timestamp, envelope: null, off: null });
+    const instrument = channel === MIDI_DRUMS ?
+      this.channels[channel].beats[pitch].drumInfo.variable :
+      this.channels[channel].instrumentInfo.variable;
+    const when = this.audioContext.currentTime + (timestamp - performance.now()) / 1000;
+    this.notes.push({
+      channel, pitch, velocity, on: timestamp, off: null,
+      envelope: this.player.queueWaveTable(this.audioContext, this.audioContext.destination, window[instrument], when, pitch, 100000, velocity / 127)
+    });
   }
 
   noteOff(channel, pitch, timestamp) {
@@ -369,8 +381,8 @@ class OpenSheetMusicDisplayPlayback {
         measure.staffEntries.forEach((se, v) => {
           se.graphicalVoiceEntries.forEach(gve => {
             gve.mVexFlowStaveNote.attrs.el.addEventListener('click', event => {
-              this.updateCursor(measure.measureNumber - 1, v);
-              seekMidi(measure.measureNumber - 1, OpenSheetMusicDisplayPlayback.timestampToMillisecs(measure.parentSourceMeasure, se.relInMeasureTimestamp));
+              this.updateCursor(measure.measureNumber - midi.firstMeasureNumber, v);
+              seekMidi(measure.measureNumber - midi.firstMeasureNumber, OpenSheetMusicDisplayPlayback.timestampToMillisecs(measure.parentSourceMeasure, se.relInMeasureTimestamp));
             });
           });
         });
@@ -439,7 +451,6 @@ class VerovioPlayback {
       const measureIndex = this.measures.length - 1;
       Array(...(event.on || []), ...(event.restsOn || [])).forEach(noteid => {
         document.getElementById(noteid).addEventListener('click', _ => {
-          console.log(noteid);
           const measureMillisecs = event.tstamp - this.measures[measureIndex].timestamp;
           this.moveToMeasureTime(measureIndex, measureMillisecs + 1);
           seekMidi(measureIndex, measureMillisecs);
@@ -482,7 +493,9 @@ function parseMeasures() {
 
   midi.mapMeasureToTimestamp = new Map();
 
-  // Track 0 is the meta track with measures information.
+  // First measure can be 0 in case of pickup measure.
+  midi.firstMeasureNumber = null;
+
   midi.json.tracks[0].forEach(event => {
     if ('setTempo' in event) {
       microsecondsPerQuarter = event.setTempo.microsecondsPerQuarter;
@@ -491,7 +504,10 @@ function parseMeasures() {
     if ('marker' in event) {
       const marker = event.marker.split(':');
       if (marker[0] === 'Measure') {
-        const measureNumber = Number(marker[1]) - 1;
+        if (midi.firstMeasureNumber === null) {
+          midi.firstMeasureNumber = Number(marker[1]);
+        }
+        const measureNumber = Number(marker[1]) - midi.firstMeasureNumber;
         const timestamp = offset * (microsecondsPerQuarter / midi.json.division / 1000);
         const timestamps = midi.mapMeasureToTimestamp.get(measureNumber) || [];
         midi.mapMeasureToTimestamp.set(measureNumber, timestamps.concat(timestamp));
@@ -565,7 +581,7 @@ async function playMidi() {
       if (event.event.marker) {
         const marker = event.event.marker.split(':');
         if (marker[0] === 'Measure') {
-          midi.currentMeasureIndex = parseInt(marker[1]) - 1;
+          midi.currentMeasureIndex = parseInt(marker[1]) - midi.firstMeasureNumber;
           midi.currentMeasureStartTime = now;
         }
         else if (marker[0] === 'Groove') {
