@@ -1,6 +1,6 @@
 {
   "name": "ireal2musicxml-demo",
-  "version": "2.3.1",
+  "version": "2.3.2",
   "description": "Web Demo",
   "main": "index.js",
   "scripts": {
@@ -18,8 +18,6 @@
     "webpack-dev-server": "^3.11.2"
   },
   "dependencies": {
-    "abcjs": "^5.12.0",
-    "jquery": "^3.5.1",
     "midi-file-slicer": "^6.0.58",
     "midi-json-parser": "^8.0.54",
     "midi-player": "git://github.com/infojunkie/midi-player.git#infojunkie",
