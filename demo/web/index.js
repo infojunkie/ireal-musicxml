@@ -135,7 +135,6 @@ async function handleSampleSelect(e) {
     const response = await fetch(e.target.value);
     if (!response.ok) throw new Error(response.statusText);
     const text = await response.text();
-    const type = response.headers.get('Content-Type') || '';
     if (tryMusicXML(text)) return;
     if (tryiRealPro(text)) return;
     document.getElementById('file-error').textContent = 'This file is not recognized as either iReal Pro or MusicXML.';
@@ -684,7 +683,7 @@ async function populateGrooves() {
   }
 }
 
-window.addEventListener('load', function () {
+window.addEventListener('load', async () => {
   document.getElementById('playlist').addEventListener('change', handleFileSelect, false);
   document.getElementById('ireal').addEventListener('change', handleIRealChange, false);
   document.getElementById('sheets').addEventListener('change', handleSheetSelect, false);
