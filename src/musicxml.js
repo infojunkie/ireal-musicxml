@@ -840,7 +840,7 @@ export class MusicXML {
         .getMap(mapDuration, index, [], `[${this.measure.number()}] Unexpected beat count 1 for time signature ${this.time.beats}/${this.time.beatType}`)
         .map(duration => {
           return {
-            duration: duration.b * this.options.divisions * this.time.beatType / 8,
+            duration: duration.b * this.options.divisions / 2,
             type: duration.t,
             dots: duration.d
           }
@@ -854,7 +854,7 @@ export class MusicXML {
       .getMap(mapDuration, index, [], `[${this.measure.number()}] Unexpected beat count ${beats} for time signature ${this.time.beats}/${this.time.beatType}`)
       .map(duration => {
         return {
-          duration: duration.b * this.options.divisions * this.time.beatType / 8,
+          duration: duration.b * this.options.divisions / 2,
           type: duration.t,
           dots: duration.d
         }

@@ -10,11 +10,13 @@ import {MusicXML} from '../src/musicxml';
 let jazz = null;
 let playlist = null;
 let strange = null;
+let blues = null;
 
 before(() => {
   jazz = new Playlist(fs.readFileSync('test/data/jazz.txt', 'utf-8'));
   playlist = new Playlist(fs.readFileSync('test/data/playlist.html', 'utf-8'));
   strange = new Playlist(fs.readFileSync('test/data/strange.html', 'utf-8'));
+  blues = new Playlist(fs.readFileSync('test/data/blues.txt', 'utf-8'));
 })
 
 describe('MusicXML', function() {
@@ -269,5 +271,16 @@ describe('MusicXML', function() {
         assert.deepStrictEqual(actualDegrees, chord.d, `Expected D${chord.m} degrees`);
       }
     });
+  });
+
+  it('should correctly convert 12/8 time signatures', async function() {
+    const song = blues.songs.find(song => song.title === 'Come Back Baby');
+    assert.notStrictEqual(song, undefined);
+    const musicXml = MusicXML.convert(song, { notation: 'rhythmic' });
+    await validateXMLWithXSD(musicXml, 'test/data/musicxml.xsd');
+    fs.writeFileSync(`test/output/${song.title}.musicxml`, musicXml);
+    const doc = new DOMParser().parseFromString(musicXml);
+    const duration = select(doc, '//measure[1]/note[1]/duration/text()');
+    assert.strictEqual(duration[0].toString(), '4608');
   });
 });
