@@ -1,5 +1,5 @@
 const osmd = require('opensheetmusicdisplay');
-//const verovio = require('verovio');
+const verovio = require('verovio');
 //const abcjs = require('abcjs');
 //const xml2abc = require('xml2abc');
 const unzip = require('unzipit');
@@ -696,9 +696,9 @@ window.addEventListener('load', async () => {
   document.getElementById('samples').addEventListener('change', handleSampleSelect, false);
   window.addEventListener('keydown', handlePlayPauseKey);
 
-//  verovio.module.onRuntimeInitialized = async _ => {
+  verovio.module.onRuntimeInitialized = async _ => {
     document.getElementById('vrv-version').innerText = new verovio.toolkit().getVersion();
-//  }
+  }
 //  document.getElementById('abc-version').innerText = abcjs.signature;
   document.getElementById('osmd-version').innerText = new osmd.OpenSheetMusicDisplay('sheet').Version;
 

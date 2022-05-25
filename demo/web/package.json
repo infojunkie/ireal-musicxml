@@ -1,6 +1,6 @@
 {
   "name": "ireal2musicxml-demo",
-  "version": "2.3.3",
+  "version": "2.3.4",
   "description": "Web Demo",
   "main": "index.js",
   "scripts": {
@@ -26,6 +26,7 @@
     "sane-domparser-error": "^0.2.0",
     "standardized-audio-context": "^25.3.21",
     "unzipit": "^1.4.0",
+    "verovio": "^3.10.0",
     "webaudiofont": "^2.7.1",
     "worker-timers": "^7.0.46"
   }
