@@ -1,6 +1,6 @@
 {
   "name": "ireal-musicxml",
-  "version": "1.7.3",
+  "version": "1.8.0",
   "description": "iReal Pro to MusicXML converter",
   "author": "Karim Ratib <karim.ratib@gmail.com> (https://github.com/infojunkie)",
   "license": "MIT",
@@ -32,6 +32,7 @@
     "@types/expect": "^24.3.0",
     "@types/mocha": "^8.2.2",
     "@types/node": "^14.17.3",
+    "@xmldom/xmldom": "^0.8.0",
     "babel-eslint": "^10.1.0",
     "babel-loader": "^8.2.2",
     "babel-plugin-istanbul": "^6.0.0",
@@ -39,16 +40,17 @@
     "eslint-webpack-plugin": "^2.5.4",
     "mocha": "^8.4.0",
     "nyc": "^15.1.0",
+    "sanitize-filename": "^1.6.3",
     "ts-mocha": "^8.0.0",
     "typescript": "^4.3.2",
     "validate-with-xmllint": "^1.2.0",
     "webpack": "^5.38.1",
     "webpack-cli": "^4.7.2",
-    "@xmldom/xmldom": "^0.8.0",
     "xpath.js": "^1.1.0"
   },
   "dependencies": {
     "chord-symbol": "^3.0.0",
+    "fast-diff": "^1.2.0",
     "jstoxml": "^2.0.6",
     "promise": "^8.1.0",
     "regenerator-runtime": "^0.13.7"

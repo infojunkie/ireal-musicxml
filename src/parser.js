@@ -8,13 +8,31 @@
  * a full structure that can be iterated downstream.
  */
 
+import diff from 'fast-diff';
 export class Playlist {
   constructor(ireal){
     const playlistEncoded = /.*?(irealb(?:ook)?):\/\/([^"]*)/.exec(ireal);
     const playlist = decodeURIComponent(playlistEncoded[2]);
     const parts = playlist.split("===");  //songs are separated by ===
     if (parts.length > 1) this.name = parts.pop();  //playlist name
-    this.songs = parts.map(x => new Song(x, playlistEncoded[1] === 'irealbook'));
+    this.songs = parts
+      .map(part => new Song(part, playlistEncoded[1] === 'irealbook'))
+      .reduce((songs, song) => {
+        if (songs.length > 0) {
+          // Detect multi-part songs via their titles.
+          // The parts of the same song have the same title, except for the part number, so they follow each other in the list.
+          // The `diff` module compares two titles and returns a list of similarities and differences.
+          // We expect the first diff to be a similarity, followed by differences that are only numeric.
+          // When we find a multi-part song, we just concatenate the cells into the first part.
+          const diffs = diff(songs[songs.length-1].title, song.title);
+          if (diffs[0][0] === 0 && diffs.every(d => d[0] === 0 || d[1].match(/^\d+$/))) {
+            songs[songs.length-1].cells = songs[songs.length-1].cells.concat(song.cells);
+            return songs;
+          }
+        }
+        songs.push(song);
+        return songs;
+      }, []);
   }
 }
 
