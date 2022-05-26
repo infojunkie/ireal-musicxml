@@ -1,13 +1,11 @@
-# ireal2musicxml
+# ireal-musicxml
 
 CLI tool to convert an iReal Pro playlist or `ireal://` URI to MusicXML files.
 
 # Usage
 
-`node ireal2musicxml.js /path/to/playlist.html`
+`node ireal-musicxml.js /path/to/playlist.html /path/to/output`
 
 or
 
-`node ireal2musicxml.js ireal://...`
-
-MusicXML files are generated in the current directory.
+`node ireal-musicxml.js ireal://... /path/to/output`
