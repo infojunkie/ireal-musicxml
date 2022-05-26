@@ -1,6 +1,6 @@
 {
   "name": "ireal2musicxml-demo",
-  "version": "2.3.4",
+  "version": "2.3.5",
   "description": "Web Demo",
   "main": "index.js",
   "scripts": {
