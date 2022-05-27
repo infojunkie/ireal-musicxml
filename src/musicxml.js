@@ -1,13 +1,22 @@
 import { toXML } from 'jstoxml';
 import { chordParserFactory, chordRendererFactory } from 'chord-symbol';
 
+export class LogLevel {
+  static Debug = 0;
+  static Info = 1;
+  static Warn = 2;
+  static Error = 3;
+  static None = 4;
+}
+
 export class MusicXML {
   static defaultOptions = {
     'divisions': 768, // same as used by iReal
     'notation': 'rhythmic', // 'rhythmic' for rhythmic notation, 'slash' for slash notation
     'step': 'B', // chord note
     'octave': 4, // chord note octave
-    'notehead': 'slash' // chord note head
+    'notehead': 'slash', // chord note head
+    'logLevel': LogLevel.Warn
   }
 
   static sequenceAttributes = [
@@ -288,7 +297,7 @@ export class MusicXML {
       // This means either finding an opening barline or finding non-empty cells while we're not in any measure.
       if (cell.bars.match(/\(|\{|\[/) || (!this.measure && (cell.chord || cell.annots.length || cell.comments.length))) {
         if (this.measure) {
-          console.warn(`[${this.measure.number()}] Starting a new measure over existing measure`);
+          this._log(LogLevel.Warn, `Starting a new measure over existing measure`);
         } else {
           this.measure = new MusicXML.Measure(measures.length+1);
         }
@@ -334,7 +343,7 @@ export class MusicXML {
       // e.g. Girl From Ipanema in tests.
       if (!this.measure) {
         if (cell.chord || cell.annots.length || cell.comments.length || (cell.bars && cell.bars !== ')')) {
-          console.warn(`[${measures[measures.length-1].number()}] Found non-empty orphan cell ${JSON.stringify(cell)}`);
+          this._log(LogLevel.Warn, `Found non-empty orphan cell ${JSON.stringify(cell)}`, measures[measures.length-1]);
         }
         return measures;
       }
@@ -378,7 +387,9 @@ export class MusicXML {
             let target = this.measure;
             if (!target.chords.length) {
               target = measures.slice().reverse().find(m => m.chords.length);
-              if (!target) console.error(`[${this.measure.number()}] Cannot find any measure with chords prior to ${JSON.stringify(cell.chord)}`);
+              if (!target) {
+                this._log(LogLevel.Error, `Cannot find any measure with chords prior to ${JSON.stringify(cell.chord)}`);
+              }
             }
             const chord = target.chords[target.chords.length-1].ireal;
             chord.over = cell.chord.over;
@@ -388,7 +399,7 @@ export class MusicXML {
           }
           case ' ': {
             // TODO Handle alternate chord only.
-            console.warn(`[${this.measure.number()}] Unhandled empty/alternate chord ${JSON.stringify(cell.chord)}`);
+            this._log(LogLevel.Warn, `Unhandled empty/alternate chord ${JSON.stringify(cell.chord)}`);
             break;
           }
           default: {
@@ -438,10 +449,14 @@ export class MusicXML {
             if (ending > 1) {
               measures[measures.length-1].barlines[1]['_content'].push(this.convertEnding(ending-1, 'stop'));
               const target = measures.slice().reverse().find(m => m.barEnding === ending-1);
-              if (!target) console.error(`[${this.measure.number()}] Cannot find ending ${ending-1} in right barline of any measure`);
+              if (!target) {
+                this._log(LogLevel.Error, `Cannot find ending ${ending-1} in right barline of any measure`);
+              }
               // The last result is the good one: remove the 'discontinue' ending.
               const index = target.barlines[1]['_content'].findIndex(b => b['_name'] === 'ending');
-              if (index === -1) console.error(`[${target.number()}] Cannot find ending ${ending-1} in right barline`)
+              if (index === -1) {
+                this._log(LogLevel.Error, `Cannot find ending ${ending-1} in right barline`, target);
+              }
               delete target.barlines[1]['_content'][index];
             }
             // We will add a 'discontinue' ending at this measure's right barline.
@@ -471,7 +486,7 @@ export class MusicXML {
             break;
           }
 
-          default: console.warn(`[${this.measure.number()}] Unhandled annotation "${annot}"`);
+          default: this._log(LogLevel.Warn, `Unhandled annotation "${annot}"`);
         }
       });
 
@@ -479,7 +494,7 @@ export class MusicXML {
       // TODO Handle measure offset.
       // https://www.w3.org/2021/06/musicxml40/musicxml-reference/elements/offset/
       cell.comments.map(c => c.trim()).forEach(comment => {
-        const repeatFn = MusicXML.getMap(MusicXML.mapRepeats, comment);
+        const repeatFn = this._map(MusicXML.mapRepeats, comment);
         if (repeatFn) {
           this.measure.body['_content'].push(repeatFn.call(this, comment));
         } else {
@@ -523,7 +538,7 @@ export class MusicXML {
         )
       );
       if (direction === -1) {
-        console.warn(`[${target.number()}] Cannot find sound direction`);
+        this._log(LogLevel.Warn, `Cannot find sound direction`, target);
       }
       target.body['_content'][direction] = this.convertCoda();
     }
@@ -544,10 +559,10 @@ export class MusicXML {
       const i1 = sequence.indexOf(k1);
       const i2 = sequence.indexOf(k2);
       if (i1 === -1) {
-        console.warn(`[${measure.number()}] Unrecognized element "${k1}"`);
+        this._log(LogLevel.Warn, `Unrecognized element "${k1}"`, measure);
       }
       if (i2 === -1) {
-        console.warn(`[${measure.number()}] Unrecognized element "${k2}"`);
+        this._log(LogLevel.Warn, `Unrecognized element "${k2}"`, measure);
       }
       return i1 - i2;
     });
@@ -770,12 +785,12 @@ export class MusicXML {
     // - Remaining beats are distributed evenly among chords from first to last
     //
     if (measure.chords.length > this.time.beats) {
-      console.error(`[${measure.number()}] Too many chords (${measure.chords.length} out of ${this.time.beats})`);
+      this._log(LogLevel.Error, `Too many chords (${measure.chords.length} out of ${this.time.beats})`, measure);
       return;
     }
     let beats = measure.chords.reduce((beats, chord) => beats+1+chord.spaces, 0);
     if (!beats) {
-      console.warn(`[${measure.number()}] No chord found`);
+      this._log(LogLevel.Warn, `No chord found`, measure);
       return;
     }
     if (beats > this.time.beats) {
@@ -836,8 +851,8 @@ export class MusicXML {
     if (this.options.notation === 'slash') {
       // In case of slash notation, return an array of n=beats elements, each with a duration of 1 beat.
       const index = 1 * 8 / this.time.beatType;
-      return Array(beats).fill(MusicXML
-        .getMap(mapDuration, index, [], `[${this.measure.number()}] Unexpected beat count 1 for time signature ${this.time.beats}/${this.time.beatType}`)
+      return Array(beats).fill(this
+        ._map(mapDuration, index, [], `Unexpected beat count 1 for time signature ${this.time.beats}/${this.time.beatType}`)
         .map(duration => {
           return {
             duration: duration.b * this.options.divisions / 2,
@@ -850,8 +865,8 @@ export class MusicXML {
     else {
       // In case of rhythmic notation, return a single note (or 2 tied notes) corresponding to the desired beat count.
       const index = beats * 8 / this.time.beatType;
-      return MusicXML
-      .getMap(mapDuration, index, [], `[${this.measure.number()}] Unexpected beat count ${beats} for time signature ${this.time.beats}/${this.time.beatType}`)
+      return this
+      ._map(mapDuration, index, [], `Unexpected beat count ${beats} for time signature ${this.time.beats}/${this.time.beatType}`)
       .map(duration => {
         return {
           duration: duration.b * this.options.divisions / 2,
@@ -868,8 +883,8 @@ export class MusicXML {
       _content: [{
         'step': this.options.step
       }, {
-        'alter': MusicXML
-          .getMap(MusicXML.mapFifthsToAlters, this.fifths, [], `[${this.measure.number()}] Unhandled fifths count=${this.fifths}`)
+        'alter': this
+          ._map(MusicXML.mapFifthsToAlters, this.fifths, [], `Unhandled fifths count=${this.fifths}`)
           .includes(this.options.step) ? (this.fifths > 0 ? 1 : -1) : 0
       }, {
         'octave': this.options.octave
@@ -919,12 +934,12 @@ export class MusicXML {
   convertChordSymbol(chord) {
     const parsedChord = this.renderChord(this.parseChord(`${chord.note}${chord.modifiers}`));
     if (!parsedChord) {
-      console.warn(`[${this.measure.number()}] Unrecognized chord "${chord.note}${chord.modifiers}"`);
+      this._log(LogLevel.Warn, `Unrecognized chord "${chord.note}${chord.modifiers}"`);
       return { rootStep: null, rootAlter: null, chordKind: null, chordDegrees: [], chordText: null }
     }
 
     const rootStep = parsedChord.input.rootNote[0];
-    const rootAlter = MusicXML.getMap(MusicXML.mapAlter, parsedChord.input.rootNote[1] || null, null, `[${this.measure.number()}] Unrecognized accidental in chord "${parsedChord.input.rootNote}"`);
+    const rootAlter = this._map(MusicXML.mapAlter, parsedChord.input.rootNote[1] || null, null, `Unrecognized accidental in chord "${parsedChord.input.rootNote}"`);
     const chordText = parsedChord.formatted.descriptor + parsedChord.formatted.chordChanges.join('');
 
     // Find chord quality (aka kind).
@@ -943,7 +958,7 @@ export class MusicXML {
       'diminished7': 'diminished-seventh',
       'power': 'power'
     }
-    let chordKind = MusicXML.getMap(mapKind, parsedChord.normalized.quality, '', `[${this.measure.number()}] Unrecognized chord quality "${parsedChord.normalized.quality}"`);
+    let chordKind = this._map(mapKind, parsedChord.normalized.quality, '', `Unrecognized chord quality "${parsedChord.normalized.quality}"`);
 
     // Convert extensions to their equivalent MusicXML kind.
     // Find the highest extension, then replace the word following [major, minor, dominant] with it.
@@ -954,7 +969,7 @@ export class MusicXML {
         '11': '-11th',
         '13': '-13th'
       }
-      chordKind = chordKind.split('-')[0] + MusicXML.getMap(mapExtensionKind, extension, '', `[${this.measure.number()}] Unhandled extension ${extension}`);
+      chordKind = chordKind.split('-')[0] + this._map(mapExtensionKind, extension, '', `Unhandled extension ${extension}`);
 
       // chord-symbol considers dominant-11th to be suspended - but that's not _necessarily_ the case.
       // https://en.wikipedia.org/wiki/Eleventh_chord
@@ -1012,7 +1027,7 @@ export class MusicXML {
         this.convertChordDegree(
           degree,
           (degree === '5' || parsedChord.normalized.extensions.includes(degree)) ? 'alter' : 'add',
-          MusicXML.getMap(MusicXML.mapAlter, alteration[0], 0, `[${this.measure.number()}] Unrecognized alter symbol in "${alteration}"`)
+          this._map(MusicXML.mapAlter, alteration[0], 0, `Unrecognized alter symbol in "${alteration}"`)
         )
       );
     });
@@ -1020,14 +1035,14 @@ export class MusicXML {
       const alteration = Object.keys(MusicXML.mapAlter).includes(add[0]) ? add[0] : null;
       const degree = alteration ? add.slice(1) : add;
       chordDegrees.push(
-        this.convertChordDegree(degree, 'add', MusicXML.getMap(MusicXML.mapAlter, alteration, 0, `[${this.measure.number()}] Unrecognized alter symbol in "${add}"`))
+        this.convertChordDegree(degree, 'add', this._map(MusicXML.mapAlter, alteration, 0, `Unrecognized alter symbol in "${add}"`))
       );
     });
     parsedChord.normalized.omits.forEach(omit => {
       const alteration = Object.keys(MusicXML.mapAlter).includes(omit[0]) ? omit[0] : null;
       const degree = alteration ? omit.slice(1) : omit;
       chordDegrees.push(
-        this.convertChordDegree(degree, 'subtract', MusicXML.getMap(MusicXML.mapAlter, alteration, 0, `[${this.measure.number()}] Unrecognized alter symbol in "${omit}"`))
+        this.convertChordDegree(degree, 'subtract', this._map(MusicXML.mapAlter, alteration, 0, `Unrecognized alter symbol in "${omit}"`))
       );
     });
 
@@ -1058,7 +1073,7 @@ export class MusicXML {
       let bass = !chord.over ? null : [{
         'bass-step': chord.over.note[0]
       }, { ...(chord.over.note[1] && {
-        'bass-alter': MusicXML.getMap(MusicXML.mapAlter, chord.over.note[1], null, `[${this.measure.number()}] Unrecognized accidental in bass note "${chord.over.note}"`)
+        'bass-alter': this._map(MusicXML.mapAlter, chord.over.note[1], null, `Unrecognized accidental in bass note "${chord.over.note}"`)
       })}]
 
       harmony = [{
@@ -1078,7 +1093,7 @@ export class MusicXML {
 
     // TODO Handle alternate chord
     if (chord.alternate) {
-      console.warn(`[${this.measure.number()}] Unhandled alternate chord ${JSON.stringify(chord.alternate)}`);
+      this._log(LogLevel.Warn, `Unhandled alternate chord ${JSON.stringify(chord.alternate)}`);
     }
 
     return new MusicXML.Chord(
@@ -1100,7 +1115,7 @@ export class MusicXML {
     }
 
     // Remember the fifth.
-    this.fifths = MusicXML.getMap(mapKeys, this.song.key, 0, `[${this.measure.number()}] Unrecognized key signature "${this.song.key}"`);
+    this.fifths = this._map(mapKeys, this.song.key, 0, `Unrecognized key signature "${this.song.key}"`);
 
     return {
       'key': [{
@@ -1131,10 +1146,25 @@ export class MusicXML {
     }
   }
 
-  static getMap(map, key, defaultValue, message) {
+  _log(logLevel, message, measure = this.measure) {
+    if (logLevel < this.options.logLevel) return;
+    const log = `[ireal-musicxml] [${this.song.title}${measure ? '#' + measure.number() : ''}] ${message}`;
+    let method = 'warn';
+    switch (logLevel) {
+      case LogLevel.Debug: method = 'debug'; break;
+      case LogLevel.Info: method = 'info'; break;
+      case LogLevel.Warn: method = 'warn'; break;
+      case LogLevel.Error: method = 'error'; break;
+    }
+    console[method](log);
+  }
+
+  _map(map, key, defaultValue, message, logLevel = LogLevel.Warn, measure = this.measure) {
     if (!key) return defaultValue;
     if (!(key in map)) {
-      if (message) console.warn(message);
+      if (message) {
+        this._log(logLevel, message, measure);
+      }
       return defaultValue || null;
     }
     return map[key];

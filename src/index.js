@@ -1,6 +1,6 @@
 import Promise from 'promise';
 import {Playlist, Song, Cell, Chord} from './parser';
-import {MusicXML} from './musicxml';
+import {MusicXML, LogLevel} from './musicxml';
 import 'regenerator-runtime/runtime';
 
 export function convertSync(ireal, options = {}) {
@@ -15,4 +15,4 @@ export async function convert(ireal, options = {}) {
   return new Promise(resolve => resolve(convertSync(ireal, options)));
 }
 
-export {Playlist, Song, Cell, Chord, MusicXML};
+export {Playlist, Song, Cell, Chord, MusicXML, LogLevel};

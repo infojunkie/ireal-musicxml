@@ -25,8 +25,9 @@ export class Song {
    * Song parser. Parsing occurs in this constructor.
    * Refer to https://github.com/infojunkie/ireal-musicxml/blob/main/doc/ireal.md for structure details.
    * @param ireal iReal Pro encoding for a single song
+   * @param oldFormat Flag to indicate that the encoding above corresponds to the older irealbook:// format.
    */
-  constructor(ireal: string);
+  constructor(ireal: string, oldFormat: boolean);
   /**
    * Title.
    */
@@ -52,11 +53,11 @@ export class Song {
    */
   bpm: number;
   /**
-   * Transposition in semitones (unhandled)
+   * Transposition in semitones (currently unhandled).
    */
   transpose: number;
   /**
-   * Repeats (unhandled)
+   * Repeats (currently unhandled).
    */
   repeats: number;
   /**
@@ -86,7 +87,7 @@ export class Cell {
    */
   bars: string;
   /**
-   * Vertical spacer (unhandled).
+   * Vertical spacer (currently unhandled).
    */
   spacer: number;
   /**
@@ -124,29 +125,46 @@ export class Chord {
 export type ChordNotation = "rhythmic" | "slash";
 
 /**
+ * Log levels.
+ */
+export enum LogLevel {
+  Debug = 0,
+  Info,
+  Warn,
+  Error,
+  None
+}
+
+/**
  * MusicXML conversion options.
  */
 export class ConversionOptions {
   /**
-   * Divisions (ticks) per measure.
+   * Divisions (ticks) per measure (default: 768).
+   * https://www.w3.org/2021/06/musicxml40/musicxml-reference/elements/divisions/
    */
   divisions?: number;
   /**
-   * Type of chord notation.
+   * Type of chord notation to use (default: rhythmic).
    */
   notation?: ChordNotation;
   /**
-   * Pitch step to use.
+   * Pitch step to use for the chord note (default: B).
    */
   step?: string;
   /**
-   * Octave to use.
+   * Octave to use for the chord note (default: 4).
    */
   octave?: number;
   /**
-   * Shape of note head to use, as per https://www.w3.org/2021/06/musicxml40/musicxml-reference/data-types/notehead-value/
+   * Shape of note head to use for the chord note (default: slash).
+   * https://www.w3.org/2021/06/musicxml40/musicxml-reference/data-types/notehead-value/
    */
   notehead?: string;
+  /**
+   * Log level (default: Warn).
+   */
+  logLevel?: LogLevel;
 }
 
 /**
