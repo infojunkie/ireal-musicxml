@@ -11,12 +11,14 @@ let jazz = null;
 let playlist = null;
 let strange = null;
 let blues = null;
+let pop = null;
 
 before(() => {
   jazz = new Playlist(fs.readFileSync('test/data/jazz.txt', 'utf-8'));
   playlist = new Playlist(fs.readFileSync('test/data/playlist.html', 'utf-8'));
   strange = new Playlist(fs.readFileSync('test/data/strange.html', 'utf-8'));
   blues = new Playlist(fs.readFileSync('test/data/blues.txt', 'utf-8'));
+  pop = new Playlist(fs.readFileSync('test/data/pop.txt', 'utf-8'));
 })
 
 describe('MusicXML', function() {
@@ -282,5 +284,13 @@ describe('MusicXML', function() {
     const doc = new DOMParser().parseFromString(musicXml);
     const duration = select(doc, '//measure[1]/note[1]/duration/text()');
     assert.strictEqual(duration[0].toString(), '4608');
+  });
+
+  it('should correctly handle missing barlines', async function() {
+    const song = pop.songs.find(song => song.title === 'Hard To Say I\'m Sorry');
+    assert.notStrictEqual(song, undefined);
+    const musicXml = MusicXML.convert(song, { notation: 'rhythmic' });
+    await validateXMLWithXSD(musicXml, 'test/data/musicxml.xsd');
+    fs.writeFileSync(`test/output/${song.title}.musicxml`, musicXml);
   });
 });

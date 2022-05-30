@@ -297,10 +297,13 @@ export class MusicXML {
       // This means either finding an opening barline or finding non-empty cells while we're not in any measure.
       if (cell.bars.match(/\(|\{|\[/) || (!this.measure && (cell.chord || cell.annots.length || cell.comments.length))) {
         if (this.measure) {
-          this._log(LogLevel.Warn, `Starting a new measure over existing measure`);
-        } else {
-          this.measure = new MusicXML.Measure(measures.length+1);
+          this._log(LogLevel.Warn, `Starting a new measure over existing measure. Closing current measure first.`);
+          this.measure.barlines.push(this.convertBarline('', 'right'));
+          if (this.adjustChordsDuration(this.measure)) {
+            measures.push(this.measure);
+          }
         }
+        this.measure = new MusicXML.Measure(measures.length+1);
 
         // Very first bar: add defaults.
         if (!measures.length) {
@@ -515,11 +518,10 @@ export class MusicXML {
           this.measure.barlines[1]['_content'].push(this.convertEnding(this.measure.barEnding, 'discontinue'));
         }
 
-        // Adjust chord durations.
-        this.adjustChordsDuration(this.measure);
-
-        // Get ready for next measure.
-        measures.push(this.measure);
+        // Close out the measure.
+        if (this.adjustChordsDuration(this.measure)) {
+          measures.push(this.measure);
+        }
         this.measure = null;
         if (this.barRepeat) this.barRepeat--;
       }
@@ -786,12 +788,12 @@ export class MusicXML {
     //
     if (measure.chords.length > this.time.beats) {
       this._log(LogLevel.Error, `Too many chords (${measure.chords.length} out of ${this.time.beats})`, measure);
-      return;
+      return true;
     }
     let beats = measure.chords.reduce((beats, chord) => beats+1+chord.spaces, 0);
     if (!beats) {
-      this._log(LogLevel.Warn, `No chord found`, measure);
-      return;
+      this._log(LogLevel.Warn, `No chord found. Skipping current measure.`, measure);
+      return false;
     }
     if (beats > this.time.beats) {
       // Reduce spaces.
@@ -826,6 +828,8 @@ export class MusicXML {
       );
       return chord;
     });
+
+    return true;
   }
 
   calculateChordDuration(beats) {
