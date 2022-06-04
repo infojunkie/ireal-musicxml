@@ -64,4 +64,8 @@ describe('Bug Fixes', function() {
       assert.strictEqual(measures.length, test.measures);
     }
   });
+
+  it('doesn\'t crash on empty songs', async () => {
+    const brendan = new Playlist(fs.readFileSync('test/data/brendan.html', 'utf-8'));
+  })
 });

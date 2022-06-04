@@ -16,7 +16,18 @@ export class Playlist {
     const parts = playlist.split("===");  //songs are separated by ===
     if (parts.length > 1) this.name = parts.pop();  //playlist name
     this.songs = parts
-      .map(part => new Song(part, playlistEncoded[1] === 'irealbook'))
+      .map(part => {
+        try {
+          return new Song(part, playlistEncoded[1] === 'irealbook');
+        }
+        catch (error) {
+          const parts = part.split("=");
+          const title = Song.parseTitle(parts[0].trim());
+          console.error(`[ireal-musicxml] [${title}] ${error.toString()}`);
+          return null;
+        }
+      })
+      .filter(song => song !== null)
       .reduce((songs, song) => {
         if (songs.length > 0) {
           // Detect multi-part songs via their titles.
@@ -72,15 +83,15 @@ export class Song {
     }
     const parts = ireal.split("="); //split on one sign, remove the blanks
     if (oldFormat) {
-      this.title = this.parseTitle(parts[0].trim());
-      this.composer = this.parseComposer(parts[1].trim());
+      this.title = Song.parseTitle(parts[0].trim());
+      this.composer = Song.parseComposer(parts[1].trim());
       this.style = parts[2].trim();
       this.key = parts[3];
       this.cells = this.parse(parts[5]);
     }
     else {
-      this.title = this.parseTitle(parts[0].trim());
-      this.composer = this.parseComposer(parts[1].trim());
+      this.title = Song.parseTitle(parts[0].trim());
+      this.composer = Song.parseComposer(parts[1].trim());
       this.style = parts[3].trim();
       this.key = parts[4];
       this.transpose = +parts[5] || 0; // TODO
@@ -235,14 +246,14 @@ export class Song {
   /**
    * The title had "A" and "The" at the back (e.g. "Gentle Rain, The")
    */
-  parseTitle(title) {
+  static parseTitle(title) {
     return title.replace(/(.*)(, )(A|The)$/g, '$3 $1');
   }
 
   /**
    * The composer is reversed (last first) if it only has 2 names :shrug:
    */
-  parseComposer(composer) {
+  static parseComposer(composer) {
     const parts = composer.split(/(\s+)/); // match and return spaces too
     if (parts.length == 3) { // [last, spaces, first]
       return parts[2] + parts[1] + parts[0]
