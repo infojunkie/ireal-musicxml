@@ -8,9 +8,11 @@ import {Playlist} from '../src/parser';
 import {MusicXML} from '../src/musicxml';
 
 let jazz = null;
+let blues = null;
 
 before(() => {
   jazz = new Playlist(fs.readFileSync('test/data/jazz.txt', 'utf-8'));
+  blues = new Playlist(fs.readFileSync('test/data/blues.txt', 'utf-8'));
 })
 
 describe('Bug Fixes', function() {
@@ -65,7 +67,22 @@ describe('Bug Fixes', function() {
     }
   });
 
-  it('doesn\'t crash on empty songs', async () => {
+  it('Doesn\'t crash on empty songs', async () => {
     const brendan = new Playlist(fs.readFileSync('test/data/brendan.html', 'utf-8'));
-  })
+  });
+
+  it('Checks #54 Messy chord timings', async () => {
+    for (const test of [
+      { title: "Come Back Baby" },
+    ]) {
+      const song = blues.songs.find(song => song.title === test.title);
+      assert.notStrictEqual(song, undefined);
+      const musicXml = MusicXML.convert(song);
+      await validateXMLWithXSD(musicXml, 'test/data/musicxml.xsd');
+      fs.writeFileSync(`test/output/${song.title}.musicxml`, musicXml);
+      const doc = new DOMParser().parseFromString(musicXml);
+      const duration = select(doc, '//measure[3]/harmony[root/root-step = \'G\']/following-sibling::note/duration/text()');
+      assert.strictEqual(duration[0].toString(), '1152');
+    }
+  });
 });
