@@ -830,12 +830,18 @@ export class MusicXML {
     else {
       // Distribute free beats among the chords, except for short chords.
       let chordIndex = 0;
+      let hasBeatsChangedInACycle = false;
       while (beats < this.time.beats) {
         if (!measure.chords[chordIndex].short) {
           measure.chords[chordIndex].spaces++;
           beats++;
+          hasBeatsChangedInACycle = true;
         }
         chordIndex = (chordIndex + 1) % measure.chords.length;
+        if (chordIndex === 0 && !hasBeatsChangedInACycle) {
+          // We've made a complete cycle and beat count has not changed - break now.
+          break;
+        }
       }
     }
 
