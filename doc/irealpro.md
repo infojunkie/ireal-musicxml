@@ -123,8 +123,8 @@ _I Got Rhythm_, _Like Someone in Love_, _On the Sunny Side of the Street_, _Mist
 "Q" - coda (see _Butterfly_)
 "Y" - vertical spacer (see _Nearness of You_, _Night in Tunisia_)
 "U" - end (see _Mas Que Nada_, _Scrapple from the Apple_, _Triste_, _Wave_)
-"s" - small chord (e.g. sC^7) active until "l" is encountered
-"l" - large chord (e.g. lC^7) default, active until "s" is encountered
+"s" - short chord (e.g. sC^7) active until "l" is encountered
+"l" - long chord (e.g. lC^7) default, active until "s" is encountered
 "f" - fermata (see _Butterfly_, _Summer Serenade_)
 ```
 

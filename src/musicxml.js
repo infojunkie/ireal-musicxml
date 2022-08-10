@@ -149,7 +149,7 @@ export class MusicXML {
     this.barRepeat = 0; // current bar number for single- and double-bar repeats
     this.codas = []; // list of measures containing codas
     this.repeats = 0; // repeat count for closing repeat barline
-    this.smallChord = false; // was 's' annotation encountered?
+    this.shortChord = false; // was 's' annotation encountered?
 
     // chord-symbol.
     this.parseChord = chordParserFactory({ "altIntervals": [
@@ -288,7 +288,7 @@ export class MusicXML {
       this.ireal = ireal;
       this.spaces = 0;
       this.fermata = false;
-      this.small = false;
+      this.short = false;
     }
   }
 
@@ -410,7 +410,7 @@ export class MusicXML {
           default: {
             // Process new chord.
             this.measure.chords.push(this.convertChord(cell.chord));
-            this.measure.chords[this.measure.chords.length-1].small = this.smallChord;
+            this.measure.chords[this.measure.chords.length-1].short = this.shortChord;
           }
         }
       }
@@ -478,21 +478,21 @@ export class MusicXML {
             break;
           }
 
-          // Small and large chord settings.
+          // Short and long chord settings.
           // These will affect the calculation of chord durations.
           // Set the current chord size setting and remember it for subsequent chords.
           case 'l': {
             if (this.measure.chords.length) {
-              this.measure.chords[this.measure.chords.length-1].small = false;
+              this.measure.chords[this.measure.chords.length-1].short = false;
             }
-            this.smallChord = false;
+            this.shortChord = false;
             break;
           }
           case 's': {
             if (this.measure.chords.length) {
-              this.measure.chords[this.measure.chords.length-1].small = true;
+              this.measure.chords[this.measure.chords.length-1].short = true;
             }
-            this.smallChord = true;
+            this.shortChord = true;
             break;
           }
 
@@ -798,7 +798,7 @@ export class MusicXML {
     // Rules:
     // - Minimum chord duration is 1 beat
     // => Each chord starts as 1 beat
-    // => Small chords always remain as 1 beat
+    // => Short chords always remain as 1 beat
     // => Count of chords <= beats per measure
     // - Starting empty cells are discarded (already discarded during the cell loop)
     // - Each remaining empty cell counts as 1 beat (already counted during cell loop)
@@ -828,10 +828,10 @@ export class MusicXML {
       }
     }
     else {
-      // Distribute free beats among the chords, except for small chords.
+      // Distribute free beats among the chords, except for short chords.
       let chordIndex = 0;
       while (beats < this.time.beats) {
-        if (!measure.chords[chordIndex].small) {
+        if (!measure.chords[chordIndex].short) {
           measure.chords[chordIndex].spaces++;
           beats++;
         }
