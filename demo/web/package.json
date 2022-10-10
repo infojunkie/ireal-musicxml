@@ -1,6 +1,6 @@
 {
   "name": "ireal2musicxml-demo",
-  "version": "2.3.8",
+  "version": "2.3.9",
   "description": "Web Demo",
   "main": "index.js",
   "scripts": {
@@ -22,7 +22,7 @@
     "midi-json-parser": "^8.0.54",
     "midi-player": "git://github.com/infojunkie/midi-player.git#infojunkie",
     "node-polyfill-webpack-plugin": "^1.1.4",
-    "opensheetmusicdisplay": "file:opensheetmusicdisplay.min.js",
+    "opensheetmusicdisplay": "^1.5.0",
     "sane-domparser-error": "^0.2.0",
     "standardized-audio-context": "^25.3.21",
     "unzipit": "^1.4.0",
