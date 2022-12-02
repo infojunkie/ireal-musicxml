@@ -379,7 +379,7 @@ class OpenSheetMusicDisplayPlayback {
       measureGroup.forEach(measure => {
         measure.staffEntries.forEach((se, v) => {
           se.graphicalVoiceEntries.forEach(gve => {
-            gve.mVexFlowStaveNote.attrs.el.addEventListener('click', event => {
+            gve.mVexFlowStaveNote.getAttribute('el').addEventListener('click', event => {
               this.updateCursor(measure.measureNumber - midi.firstMeasureNumber, v);
               seekMidi(measure.measureNumber - midi.firstMeasureNumber, OpenSheetMusicDisplayPlayback.timestampToMillisecs(measure.parentSourceMeasure, se.relInMeasureTimestamp));
             });
@@ -396,6 +396,8 @@ class OpenSheetMusicDisplayPlayback {
 
   updateCursor(measureIndex, voiceEntryIndex) {
     const measure = this.osmd.sheet.sourceMeasures[measureIndex];
+    const vsse = measure.VerticalSourceStaffEntryContainers[voiceEntryIndex];
+
     this.currentMeasureIndex = measureIndex;
     this.currentVoiceEntryIndex = voiceEntryIndex;
 
@@ -403,10 +405,10 @@ class OpenSheetMusicDisplayPlayback {
       this.osmd.cursor.reset();
     }
     else {
-      this.osmd.cursor.iterator.currentMeasureIndex = this.currentMeasureIndex;
-      this.osmd.cursor.iterator.currentMeasure = measure;
-      this.osmd.cursor.iterator.currentVoiceEntryIndex = this.currentVoiceEntryIndex - 1;
-      this.osmd.cursor.next();
+      const startTimestamp = measure.AbsoluteTimestamp.clone();
+      startTimestamp.Add(vsse.Timestamp);
+      this.osmd.cursor.iterator = new osmd.MusicPartManagerIterator(this.osmd.Sheet, startTimestamp, undefined);
+      this.osmd.cursor.update();
     }
   }
 
