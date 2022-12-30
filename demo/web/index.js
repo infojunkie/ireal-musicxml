@@ -469,15 +469,16 @@ class VerovioPlayback {
         this.measures[measureIndex].timestamp + measureMillisecs)
     );
     const elements = this.vrv.getElementsAtTime(timestamp);
-    if ((elements.notes.length > 0) && (this.ids != elements.notes)) {
+    const notes = Array(...elements.notes, ...elements.rests);
+    if ((notes.length > 0) && (this.ids != notes)) {
       this.ids.forEach(noteid => {
-        if (!elements.notes.includes(noteid)) {
+        if (!notes.includes(noteid)) {
           const note = document.getElementById(noteid);
           note.setAttribute('fill', '#000');
           note.setAttribute('stroke', '#000');
         }
       });
-      this.ids = elements.notes;
+      this.ids = notes;
       this.ids.forEach(noteid => {
         const note = document.getElementById(noteid);
         note.setAttribute('fill', '#c00');
