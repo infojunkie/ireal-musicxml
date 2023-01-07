@@ -1,6 +1,6 @@
 {
   "name": "ireal2musicxml-demo",
-  "version": "2.3.11",
+  "version": "2.3.12",
   "description": "Web Demo",
   "main": "index.js",
   "scripts": {
@@ -22,11 +22,11 @@
     "midi-json-parser": "^8.0.54",
     "midi-player": "git://github.com/infojunkie/midi-player.git#infojunkie",
     "node-polyfill-webpack-plugin": "^1.1.4",
-    "opensheetmusicdisplay": "^1.5.0",
+    "opensheetmusicdisplay": "^1.7.1",
     "sane-domparser-error": "^0.2.0",
     "standardized-audio-context": "^25.3.21",
     "unzipit": "^1.4.0",
-    "verovio": "^3.10.0",
+    "verovio": "^3.14.0",
     "webaudiofont": "^2.7.1",
     "worker-timers": "^7.0.46"
   }

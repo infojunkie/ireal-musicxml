@@ -376,10 +376,10 @@ class OpenSheetMusicDisplayPlayback {
 
     // Setup event listeners for target stave notes to position the cursor.
     this.osmd.graphic.measureList.forEach(measureGroup => {
-      measureGroup.forEach(measure => {
-        measure.staffEntries.forEach((se, v) => {
-          se.graphicalVoiceEntries.forEach(gve => {
-            gve.mVexFlowStaveNote.getAttribute('el').addEventListener('click', event => {
+      measureGroup.filter(measure => measure !== undefined).forEach(measure => {
+        measure.staffEntries.filter(se => se !== undefined).forEach((se, v) => {
+          se.graphicalVoiceEntries.filter(gve => gve !== undefined).forEach(gve => {
+            if (gve.mVexFlowStaveNote !== undefined) gve.mVexFlowStaveNote.getAttribute('el').addEventListener('click', event => {
               this.updateCursor(measure.measureNumber - midi.firstMeasureNumber, v);
               seekMidi(measure.measureNumber - midi.firstMeasureNumber, OpenSheetMusicDisplayPlayback.timestampToMillisecs(measure.parentSourceMeasure, se.relInMeasureTimestamp));
             });
@@ -451,7 +451,7 @@ class VerovioPlayback {
       }
       const measureIndex = this.measures.length - 1;
       Array(...(event.on || []), ...(event.restsOn || [])).forEach(noteid => {
-        document.getElementById(noteid).addEventListener('click', _ => {
+        document.getElementById(noteid)?.addEventListener('click', _ => {
           const measureMillisecs = event.tstamp - this.measures[measureIndex].timestamp;
           this.moveToMeasureTime(measureIndex, measureMillisecs + 1);
           seekMidi(measureIndex, measureMillisecs);
@@ -474,15 +474,15 @@ class VerovioPlayback {
       this.ids.forEach(noteid => {
         if (!notes.includes(noteid)) {
           const note = document.getElementById(noteid);
-          note.setAttribute('fill', '#000');
-          note.setAttribute('stroke', '#000');
+          note?.setAttribute('fill', '#000');
+          note?.setAttribute('stroke', '#000');
         }
       });
       this.ids = notes;
       this.ids.forEach(noteid => {
         const note = document.getElementById(noteid);
-        note.setAttribute('fill', '#c00');
-        note.setAttribute('stroke', '#c00');
+        note?.setAttribute('fill', '#c00');
+        note?.setAttribute('stroke', '#c00');
       });
     }
   }
