@@ -224,12 +224,17 @@ function displaySheet(musicXml) {
   }
   else if (r === 'vrv') {
     renderer = new verovio.toolkit();
-    const svg = renderer.renderData(musicXml, {
+    renderer.loadData(musicXml);
+    renderer.setOptions({
       breaks: 'encoded',
       adjustPageHeight: true,
       scale: 50
     });
-    document.getElementById('sheet').innerHTML = svg;
+    svgs = [];
+    for (page=1; page<=renderer.getPageCount(); page++) {
+      svgs.push(renderer.renderToSVG(page));
+    }
+    document.getElementById('sheet').innerHTML = svgs.join('');
     loadMidi()
     .then(() => { midi.score = new VerovioPlayback(renderer); });
   }
