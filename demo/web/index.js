@@ -32,7 +32,6 @@ let midi = {
   currentMeasureIndex: null,
   currentMeasureStartTime: null,
   mapMeasureToTimestamp: null,
-  firstMeasureNumber: null,
 }
 
 function handleIRealChange(e) {
@@ -379,14 +378,16 @@ class OpenSheetMusicDisplayPlayback {
     this.currentVoiceEntryIndex = 0;
     this.osmd.cursor.show();
 
+    console.log(this.osmd);
+
     // Setup event listeners for target stave notes to position the cursor.
     this.osmd.graphic.measureList.forEach(measureGroup => {
       measureGroup.filter(measure => measure !== undefined).forEach(measure => {
         measure.staffEntries.filter(se => se !== undefined).forEach((se, v) => {
           se.graphicalVoiceEntries.filter(gve => gve !== undefined).forEach(gve => {
             if (gve.mVexFlowStaveNote !== undefined) gve.mVexFlowStaveNote.getAttribute('el').addEventListener('click', event => {
-              this.updateCursor(measure.measureNumber - midi.firstMeasureNumber, v);
-              seekMidi(measure.measureNumber - midi.firstMeasureNumber, OpenSheetMusicDisplayPlayback.timestampToMillisecs(measure.parentSourceMeasure, se.relInMeasureTimestamp));
+              this.updateCursor(measure.measureNumber, v);
+              seekMidi(measure.measureNumber, OpenSheetMusicDisplayPlayback.timestampToMillisecs(measure.parentSourceMeasure, se.relInMeasureTimestamp));
             });
           });
         });
@@ -500,9 +501,6 @@ function parseMeasures() {
 
   midi.mapMeasureToTimestamp = new Map();
 
-  // First measure can be 0 in case of pickup measure.
-  midi.firstMeasureNumber = null;
-
   midi.json.tracks[0].forEach(event => {
     if ('setTempo' in event) {
       microsecondsPerQuarter = event.setTempo.microsecondsPerQuarter;
@@ -511,10 +509,7 @@ function parseMeasures() {
     if ('marker' in event) {
       const marker = event.marker.split(':');
       if (marker[0] === 'Measure') {
-        if (midi.firstMeasureNumber === null) {
-          midi.firstMeasureNumber = Number(marker[1]);
-        }
-        const measureNumber = Number(marker[1]) - midi.firstMeasureNumber;
+        const measureNumber = Number(marker[1]);
         const timestamp = offset * (microsecondsPerQuarter / midi.json.division / 1000);
         const timestamps = midi.mapMeasureToTimestamp.get(measureNumber) || [];
         midi.mapMeasureToTimestamp.set(measureNumber, timestamps.concat(timestamp));
@@ -588,7 +583,7 @@ async function playMidi() {
       if (event.event.marker) {
         const marker = event.event.marker.split(':');
         if (marker[0] === 'Measure') {
-          midi.currentMeasureIndex = parseInt(marker[1]) - midi.firstMeasureNumber;
+          midi.currentMeasureIndex = parseInt(marker[1]);
           midi.currentMeasureStartTime = now;
         }
         else if (marker[0] === 'Groove') {
