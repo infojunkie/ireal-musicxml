@@ -197,6 +197,7 @@ function resetSheet() {
   // Delete previous objects.
   delete midi.score; midi.score = null;
   delete renderer; renderer = null;
+  midi.startTime = null;
   if (midi.player) midi.player.stop();
 }
 
@@ -378,16 +379,14 @@ class OpenSheetMusicDisplayPlayback {
     this.currentVoiceEntryIndex = 0;
     this.osmd.cursor.show();
 
-    console.log(this.osmd);
-
     // Setup event listeners for target stave notes to position the cursor.
-    this.osmd.graphic.measureList.forEach(measureGroup => {
+    this.osmd.graphic.measureList.forEach((measureGroup, measureIndex) => {
       measureGroup.filter(measure => measure !== undefined).forEach(measure => {
         measure.staffEntries.filter(se => se !== undefined).forEach((se, v) => {
           se.graphicalVoiceEntries.filter(gve => gve !== undefined).forEach(gve => {
             if (gve.mVexFlowStaveNote !== undefined) gve.mVexFlowStaveNote.getAttribute('el').addEventListener('click', event => {
-              this.updateCursor(measure.measureNumber, v);
-              seekMidi(measure.measureNumber, OpenSheetMusicDisplayPlayback.timestampToMillisecs(measure.parentSourceMeasure, se.relInMeasureTimestamp));
+              this.updateCursor(measureIndex, v);
+              seekMidi(measureIndex, OpenSheetMusicDisplayPlayback.timestampToMillisecs(measure.parentSourceMeasure, se.relInMeasureTimestamp));
             });
           });
         });
