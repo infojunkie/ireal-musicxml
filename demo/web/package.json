@@ -1,6 +1,6 @@
 {
   "name": "ireal2musicxml-demo",
-  "version": "2.3.15",
+  "version": "2.3.16",
   "description": "Web Demo",
   "main": "index.js",
   "scripts": {
@@ -15,7 +15,7 @@
     "raw-loader": "^4.0.2",
     "webpack": "^5.38.1",
     "webpack-cli": "^4.7.2",
-    "webpack-dev-server": "^3.11.2"
+    "webpack-dev-server": "^4.11.1"
   },
   "dependencies": {
     "midi-file-slicer": "^6.0.58",

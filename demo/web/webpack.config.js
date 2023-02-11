@@ -11,10 +11,12 @@ module.exports = {
   },
   devtool: 'inline-source-map',
   devServer: {
-    contentBase: './dist',
+    static: {
+      directory: path.join(__dirname, 'dist'),
+    },
     compress: true,
     port: 9000,
-    watchContentBase: true,
+    watchFiles: ['dist/**/*'],
     proxy: {
       '/mma': {
         target: 'http://localhost:3000',
