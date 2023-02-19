@@ -1,9 +1,9 @@
 {
   "name": "ireal-musicxml",
-  "version": "1.9.4",
+  "version": "1.10.0",
   "description": "iReal Pro to MusicXML converter",
   "author": "Karim Ratib <karim.ratib@gmail.com> (https://github.com/infojunkie)",
-  "license": "MIT",
+  "license": "GPL-3.0-only",
   "repository": {
     "type": "git",
     "url": "https://github.com/infojunkie/ireal-musicxml"
@@ -38,10 +38,10 @@
     "babel-plugin-istanbul": "^6.0.0",
     "eslint": "^7.28.0",
     "eslint-webpack-plugin": "^2.5.4",
-    "mocha": "^8.4.0",
+    "mocha": "^10.2.0",
     "nyc": "^15.1.0",
     "sanitize-filename": "^1.6.3",
-    "ts-mocha": "^8.0.0",
+    "ts-mocha": "^10.0.0",
     "typescript": "^4.3.2",
     "validate-with-xmllint": "^1.2.0",
     "webpack": "^5.38.1",
