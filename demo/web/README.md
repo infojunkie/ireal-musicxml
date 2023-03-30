@@ -1,6 +1,6 @@
 # Web Demo
 
-Web app to load an iReal Pro playlist from file or `ireal://` URI and display its sheets using [OpenSheetMusicDisplay](https://opensheetmusicdisplay.github.io/), [Verovio](https://www.verovio.org/index.xhtml), and other renderers.
+Web app to load an iReal Pro playlist from file or `ireal://` URI and display its sheets using [OpenSheetMusicDisplay](https://opensheetmusicdisplay.github.io/) or [Verovio](https://www.verovio.org/index.xhtml).
 
 # Usage
 
@@ -10,7 +10,7 @@ Web app to load an iReal Pro playlist from file or `ireal://` URI and display it
 
 # Theory of operation
 
-This demo grew from a simple showcase of the iReal Pro to MusicXML conversion library in this repo, to a full-fledged sheet music player, on its way to realize the vision of a musician's practice toolkit, currently codenamed ["Gig Book"](https://github.com/users/infojunkie/projects/2). It brings together a number of music technologies:
+This demo grew from a simple showcase of the iReal Pro to MusicXML conversion library in this repo, to a full-fledged sheet music player, on its way to realize the vision of a musician's practice toolkit, currently codenamed ["Grimoire"](https://github.com/users/infojunkie/projects/2). It brings together a number of music technologies:
 
 - [MusicXML](https://github.com/w3c/musicxml) as the standard for music notation exchange.
 - [Web MIDI](https://developer.mozilla.org/en-US/docs/Web/API/Web_MIDI_API) and [Web Audio](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API) as powerful music-making Web APIs.
