@@ -685,7 +685,7 @@ async function populateGrooves() {
   }
 }
 
-window.addEventListener('load', async () => {
+document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('playlist').addEventListener('change', handleFileSelect, false);
   document.getElementById('ireal').addEventListener('change', handleIRealChange, false);
   document.getElementById('sheets').addEventListener('change', handleSheetSelect, false);
@@ -713,15 +713,10 @@ window.addEventListener('load', async () => {
   populateGrooves();
 
   if (navigator.requestMIDIAccess) navigator.requestMIDIAccess().then(midiAccess => {
-    document.getElementById('firefox-midi').classList.add('hide');
     populateMidiOutputs(midiAccess);
     midiAccess.onstatechange = () => populateMidiOutputs(midiAccess);
     midi.access = midiAccess;
   }, error => {
-    const isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
-    if (isFirefox) {
-      document.getElementById('firefox-midi').classList.remove('hide');
-    }
     console.error(error);
   });
 })
