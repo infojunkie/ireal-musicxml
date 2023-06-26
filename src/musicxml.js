@@ -1,5 +1,6 @@
 import { toXML } from 'jstoxml';
 import { chordParserFactory, chordRendererFactory } from 'chord-symbol';
+import pkg from '../package.json';
 
 export class LogLevel {
   static Debug = 0;
@@ -8,6 +9,8 @@ export class LogLevel {
   static Error = 3;
   static None = 4;
 }
+
+const MUSICXML_VERSION = '4.0';
 
 export class MusicXML {
   static defaultOptions = {
@@ -165,7 +168,7 @@ export class MusicXML {
     return toXML(this.convertSong(), {
       header: `
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE score-partwise PUBLIC "-//Recordare//DTD MusicXML 4.0 Partwise//EN" "http://www.musicxml.org/dtds/partwise.dtd">
+<!DOCTYPE score-partwise PUBLIC "-//Recordare//DTD MusicXML ${MUSICXML_VERSION} Partwise//EN" "http://www.musicxml.org/dtds/partwise.dtd">
       `.trim(),
       indent: '  '
     });
@@ -173,7 +176,9 @@ export class MusicXML {
 
   convertSong() {
     return {
-      'score-partwise': [{
+      _name: 'score-partwise',
+      _attrs: { 'version': MUSICXML_VERSION },
+      _content: [{
         'work': {
           'work-title': this.song.title
         }
@@ -184,7 +189,7 @@ export class MusicXML {
           _content: this.song.composer
         }, {
           'encoding': [{
-            'software': '@infojunkie/ireal-musicxml'
+            'software': `@infojunkie/ireal-musicxml ${pkg.version}`
           }, {
             'encoding-date': MusicXML.convertDate(new Date())
           }, {

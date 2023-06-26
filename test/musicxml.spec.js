@@ -64,6 +64,8 @@ describe('MusicXML', function() {
     assert.strictEqual(keyFifths[0].toString(), "2");
     const clefSign = select(doc, '//measure/attributes/clef/sign/text()');
     assert.strictEqual(clefSign[0].toString(), "G");
+    const version = select(doc, '//score-partwise/@version');
+    assert.strictEqual(version[0].value, '4.0');
   });
 
   it('should create a valid, complete and correct MusicXML for Moanin\'', async function() {
