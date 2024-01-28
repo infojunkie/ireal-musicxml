@@ -249,7 +249,7 @@ export class MusicXML {
       this.attributes = [];
       this.chords = [];
       this.barlines = [];
-      this.barEnding = 0;
+      this.barEnding = null;
     }
 
     number() {
@@ -450,7 +450,13 @@ export class MusicXML {
           }
           case 'N': { // ending
             // TODO This assumes a single ending at a time.
-            const ending = parseInt(annot.slice(1));
+            let ending = parseInt(annot.slice(1));
+            if (ending < 1) {
+              // It can happen that the ending number comes as 0 from iRP.
+              // In this case, we do a best effort of finding the previous ending and incrementing it.
+              const target = measures.slice().reverse().find(m => !!m.barEnding);
+              ending = target.barEnding + 1;
+            }
             this.measure.barlines[0]['_content'].push(this.convertEnding(ending, 'start'));
             // End the previous ending at the previous measure's right barline.
             // Also, remove the 'discontinue' ending from its starting measure since we found an end to it.

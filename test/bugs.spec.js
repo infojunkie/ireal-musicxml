@@ -14,7 +14,7 @@ before(() => {
 })
 
 describe('Bug Fixes', function() {
-  it('Checks #18 Cannot read property \'spaces\' of undefined', async () => {
+  it('checks #18 cannot read property \'spaces\' of undefined', async () => {
     for (const title of [
       "All Or Nothing At All",
       "Brazilian Suite",
@@ -49,7 +49,7 @@ describe('Bug Fixes', function() {
     }
   }).timeout(0);
 
-  it('Checks #20 Missing measures', async () => {
+  it('checks #20 missing measures', async () => {
     for (const test of [
       { title: "A Ballad", measures: 41 },
       { title: "After You", measures: 32 },
@@ -67,5 +67,23 @@ describe('Bug Fixes', function() {
 
   it('doesn\'t crash on empty songs', async () => {
     const brendan = new Playlist(fs.readFileSync('test/data/brendan.html', 'utf-8'));
-  })
+  });
+
+  it('checks #54 messy chord timings', async () => {
+    const song = jazz.songs.find(song => song.title === 'Afro Blue');
+    assert.notStrictEqual(song, undefined);
+    const musicXml = MusicXML.convert(song);
+    await validateXMLWithXSD(musicXml, 'test/data/musicxml.xsd');
+    fs.writeFileSync(`test/output/${song.title}.musicxml`, musicXml);
+    const doc = new DOMParser().parseFromString(musicXml);
+  });
+
+  it('checks #62 invalid file', async () => {
+    const country = new Playlist(fs.readFileSync('test/data/country.txt', 'utf-8'));
+    const song = country.songs.find(song => song.title === 'Jackson');
+    assert.notStrictEqual(song, undefined);
+    const musicXml = MusicXML.convert(song);
+    fs.writeFileSync(`test/output/${song.title}.musicxml`, musicXml);
+    await validateXMLWithXSD(musicXml, 'test/data/musicxml.xsd');
+  });
 });

@@ -1,7 +1,7 @@
 # iReal Pro format and model
 
 ## Sources
-- iReal Pro [app](https://irealpro.com/), [forum](https://irealb.com/forums/) and [support docs](https://irealpro.com/support/)
+- [iReal Pro File Format](https://www.irealpro.com/ireal-pro-file-format)
 - [`ireal-renderer`](https://github.com/daumling/ireal-renderer)
 
 ## Application model and playback algorithm
@@ -115,7 +115,7 @@ _I Got Rhythm_, _Like Someone in Love_, _On the Sunny Side of the Street_, _Mist
 "Kcl" or "XyQKcl" - also repeat previous bar (see _Besame Mucho_, _Butterfly_, _Solar_)
 "r" - repeat previous 2 bars (see _Mas Que Nada_)
 "()" - alternative chord written in small (above actual chord)
-" " - represents a chord seperator
+" " - represents a chord separator
 "," - equivalent to space, especially for whole notes in 44
 "<stuff here>" - Comments and repeat directives (can start with "*yy" to denote a vertical offset of yy units, see _La Fiesta_)
 "*A" - section A (could be *B, *C, *i, *v, etc.)
