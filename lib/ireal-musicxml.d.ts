@@ -196,6 +196,28 @@ export class MusicXML {
 }
 
 /**
+ * Package information.
+ */
+export class Version {
+  /**
+   * Package name.
+   */
+  static name: string;
+  /**
+   * Package version.
+   */
+  static version: string;
+  /**
+   * Package author.
+   */
+  static author: string;
+  /**
+   * Package description.
+   */
+  static description: string;
+}
+
+/**
  * Convert an iReal Pro playlist synchronously.
  * @param ireal iReal Pro playlist as HTML file contents or URI encoding
  * @param options Conversion options (optional, merged with defaults)

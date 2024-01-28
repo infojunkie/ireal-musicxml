@@ -3,6 +3,10 @@ import * as fs from 'fs';
 import * as iReal2MusicXML from '../lib/ireal-musicxml';
 
 describe('iReal2MusicXML using TypeScript', function() {
+  it('accesses the library version', function() {
+    assert.strictEqual(iReal2MusicXML.Version.name, 'ireal-musicxml');
+  });
+
   it('converts an iReal Pro song to MusicXML synchronously', function() {
     const result: iReal2MusicXML.Playlist = iReal2MusicXML.convertSync(fs.readFileSync('test/data/playlist.html', 'utf-8'), {
       notation: "rhythmic",
