@@ -399,10 +399,12 @@ export class MusicXML {
                 this._log(LogLevel.Error, `Cannot find any measure with chords prior to ${JSON.stringify(cell.chord)}`);
               }
             }
-            const chord = target.chords[target.chords.length-1].ireal;
-            chord.over = cell.chord.over;
-            chord.alternate = cell.chord.alternate;
-            this.measure.chords.push(this.convertChord(chord));
+            if (target) {
+              const chord = target.chords[target.chords.length-1].ireal;
+              chord.over = cell.chord.over;
+              chord.alternate = cell.chord.alternate;
+              this.measure.chords.push(this.convertChord(chord));
+            }
             break;
           }
           case ' ': {
@@ -455,7 +457,7 @@ export class MusicXML {
               // It can happen that the ending number comes as 0 from iRP.
               // In this case, we do a best effort of finding the previous ending and incrementing it.
               const target = measures.slice().reverse().find(m => !!m.barEnding);
-              ending = target.barEnding + 1;
+              ending = target?.barEnding ?? 0 + 1;
             }
             this.measure.barlines[0]['_content'].push(this.convertEnding(ending, 'start'));
             // End the previous ending at the previous measure's right barline.
@@ -466,12 +468,14 @@ export class MusicXML {
               if (!target) {
                 this._log(LogLevel.Error, `Cannot find ending ${ending-1} in right barline of any measure`);
               }
-              // The last result is the good one: remove the 'discontinue' ending.
-              const index = target.barlines[1]['_content'].findIndex(b => b['_name'] === 'ending');
-              if (index === -1) {
-                this._log(LogLevel.Error, `Cannot find ending ${ending-1} in right barline`, target);
+              else {
+                // The last result is the good one: remove the 'discontinue' ending.
+                const index = target.barlines[1]['_content'].findIndex(b => !!b && b['_name'] === 'ending');
+                if (index === -1) {
+                  this._log(LogLevel.Error, `Cannot find ending ${ending-1} in right barline`, target);
+                }
+                delete target.barlines[1]['_content'][index];
               }
-              delete target.barlines[1]['_content'][index];
             }
             // We will add a 'discontinue' ending at this measure's right barline.
             this.measure.barEnding = ending;

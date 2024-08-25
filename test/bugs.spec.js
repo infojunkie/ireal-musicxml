@@ -86,4 +86,19 @@ describe('Bug Fixes', function() {
     fs.writeFileSync(`test/output/${song.title}.musicxml`, musicXml);
     await validateXMLWithXSD(musicXml, 'test/data/musicxml.xsd');
   });
+
+  it('succeeds for dixieland1 playlist', async() => {
+    const dixieland1 = new Playlist(fs.readFileSync('test/data/dixieland1.txt', 'utf-8'));
+    for (const title of [
+      'All I Do Is Dream Of You',
+      'Beautiful Dreamer',
+      'Bouncin\' Around'
+    ]) {
+      const song = dixieland1.songs.find(song => song.title === title);
+      assert.notStrictEqual(song, undefined);
+      const musicXml = MusicXML.convert(song);
+      fs.writeFileSync(`test/output/${song.title}.musicxml`, musicXml);
+      await validateXMLWithXSD(musicXml, 'test/data/musicxml.xsd');
+    }
+  })
 });

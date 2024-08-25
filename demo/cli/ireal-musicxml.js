@@ -25,11 +25,11 @@ try {
       fs.writeFileSync(outFile, musicXml);
     }
     catch (error) {
-      console.error(`[ireal-musicxml] [${song.title}] ${error.toString()}`);
+      console.error(`[ireal-musicxml] [${song.title}] ${error}`);
     }
   }
 }
 catch (error) {
-  console.error(`[ireal-musicxml] [${args[0]}] ${error.toString()}`);
+  console.error(`[ireal-musicxml] [${args[0]}] ${error}`);
   process.exit(1);
 }
