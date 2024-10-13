@@ -19,6 +19,7 @@ export class MusicXML {
     'step': 'B', // chord note
     'octave': 4, // chord note octave
     'notehead': 'slash', // chord note head
+    'date': false, // include encoding date
     'logLevel': LogLevel.Warn
   }
 
@@ -190,9 +191,9 @@ export class MusicXML {
         }, {
           'encoding': [{
             'software': `@infojunkie/ireal-musicxml ${pkg.version}`
-          }, {
+          }, { ...(this.options.date && {
             'encoding-date': MusicXML.convertDate(new Date())
-          }, {
+          })}, {
             _name: 'supports',
             _attrs: { 'element': 'accidental', 'type': 'no' }
           }, {

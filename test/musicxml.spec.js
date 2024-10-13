@@ -295,4 +295,19 @@ describe('MusicXML', function() {
     await validateXMLWithXSD(musicXml, 'test/data/musicxml.xsd');
     fs.writeFileSync(`test/output/${song.title}.musicxml`, musicXml);
   });
+
+  it('should honour options', async function() {
+    const song = pop.songs.find(song => song.title === 'Hard To Say I\'m Sorry');
+    assert.notStrictEqual(song, undefined);
+    const musicXml0 = MusicXML.convert(song, { date: false });
+    await validateXMLWithXSD(musicXml0, 'test/data/musicxml.xsd');
+    const doc0 = new DOMParser().parseFromString(musicXml0);
+    const date0 = select(doc0, '//encoding/encoding-date');
+    assert.strictEqual(date0.length, 0);
+    const musicXml1 = MusicXML.convert(song, { date: true });
+    await validateXMLWithXSD(musicXml1, 'test/data/musicxml.xsd');
+    const doc1 = new DOMParser().parseFromString(musicXml1);
+    const date1 = select(doc1, '//encoding/encoding-date');
+    assert.strictEqual(date1.length, 1);
+  });
 });
