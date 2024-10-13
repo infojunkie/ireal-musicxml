@@ -19,7 +19,7 @@ export class MusicXML {
     'step': 'B', // chord note
     'octave': 4, // chord note octave
     'notehead': 'slash', // chord note head
-    'date': false, // include encoding date
+    'date': true, // include encoding date
     'logLevel': LogLevel.Warn
   }
 
