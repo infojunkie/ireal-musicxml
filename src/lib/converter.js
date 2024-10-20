@@ -1,5 +1,6 @@
 import jstoxml from 'jstoxml';
-import { chordParserFactory, chordRendererFactory } from 'chord-symbol/lib/chord-symbol-esm.js';
+import ChordSymbol from 'chord-symbol';
+const { chordParserFactory, chordRendererFactory } = ChordSymbol;
 import { Version } from './version.js';
 
 export class LogLevel {
