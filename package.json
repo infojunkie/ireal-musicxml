@@ -1,6 +1,6 @@
 {
   "name": "ireal-musicxml",
-  "version": "1.13.4",
+  "version": "2.0.0",
   "description": "iReal Pro to MusicXML converter.",
   "author": "Karim Ratib <karim.ratib@gmail.com> (https://github.com/infojunkie)",
   "license": "GPL-3.0-only",
@@ -8,50 +8,47 @@
     "type": "git",
     "url": "https://github.com/infojunkie/ireal-musicxml"
   },
-  "homepage": "https://github.com/infojunkie/ireal-musicxml#ireal-musicxml",
-  "main": "lib/ireal-musicxml.js",
-  "types": "lib/ireal-musicxml.d.ts",
+  "homepage": "https://github.com/infojunkie/ireal-musicxml",
+  "type": "module",
+  "types": "./build/ireal-musicxml.d.ts",
   "files": [
     "LICENSE.txt",
-    "lib/*"
+    "build/*",
+    "src/*"
   ],
+  "bin": {
+    "ireal-musicxml": "./src/cli/cli.js"
+  },
+  "exports": {
+    "import": "./build/ireal-musicxml.js",
+    "require": "./build/ireal-musicxml.cjs"
+  },
   "scripts": {
-    "build": "webpack",
-    "test": "npm run test:lint && npm run test:spec",
-    "test:spec": "NODE_ENV=test nyc mocha --grep /${TEST:-'.*'}/i",
-    "test:typescript": "npm run build && ts-mocha test/**/*.spec.ts",
-    "test:lint": "eslint src"
+    "build": "npm run build:esm && npm run build:cjs && npm run build:d.ts",
+    "build:d.ts": "cp src/types/* build/",
+    "build:esm": "esbuild src/lib/index.js --bundle --format=esm --sourcemap --outfile=build/ireal-musicxml.js",
+    "build:cjs": "esbuild src/lib/index.js --bundle --platform=node --packages=external --outfile=build/ireal-musicxml.cjs",
+    "test": "npm run build && npm run test:lint && npm run test:spec && npm run test:ts",
+    "test:spec": "node --test --test-name-pattern=\"${TEST:-.*}\"",
+    "test:ts": "node --test --loader=ts-node/esm --require ts-node/register test/*.spec.ts",
+    "test:lint": "eslint src --fix"
   },
   "devDependencies": {
-    "@babel/cli": "^7.14.3",
-    "@babel/core": "^7.14.3",
-    "@babel/eslint-parser": "^7.25.1",
-    "@babel/plugin-proposal-class-properties": "^7.13.0",
-    "@babel/plugin-transform-destructuring": "^7.14.4",
-    "@babel/preset-env": "^7.14.4",
-    "@babel/register": "^7.13.16",
-    "@types/mocha": "^8.2.2",
-    "@types/node": "^14.17.3",
+    "@types/node": "^22.7.7",
     "@xmldom/xmldom": "^0.8.0",
-    "babel-loader": "^8.2.2",
-    "babel-plugin-istanbul": "^6.0.0",
-    "eslint": "^7.28.0",
-    "eslint-webpack-plugin": "^2.5.4",
-    "mocha": "^10.2.0",
-    "nyc": "^15.1.0",
+    "esbuild": "0.24.0",
+    "eslint": "^9.13.0",
+    "resolve": "^1.22.8",
     "sanitize-filename": "^1.6.3",
-    "ts-mocha": "^10.0.0",
-    "typescript": "^4.3.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^4.9.5",
     "validate-with-xmllint": "^1.2.0",
-    "webpack": "^5.38.1",
-    "webpack-cli": "^4.7.2",
     "xpath.js": "^1.1.0"
   },
   "dependencies": {
     "chord-symbol": "^3.0.0",
     "fast-diff": "^1.2.0",
     "jstoxml": "^2.0.6",
-    "promise": "^8.1.0",
-    "regenerator-runtime": "^0.13.7"
+    "promise": "^8.1.0"
   }
 }
