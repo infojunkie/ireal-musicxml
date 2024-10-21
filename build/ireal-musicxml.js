@@ -1,14 +1,8278 @@
-(()=>{var bi=Object.create;var zr=Object.defineProperty;var yi=Object.getOwnPropertyDescriptor;var xi=Object.getOwnPropertyNames;var Si=Object.getPrototypeOf,Ai=Object.prototype.hasOwnProperty;var vt=(s,p)=>()=>(p||s((p={exports:{}}).exports,p),p.exports);var Oi=(s,p,u,g)=>{if(p&&typeof p=="object"||typeof p=="function")for(let e of xi(p))!Ai.call(s,e)&&e!==u&&zr(s,e,{get:()=>p[e],enumerable:!(g=yi(p,e))||g.enumerable});return s};var Ie=(s,p,u)=>(u=s!=null?bi(Si(s)):{},Oi(p||!s||!s.__esModule?zr(u,"default",{value:s,enumerable:!0}):u,s));var ar=vt((is,Hr)=>{"use strict";Hr.exports=nr;function nr(s){_t.length||(De(),Br=!0),_t[_t.length]=s}var _t=[],Br=!1,De,Rt=0,Ti=1024;function Lr(){for(;Rt<_t.length;){var s=Rt;if(Rt=Rt+1,_t[s].call(),Rt>Ti){for(var p=0,u=_t.length-Rt;p<u;p++)_t[p]=_t[p+Rt];_t.length-=Rt,Rt=0}}_t.length=0,Rt=0,Br=!1}var Gr=typeof global<"u"?global:self,$r=Gr.MutationObserver||Gr.WebKitMutationObserver;typeof $r=="function"?De=wi(Lr):De=Ur(Lr);nr.requestFlush=De;function wi(s){var p=1,u=new $r(s),g=document.createTextNode("");return u.observe(g,{characterData:!0}),function(){p=-p,g.data=p}}function Ur(s){return function(){var u=setTimeout(e,0),g=setInterval(e,50);function e(){clearTimeout(u),clearInterval(g),s()}}}nr.makeRequestCallFromTimer=Ur});var kt=vt((ss,Xr)=>{"use strict";var ji=ar();function Ne(){}var le=null,fe={};function Ci(s){try{return s.then}catch(p){return le=p,fe}}function Ei(s,p){try{return s(p)}catch(u){return le=u,fe}}function Fi(s,p,u){try{s(p,u)}catch(g){return le=g,fe}}Xr.exports=bt;function bt(s){if(typeof this!="object")throw new TypeError("Promises must be constructed via new");if(typeof s!="function")throw new TypeError("Promise constructor's argument is not a function");this._x=0,this._y=0,this._z=null,this._A=null,s!==Ne&&Wr(s,this)}bt._B=null;bt._C=null;bt._D=Ne;bt.prototype.then=function(s,p){if(this.constructor!==bt)return Ii(this,s,p);var u=new bt(Ne);return Pe(this,new Kr(s,p,u)),u};function Ii(s,p,u){return new s.constructor(function(g,e){var i=new bt(Ne);i.then(g,e),Pe(s,new Kr(p,u,i))})}function Pe(s,p){for(;s._y===3;)s=s._z;if(bt._B&&bt._B(s),s._y===0){if(s._x===0){s._x=1,s._A=p;return}if(s._x===1){s._x=2,s._A=[s._A,p];return}s._A.push(p);return}Di(s,p)}function Di(s,p){ji(function(){var u=s._y===1?p.onFulfilled:p.onRejected;if(u===null){s._y===1?ir(p.promise,s._z):ce(p.promise,s._z);return}var g=Ei(u,s._z);g===fe?ce(p.promise,le):ir(p.promise,g)})}function ir(s,p){if(p===s)return ce(s,new TypeError("A promise cannot be resolved with itself."));if(p&&(typeof p=="object"||typeof p=="function")){var u=Ci(p);if(u===fe)return ce(s,le);if(u===s.then&&p instanceof bt){s._y=3,s._z=p,sr(s);return}else if(typeof u=="function"){Wr(u.bind(p),s);return}}s._y=1,s._z=p,sr(s)}function ce(s,p){s._y=2,s._z=p,bt._C&&bt._C(s,p),sr(s)}function sr(s){if(s._x===1&&(Pe(s,s._A),s._A=null),s._x===2){for(var p=0;p<s._A.length;p++)Pe(s,s._A[p]);s._A=null}}function Kr(s,p,u){this.onFulfilled=typeof s=="function"?s:null,this.onRejected=typeof p=="function"?p:null,this.promise=u}function Wr(s,p){var u=!1,g=Fi(s,function(e){u||(u=!0,ir(p,e))},function(e){u||(u=!0,ce(p,e))});!u&&g===fe&&(u=!0,ce(p,le))}});var Zr=vt((os,Yr)=>{"use strict";var Vr=kt();Yr.exports=Vr;Vr.prototype.done=function(s,p){var u=arguments.length?this.then.apply(this,arguments):this;u.then(null,function(g){setTimeout(function(){throw g},0)})}});var Jr=vt((us,Qr)=>{"use strict";var Re=kt();Qr.exports=Re;Re.prototype.finally=function(s){return this.then(function(p){return Re.resolve(s()).then(function(){return p})},function(p){return Re.resolve(s()).then(function(){throw p})})}});var en=vt((cs,tn)=>{"use strict";var k=kt();tn.exports=k;var Pi=qt(!0),Ni=qt(!1),Ri=qt(null),_i=qt(void 0),Mi=qt(0),zi=qt("");function qt(s){var p=new k(k._D);return p._y=1,p._z=s,p}k.resolve=function(s){if(s instanceof k)return s;if(s===null)return Ri;if(s===void 0)return _i;if(s===!0)return Pi;if(s===!1)return Ni;if(s===0)return Mi;if(s==="")return zi;if(typeof s=="object"||typeof s=="function")try{var p=s.then;if(typeof p=="function")return new k(p.bind(s))}catch(u){return new k(function(g,e){e(u)})}return qt(s)};var pe=function(s){return typeof Array.from=="function"?(pe=Array.from,Array.from(s)):(pe=function(p){return Array.prototype.slice.call(p)},Array.prototype.slice.call(s))};k.all=function(s){var p=pe(s);return new k(function(u,g){if(p.length===0)return u([]);var e=p.length;function i(a,n){if(n&&(typeof n=="object"||typeof n=="function"))if(n instanceof k&&n.then===k.prototype.then){for(;n._y===3;)n=n._z;if(n._y===1)return i(a,n._z);n._y===2&&g(n._z),n.then(function(h){i(a,h)},g);return}else{var o=n.then;if(typeof o=="function"){var l=new k(o.bind(n));l.then(function(h){i(a,h)},g);return}}p[a]=n,--e===0&&u(p)}for(var t=0;t<p.length;t++)i(t,p[t])})};function or(s){return{status:"fulfilled",value:s}}function kr(s){return{status:"rejected",reason:s}}function Li(s){if(s&&(typeof s=="object"||typeof s=="function")){if(s instanceof k&&s.then===k.prototype.then)return s.then(or,kr);var p=s.then;if(typeof p=="function")return new k(p.bind(s)).then(or,kr)}return or(s)}k.allSettled=function(s){return k.all(pe(s).map(Li))};k.reject=function(s){return new k(function(p,u){u(s)})};k.race=function(s){return new k(function(p,u){pe(s).forEach(function(g){k.resolve(g).then(p,u)})})};k.prototype.catch=function(s){return this.then(null,s)};function qr(s){if(typeof AggregateError=="function")return new AggregateError(s,"All promises were rejected");var p=new Error("All promises were rejected");return p.name="AggregateError",p.errors=s,p}k.any=function(p){return new k(function(u,g){var e=pe(p),i=!1,t=[];function a(o){i||(i=!0,u(o))}function n(o){t.push(o),t.length===e.length&&g(qr(t))}e.length===0?g(qr(t)):e.forEach(function(o){k.resolve(o).then(a,n)})})}});var sn=vt((ls,an)=>{"use strict";var rn=ar(),_e=[],ur=[],Gi=rn.makeRequestCallFromTimer(Bi);function Bi(){if(ur.length)throw ur.shift()}an.exports=cr;function cr(s){var p;_e.length?p=_e.pop():p=new nn,p.task=s,rn(p)}function nn(){this.task=null}nn.prototype.call=function(){try{this.task.call()}catch(s){cr.onerror?cr.onerror(s):(ur.push(s),Gi())}finally{this.task=null,_e[_e.length]=this}}});var cn=vt((fs,un)=>{"use strict";var te=kt(),lr=sn();un.exports=te;te.denodeify=function(s,p){return typeof p=="number"&&p!==1/0?$i(s,p):Ui(s)};var on="function (err, res) {if (err) { rj(err); } else { rs(res); }}";function $i(s,p){for(var u=[],g=0;g<p;g++)u.push("a"+g);var e=["return function ("+u.join(",")+") {","var self = this;","return new Promise(function (rs, rj) {","var res = fn.call(",["self"].concat(u).concat([on]).join(","),");","if (res &&",'(typeof res === "object" || typeof res === "function") &&','typeof res.then === "function"',") {rs(res);}","});","};"].join("");return Function(["Promise","fn"],e)(te,s)}function Ui(s){for(var p=Math.max(s.length-1,3),u=[],g=0;g<p;g++)u.push("a"+g);var e=["return function ("+u.join(",")+") {","var self = this;","var args;","var argLength = arguments.length;","if (arguments.length > "+p+") {","args = new Array(arguments.length + 1);","for (var i = 0; i < arguments.length; i++) {","args[i] = arguments[i];","}","}","return new Promise(function (rs, rj) {","var cb = "+on+";","var res;","switch (argLength) {",u.concat(["extra"]).map(function(i,t){return"case "+t+":res = fn.call("+["self"].concat(u.slice(0,t)).concat("cb").join(",")+");break;"}).join(""),"default:","args[argLength] = cb;","res = fn.apply(self, args);","}","if (res &&",'(typeof res === "object" || typeof res === "function") &&','typeof res.then === "function"',") {rs(res);}","});","};"].join("");return Function(["Promise","fn"],e)(te,s)}te.nodeify=function(s){return function(){var p=Array.prototype.slice.call(arguments),u=typeof p[p.length-1]=="function"?p.pop():null,g=this;try{return s.apply(this,arguments).nodeify(u,g)}catch(e){if(u===null||typeof u>"u")return new te(function(i,t){t(e)});lr(function(){u.call(g,e)})}}};te.prototype.nodeify=function(s,p){if(typeof s!="function")return this;this.then(function(u){lr(function(){s.call(p,null,u)})},function(u){lr(function(){s.call(p,u)})})}});var fn=vt((ps,ln)=>{"use strict";var pt=kt();ln.exports=pt;pt.enableSynchronous=function(){pt.prototype.isPending=function(){return this.getState()==0},pt.prototype.isFulfilled=function(){return this.getState()==1},pt.prototype.isRejected=function(){return this.getState()==2},pt.prototype.getValue=function(){if(this._y===3)return this._z.getValue();if(!this.isFulfilled())throw new Error("Cannot get a value of an unfulfilled promise.");return this._z},pt.prototype.getReason=function(){if(this._y===3)return this._z.getReason();if(!this.isRejected())throw new Error("Cannot get a rejection reason of a non-rejected promise.");return this._z},pt.prototype.getState=function(){return this._y===3?this._z.getState():this._y===-1||this._y===-2?0:this._y}};pt.disableSynchronous=function(){pt.prototype.isPending=void 0,pt.prototype.isFulfilled=void 0,pt.prototype.isRejected=void 0,pt.prototype.getValue=void 0,pt.prototype.getReason=void 0,pt.prototype.getState=void 0}});var hn=vt((hs,pn)=>{"use strict";pn.exports=kt();Zr();Jr();en();cn();fn()});var mn=vt((ds,dn)=>{"use strict";dn.exports=hn()});var jn=vt((ms,wn)=>{var yt=-1,ht=1,it=0;function Se(s,p,u,g,e){if(s===p)return s?[[it,s]]:[];if(u!=null){var i=Ji(s,p,u);if(i)return i}var t=pr(s,p),a=s.substring(0,t);s=s.substring(t),p=p.substring(t),t=Me(s,p);var n=s.substring(s.length-t);s=s.substring(0,s.length-t),p=p.substring(0,p.length-t);var o=Hi(s,p);return a&&o.unshift([it,a]),n&&o.push([it,n]),hr(o,e),g&&Xi(o),o}function Hi(s,p){var u;if(!s)return[[ht,p]];if(!p)return[[yt,s]];var g=s.length>p.length?s:p,e=s.length>p.length?p:s,i=g.indexOf(e);if(i!==-1)return u=[[ht,g.substring(0,i)],[it,e],[ht,g.substring(i+e.length)]],s.length>p.length&&(u[0][0]=u[2][0]=yt),u;if(e.length===1)return[[yt,s],[ht,p]];var t=Wi(s,p);if(t){var a=t[0],n=t[1],o=t[2],l=t[3],h=t[4],c=Se(a,o),m=Se(n,l);return c.concat([[it,h]],m)}return Ki(s,p)}function Ki(s,p){for(var u=s.length,g=p.length,e=Math.ceil((u+g)/2),i=e,t=2*e,a=new Array(t),n=new Array(t),o=0;o<t;o++)a[o]=-1,n[o]=-1;a[i+1]=0,n[i+1]=0;for(var l=u-g,h=l%2!==0,c=0,m=0,v=0,x=0,y=0;y<e;y++){for(var S=-y+c;S<=y-m;S+=2){var A=i+S,j;S===-y||S!==y&&a[A-1]<a[A+1]?j=a[A+1]:j=a[A-1]+1;for(var E=j-S;j<u&&E<g&&s.charAt(j)===p.charAt(E);)j++,E++;if(a[A]=j,j>u)m+=2;else if(E>g)c+=2;else if(h){var _=i+l-S;if(_>=0&&_<t&&n[_]!==-1){var F=u-n[_];if(j>=F)return gn(s,p,j,E)}}}for(var I=-y+v;I<=y-x;I+=2){var _=i+I,F;I===-y||I!==y&&n[_-1]<n[_+1]?F=n[_+1]:F=n[_-1]+1;for(var z=F-I;F<u&&z<g&&s.charAt(u-F-1)===p.charAt(g-z-1);)F++,z++;if(n[_]=F,F>u)x+=2;else if(z>g)v+=2;else if(!h){var A=i+l-I;if(A>=0&&A<t&&a[A]!==-1){var j=a[A],E=i+j-A;if(F=u-F,j>=F)return gn(s,p,j,E)}}}}return[[yt,s],[ht,p]]}function gn(s,p,u,g){var e=s.substring(0,u),i=p.substring(0,g),t=s.substring(u),a=p.substring(g),n=Se(e,i),o=Se(t,a);return n.concat(o)}function pr(s,p){if(!s||!p||s.charAt(0)!==p.charAt(0))return 0;for(var u=0,g=Math.min(s.length,p.length),e=g,i=0;u<e;)s.substring(i,e)==p.substring(i,e)?(u=e,i=u):g=e,e=Math.floor((g-u)/2+u);return Sn(s.charCodeAt(e-1))&&e--,e}function vn(s,p){var u=s.length,g=p.length;if(u==0||g==0)return 0;u>g?s=s.substring(u-g):u<g&&(p=p.substring(0,u));var e=Math.min(u,g);if(s==p)return e;for(var i=0,t=1;;){var a=s.substring(e-t),n=p.indexOf(a);if(n==-1)return i;t+=n,(n==0||s.substring(e-t)==p.substring(0,t))&&(i=t,t++)}}function Me(s,p){if(!s||!p||s.slice(-1)!==p.slice(-1))return 0;for(var u=0,g=Math.min(s.length,p.length),e=g,i=0;u<e;)s.substring(s.length-e,s.length-i)==p.substring(p.length-e,p.length-i)?(u=e,i=u):g=e,e=Math.floor((g-u)/2+u);return An(s.charCodeAt(s.length-e))&&e--,e}function Wi(s,p){var u=s.length>p.length?s:p,g=s.length>p.length?p:s;if(u.length<4||g.length*2<u.length)return null;function e(m,v,x){for(var y=m.substring(x,x+Math.floor(m.length/4)),S=-1,A="",j,E,_,F;(S=v.indexOf(y,S+1))!==-1;){var I=pr(m.substring(x),v.substring(S)),z=Me(m.substring(0,x),v.substring(0,S));A.length<z+I&&(A=v.substring(S-z,S)+v.substring(S,S+I),j=m.substring(0,x-z),E=m.substring(x+I),_=v.substring(0,S-z),F=v.substring(S+I))}return A.length*2>=m.length?[j,E,_,F,A]:null}var i=e(u,g,Math.ceil(u.length/4)),t=e(u,g,Math.ceil(u.length/2)),a;if(!i&&!t)return null;t?i?a=i[4].length>t[4].length?i:t:a=t:a=i;var n,o,l,h;s.length>p.length?(n=a[0],o=a[1],l=a[2],h=a[3]):(l=a[0],h=a[1],n=a[2],o=a[3]);var c=a[4];return[n,o,l,h,c]}function Xi(s){for(var p=!1,u=[],g=0,e=null,i=0,t=0,a=0,n=0,o=0;i<s.length;)s[i][0]==it?(u[g++]=i,t=n,a=o,n=0,o=0,e=s[i][1]):(s[i][0]==ht?n+=s[i][1].length:o+=s[i][1].length,e&&e.length<=Math.max(t,a)&&e.length<=Math.max(n,o)&&(s.splice(u[g-1],0,[yt,e]),s[u[g-1]+1][0]=ht,g--,g--,i=g>0?u[g-1]:-1,t=0,a=0,n=0,o=0,e=null,p=!0)),i++;for(p&&hr(s),Zi(s),i=1;i<s.length;){if(s[i-1][0]==yt&&s[i][0]==ht){var l=s[i-1][1],h=s[i][1],c=vn(l,h),m=vn(h,l);c>=m?(c>=l.length/2||c>=h.length/2)&&(s.splice(i,0,[it,h.substring(0,c)]),s[i-1][1]=l.substring(0,l.length-c),s[i+1][1]=h.substring(c),i++):(m>=l.length/2||m>=h.length/2)&&(s.splice(i,0,[it,l.substring(0,m)]),s[i-1][0]=ht,s[i-1][1]=h.substring(0,h.length-m),s[i+1][0]=yt,s[i+1][1]=l.substring(m),i++),i++}i++}}var bn=/[^a-zA-Z0-9]/,yn=/\s/,xn=/[\r\n]/,Vi=/\n\r?\n$/,Yi=/^\r?\n\r?\n/;function Zi(s){function p(m,v){if(!m||!v)return 6;var x=m.charAt(m.length-1),y=v.charAt(0),S=x.match(bn),A=y.match(bn),j=S&&x.match(yn),E=A&&y.match(yn),_=j&&x.match(xn),F=E&&y.match(xn),I=_&&m.match(Vi),z=F&&v.match(Yi);return I||z?5:_||F?4:S&&!j&&E?3:j||E?2:S||A?1:0}for(var u=1;u<s.length-1;){if(s[u-1][0]==it&&s[u+1][0]==it){var g=s[u-1][1],e=s[u][1],i=s[u+1][1],t=Me(g,e);if(t){var a=e.substring(e.length-t);g=g.substring(0,g.length-t),e=a+e.substring(0,e.length-t),i=a+i}for(var n=g,o=e,l=i,h=p(g,e)+p(e,i);e.charAt(0)===i.charAt(0);){g+=e.charAt(0),e=e.substring(1)+i.charAt(0),i=i.substring(1);var c=p(g,e)+p(e,i);c>=h&&(h=c,n=g,o=e,l=i)}s[u-1][1]!=n&&(n?s[u-1][1]=n:(s.splice(u-1,1),u--),s[u][1]=o,l?s[u+1][1]=l:(s.splice(u+1,1),u--))}u++}}function hr(s,p){s.push([it,""]);for(var u=0,g=0,e=0,i="",t="",a;u<s.length;){if(u<s.length-1&&!s[u][1]){s.splice(u,1);continue}switch(s[u][0]){case ht:e++,t+=s[u][1],u++;break;case yt:g++,i+=s[u][1],u++;break;case it:var n=u-e-g-1;if(p){if(n>=0&&Tn(s[n][1])){var o=s[n][1].slice(-1);if(s[n][1]=s[n][1].slice(0,-1),i=o+i,t=o+t,!s[n][1]){s.splice(n,1),u--;var l=n-1;s[l]&&s[l][0]===ht&&(e++,t=s[l][1]+t,l--),s[l]&&s[l][0]===yt&&(g++,i=s[l][1]+i,l--),n=l}}if(On(s[u][1])){var o=s[u][1].charAt(0);s[u][1]=s[u][1].slice(1),i+=o,t+=o}}if(u<s.length-1&&!s[u][1]){s.splice(u,1);break}if(i.length>0||t.length>0){i.length>0&&t.length>0&&(a=pr(t,i),a!==0&&(n>=0?s[n][1]+=t.substring(0,a):(s.splice(0,0,[it,t.substring(0,a)]),u++),t=t.substring(a),i=i.substring(a)),a=Me(t,i),a!==0&&(s[u][1]=t.substring(t.length-a)+s[u][1],t=t.substring(0,t.length-a),i=i.substring(0,i.length-a)));var h=e+g;i.length===0&&t.length===0?(s.splice(u-h,h),u=u-h):i.length===0?(s.splice(u-h,h,[ht,t]),u=u-h+1):t.length===0?(s.splice(u-h,h,[yt,i]),u=u-h+1):(s.splice(u-h,h,[yt,i],[ht,t]),u=u-h+2)}u!==0&&s[u-1][0]===it?(s[u-1][1]+=s[u][1],s.splice(u,1)):u++,e=0,g=0,i="",t="";break}}s[s.length-1][1]===""&&s.pop();var c=!1;for(u=1;u<s.length-1;)s[u-1][0]===it&&s[u+1][0]===it&&(s[u][1].substring(s[u][1].length-s[u-1][1].length)===s[u-1][1]?(s[u][1]=s[u-1][1]+s[u][1].substring(0,s[u][1].length-s[u-1][1].length),s[u+1][1]=s[u-1][1]+s[u+1][1],s.splice(u-1,1),c=!0):s[u][1].substring(0,s[u+1][1].length)==s[u+1][1]&&(s[u-1][1]+=s[u+1][1],s[u][1]=s[u][1].substring(s[u+1][1].length)+s[u+1][1],s.splice(u+1,1),c=!0)),u++;c&&hr(s,p)}function Sn(s){return s>=55296&&s<=56319}function An(s){return s>=56320&&s<=57343}function On(s){return An(s.charCodeAt(0))}function Tn(s){return Sn(s.charCodeAt(s.length-1))}function Qi(s){for(var p=[],u=0;u<s.length;u++)s[u][1].length>0&&p.push(s[u]);return p}function fr(s,p,u,g){return Tn(s)||On(g)?null:Qi([[it,s],[yt,p],[ht,u],[it,g]])}function Ji(s,p,u){var g=typeof u=="number"?{index:u,length:0}:u.oldRange,e=typeof u=="number"?null:u.newRange,i=s.length,t=p.length;if(g.length===0&&(e===null||e.length===0)){var a=g.index,n=s.slice(0,a),o=s.slice(a),l=e?e.index:null;t:{var h=a+t-i;if(l!==null&&l!==h||h<0||h>t)break t;var c=p.slice(0,h),m=p.slice(h);if(m!==o)break t;var v=Math.min(a,h),x=n.slice(0,v),y=c.slice(0,v);if(x!==y)break t;var S=n.slice(v),A=c.slice(v);return fr(x,S,A,o)}t:{if(l!==null&&l!==a)break t;var j=a,c=p.slice(0,j),m=p.slice(j);if(c!==n)break t;var E=Math.min(i-j,t-j),_=o.slice(o.length-E),F=m.slice(m.length-E);if(_!==F)break t;var S=o.slice(0,o.length-E),A=m.slice(0,m.length-E);return fr(n,S,A,_)}}if(g.length>0&&e&&e.length===0)t:{var x=s.slice(0,g.index),_=s.slice(g.index+g.length),v=x.length,E=_.length;if(t<v+E)break t;var y=p.slice(0,v),F=p.slice(t-E);if(x!==y||_!==F)break t;var S=s.slice(v,i-E),A=p.slice(v,t-E);return fr(x,S,A,_)}return null}function ze(s,p,u,g){return Se(s,p,u,g,!0)}ze.INSERT=ht;ze.DELETE=yt;ze.EQUAL=it;wn.exports=ze});var En=vt(Be=>{(function(s,p){if(typeof define=="function"&&define.amd)define(["exports"],p);else if(typeof Be<"u")p(Be);else{var u={exports:{}};p(u.exports),s.jstoxml=u.exports}})(typeof globalThis<"u"?globalThis:typeof self<"u"?self:Be,function(s){"use strict";Object.defineProperty(s,"__esModule",{value:!0}),s.toXML=s.default=void 0;function p(P){return i(P)||e(P)||g(P)||u()}function u(){throw new TypeError(`Invalid attempt to spread non-iterable instance.
-In order to be iterable, non-array objects must have a [Symbol.iterator]() method.`)}function g(P,O){if(P){if(typeof P=="string")return t(P,O);var D=Object.prototype.toString.call(P).slice(8,-1);if(D==="Object"&&P.constructor&&(D=P.constructor.name),D==="Map"||D==="Set")return Array.from(P);if(D==="Arguments"||/^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(D))return t(P,O)}}function e(P){if(typeof Symbol<"u"&&P[Symbol.iterator]!=null||P["@@iterator"]!=null)return Array.from(P)}function i(P){if(Array.isArray(P))return t(P)}function t(P,O){(O==null||O>P.length)&&(O=P.length);for(var D=0,Y=new Array(O);D<O;D++)Y[D]=P[D];return Y}function a(P,O){var D=Object.keys(P);if(Object.getOwnPropertySymbols){var Y=Object.getOwnPropertySymbols(P);O&&(Y=Y.filter(function(at){return Object.getOwnPropertyDescriptor(P,at).enumerable})),D.push.apply(D,Y)}return D}function n(P){for(var O=1;O<arguments.length;O++){var D=arguments[O]!=null?arguments[O]:{};O%2?a(Object(D),!0).forEach(function(Y){o(P,Y,D[Y])}):Object.getOwnPropertyDescriptors?Object.defineProperties(P,Object.getOwnPropertyDescriptors(D)):a(Object(D)).forEach(function(Y){Object.defineProperty(P,Y,Object.getOwnPropertyDescriptor(D,Y))})}return P}function o(P,O,D){return O in P?Object.defineProperty(P,O,{value:D,enumerable:!0,configurable:!0,writable:!0}):P[O]=D,P}function l(P){"@babel/helpers - typeof";return l=typeof Symbol=="function"&&typeof Symbol.iterator=="symbol"?function(O){return typeof O}:function(O){return O&&typeof Symbol=="function"&&O.constructor===Symbol&&O!==Symbol.prototype?"symbol":typeof O},l(P)}var h="array",c="boolean",m="date",v="null",x="number",y="object",S="special-object",A="string",j=["_selfCloseTag","_attrs"],E=new RegExp(j.join("|"),"g"),_=function(){var O=arguments.length>0&&arguments[0]!==void 0?arguments[0]:"",D=arguments.length>1&&arguments[1]!==void 0?arguments[1]:0;return O.repeat(D)},F=function(O){return Array.isArray(O)&&h||l(O)===y&&O!==null&&O._name&&S||O instanceof Date&&m||O===null&&v||l(O)},I=function(){var O=arguments.length>0&&arguments[0]!==void 0?arguments[0]:"",D=arguments.length>1&&arguments[1]!==void 0?arguments[1]:{};if(typeof O!="string")return O;var Y=new RegExp("(".concat(Object.keys(D).join("|"),")(?!(\\w|#)*;)"),"g");return String(O).replace(Y,function(at,et){return D[et]||""})},z=function(){var O=arguments.length>0&&arguments[0]!==void 0?arguments[0]:{},D=arguments.length>1?arguments[1]:void 0,Y=[];if(Array.isArray(O))Y=O.map(function(et){var mt=Object.keys(et)[0],Tt=et[mt],Mt=D?I(Tt,D):Tt,Ut=Mt===!0?"":'="'.concat(Mt,'"');return"".concat(mt).concat(Ut)});else{var at=Object.keys(O);Y=at.map(function(et){var mt=D?I(O[et],D):O[et],Tt=O[et]===!0?"":'="'.concat(mt,'"');return"".concat(et).concat(Tt)})}return Y},M=function(){var O=arguments.length>0&&arguments[0]!==void 0?arguments[0]:{},D=arguments.length>1?arguments[1]:void 0,Y=z(O,D);if(Y.length===0)return"";var at=Y.join(" ");return" ".concat(at)},H=function(){var O=arguments.length>0&&arguments[0]!==void 0?arguments[0]:{};return Object.keys(O).map(function(D){return{_name:D,_content:O[D]}})},L=[A,x,c],X=function(O){return L.includes(F(O))},$=[].concat(L,[m,S]),U=function(O){return $.includes(F(O))},Q=function(O){return!O.match("<")},V='<?xml version="1.0" encoding="UTF-8"?>',st=function(O){var D=O.header,Y=O.indent,at=O.isOutputStart,et=D&&at;if(!et)return"";var mt=l(D)===c;return mt?V:D},G={"<":"&lt;",">":"&gt;","&":"&amp;"},q=function P(){var O=arguments.length>0&&arguments[0]!==void 0?arguments[0]:{},D=arguments.length>1&&arguments[1]!==void 0?arguments[1]:{},Y=D.depth,at=Y===void 0?0:Y,et=D.indent,mt=D._isFirstItem,Tt=D._isOutputStart,Mt=Tt===void 0?!0:Tt,Ut=D.header,Ht=D.attributesFilter,Kt=Ht===void 0?{}:Ht,re=D.filter,wt=re===void 0?{}:re,W=typeof Kt=="boolean"&&!Kt,Wt=W?{}:n(n(n({},G),{'"':"&quot;"}),Kt),xt=typeof wt=="boolean"&&!wt,Xt=xt?{}:n(n({},G),wt),ne=_(et,at),he=F(O),Vt=st({header:Ut,indent:et,depth:at,isOutputStart:Mt}),T=Mt&&!Vt&&mt&&at===0,ft="";switch(he){case"special-object":{var K=O._name,Z=O._content;if(Z===null){ft=K;break}var St=Array.isArray(Z)&&Z.every(X);if(St){var de=Z.map(function(lt){return P({_name:K,_content:lt},n(n({},D),{},{depth:at,_isOutputStart:!1}))});return de.join("")}if(K.match(E))break;var jt=P(Z,n(n({},D),{},{depth:at+1,_isOutputStart:T})),At=F(jt),ut=Q(jt),It=et&&!T?`
-`:"",rt="".concat(It).concat(ne);if(K==="_comment"){ft+="".concat(rt,"<!-- ").concat(Z," -->");break}var ae=At==="undefined"||jt==="",Dt=l(O._selfCloseTag)===c?ae&&O._selfCloseTag:ae,Ct=Dt?"/":"",ie=M(O._attrs,Wt),zt="<".concat(K).concat(ie).concat(Ct,">"),me=et&&!ut?`
-`.concat(ne):"",se=Dt?"":"".concat(jt).concat(me,"</").concat(K,">");ft+="".concat(rt).concat(zt).concat(se);break}case"object":{var gt=Object.keys(O),Et=gt.map(function(lt,Yt){var ge=n(n({},D),{},{_isFirstItem:Yt===0,_isLastItem:Yt+1===gt.length,_isOutputStart:T}),Zt={_name:lt};if(F(O[lt])==="object"){j.forEach(function(ve){var je=O[lt][ve];typeof je<"u"&&(Zt[ve]=je,delete O[lt][ve])});var nt=typeof O[lt]._content<"u";if(nt&&Object.keys(O[lt]).length>1){var Qt=Object.assign({},O[lt]);delete Qt._content,Zt._content=[].concat(p(H(Qt)),[O[lt]._content])}}typeof Zt._content>"u"&&(Zt._content=O[lt]);var Ke=P(Zt,ge,lt);return Ke},D);ft=Et.join("");break}case"function":{var Ue=O(D);ft=P(Ue,D);break}case"array":{var He=O.map(function(lt,Yt){var ge=n(n({},D),{},{_isFirstItem:Yt===0,_isLastItem:Yt+1===O.length,_isOutputStart:T});return P(lt,ge)});ft=He.join("");break}default:{ft=I(O,Xt);break}}return"".concat(Vt).concat(ft)};s.toXML=q;var ot={toXML:q};s.default=ot})});var Fn=vt((Oe,dr)=>{(function(p,u){typeof Oe=="object"&&typeof dr=="object"?dr.exports=u():typeof define=="function"&&define.amd?define([],u):typeof Oe=="object"?Oe["chord-symbol"]=u():p["chord-symbol"]=u()})(typeof self<"u"?self:Oe,function(){return(()=>{var s={8552:(e,i,t)=>{var a=t(852),n=t(5639),o=a(n,"DataView");e.exports=o},1989:(e,i,t)=>{var a=t(1789),n=t(401),o=t(7667),l=t(1327),h=t(1866);function c(m){var v=-1,x=m==null?0:m.length;for(this.clear();++v<x;){var y=m[v];this.set(y[0],y[1])}}c.prototype.clear=a,c.prototype.delete=n,c.prototype.get=o,c.prototype.has=l,c.prototype.set=h,e.exports=c},8407:(e,i,t)=>{var a=t(7040),n=t(4125),o=t(2117),l=t(7518),h=t(4705);function c(m){var v=-1,x=m==null?0:m.length;for(this.clear();++v<x;){var y=m[v];this.set(y[0],y[1])}}c.prototype.clear=a,c.prototype.delete=n,c.prototype.get=o,c.prototype.has=l,c.prototype.set=h,e.exports=c},7071:(e,i,t)=>{var a=t(852),n=t(5639),o=a(n,"Map");e.exports=o},3369:(e,i,t)=>{var a=t(4785),n=t(1285),o=t(6e3),l=t(9916),h=t(5265);function c(m){var v=-1,x=m==null?0:m.length;for(this.clear();++v<x;){var y=m[v];this.set(y[0],y[1])}}c.prototype.clear=a,c.prototype.delete=n,c.prototype.get=o,c.prototype.has=l,c.prototype.set=h,e.exports=c},3818:(e,i,t)=>{var a=t(852),n=t(5639),o=a(n,"Promise");e.exports=o},8525:(e,i,t)=>{var a=t(852),n=t(5639),o=a(n,"Set");e.exports=o},8668:(e,i,t)=>{var a=t(3369),n=t(619),o=t(2385);function l(h){var c=-1,m=h==null?0:h.length;for(this.__data__=new a;++c<m;)this.add(h[c])}l.prototype.add=l.prototype.push=n,l.prototype.has=o,e.exports=l},6384:(e,i,t)=>{var a=t(8407),n=t(7465),o=t(3779),l=t(7599),h=t(4758),c=t(4309);function m(v){var x=this.__data__=new a(v);this.size=x.size}m.prototype.clear=n,m.prototype.delete=o,m.prototype.get=l,m.prototype.has=h,m.prototype.set=c,e.exports=m},2705:(e,i,t)=>{var a=t(5639),n=a.Symbol;e.exports=n},1149:(e,i,t)=>{var a=t(5639),n=a.Uint8Array;e.exports=n},577:(e,i,t)=>{var a=t(852),n=t(5639),o=a(n,"WeakMap");e.exports=o},6874:e=>{function i(t,a,n){switch(n.length){case 0:return t.call(a);case 1:return t.call(a,n[0]);case 2:return t.call(a,n[0],n[1]);case 3:return t.call(a,n[0],n[1],n[2])}return t.apply(a,n)}e.exports=i},7412:e=>{function i(t,a){for(var n=-1,o=t==null?0:t.length;++n<o&&a(t[n],n,t)!==!1;);return t}e.exports=i},4963:e=>{function i(t,a){for(var n=-1,o=t==null?0:t.length,l=0,h=[];++n<o;){var c=t[n];a(c,n,t)&&(h[l++]=c)}return h}e.exports=i},7443:(e,i,t)=>{var a=t(2118);function n(o,l){var h=o==null?0:o.length;return!!h&&a(o,l,0)>-1}e.exports=n},1196:e=>{function i(t,a,n){for(var o=-1,l=t==null?0:t.length;++o<l;)if(n(a,t[o]))return!0;return!1}e.exports=i},4636:(e,i,t)=>{var a=t(2545),n=t(5694),o=t(1469),l=t(4144),h=t(5776),c=t(6719),m=Object.prototype,v=m.hasOwnProperty;function x(y,S){var A=o(y),j=!A&&n(y),E=!A&&!j&&l(y),_=!A&&!j&&!E&&c(y),F=A||j||E||_,I=F?a(y.length,String):[],z=I.length;for(var M in y)(S||v.call(y,M))&&!(F&&(M=="length"||E&&(M=="offset"||M=="parent")||_&&(M=="buffer"||M=="byteLength"||M=="byteOffset")||h(M,z)))&&I.push(M);return I}e.exports=x},9932:e=>{function i(t,a){for(var n=-1,o=t==null?0:t.length,l=Array(o);++n<o;)l[n]=a(t[n],n,t);return l}e.exports=i},2488:e=>{function i(t,a){for(var n=-1,o=a.length,l=t.length;++n<o;)t[l+n]=a[n];return t}e.exports=i},2908:e=>{function i(t,a){for(var n=-1,o=t==null?0:t.length;++n<o;)if(a(t[n],n,t))return!0;return!1}e.exports=i},4865:(e,i,t)=>{var a=t(9465),n=t(7813),o=Object.prototype,l=o.hasOwnProperty;function h(c,m,v){var x=c[m];(!(l.call(c,m)&&n(x,v))||v===void 0&&!(m in c))&&a(c,m,v)}e.exports=h},8470:(e,i,t)=>{var a=t(7813);function n(o,l){for(var h=o.length;h--;)if(a(o[h][0],l))return h;return-1}e.exports=n},4037:(e,i,t)=>{var a=t(8363),n=t(3674);function o(l,h){return l&&a(h,n(h),l)}e.exports=o},3886:(e,i,t)=>{var a=t(8363),n=t(1704);function o(l,h){return l&&a(h,n(h),l)}e.exports=o},9465:(e,i,t)=>{var a=t(8777);function n(o,l,h){l=="__proto__"&&a?a(o,l,{configurable:!0,enumerable:!0,value:h,writable:!0}):o[l]=h}e.exports=n},5990:(e,i,t)=>{var a=t(6384),n=t(7412),o=t(4865),l=t(4037),h=t(3886),c=t(4626),m=t(278),v=t(8805),x=t(1911),y=t(8234),S=t(6904),A=t(4160),j=t(3824),E=t(9148),_=t(8517),F=t(1469),I=t(4144),z=t(6688),M=t(3218),H=t(2928),L=t(3674),X=t(1704),$=1,U=2,Q=4,V="[object Arguments]",st="[object Array]",G="[object Boolean]",q="[object Date]",ot="[object Error]",P="[object Function]",O="[object GeneratorFunction]",D="[object Map]",Y="[object Number]",at="[object Object]",et="[object RegExp]",mt="[object Set]",Tt="[object String]",Mt="[object Symbol]",Ut="[object WeakMap]",Ht="[object ArrayBuffer]",Kt="[object DataView]",re="[object Float32Array]",wt="[object Float64Array]",W="[object Int8Array]",Wt="[object Int16Array]",xt="[object Int32Array]",Xt="[object Uint8Array]",ne="[object Uint8ClampedArray]",he="[object Uint16Array]",Vt="[object Uint32Array]",T={};T[V]=T[st]=T[Ht]=T[Kt]=T[G]=T[q]=T[re]=T[wt]=T[W]=T[Wt]=T[xt]=T[D]=T[Y]=T[at]=T[et]=T[mt]=T[Tt]=T[Mt]=T[Xt]=T[ne]=T[he]=T[Vt]=!0,T[ot]=T[P]=T[Ut]=!1;function ft(K,Z,St,de,jt,At){var ut,It=Z&$,rt=Z&U,ae=Z&Q;if(St&&(ut=jt?St(K,de,jt,At):St(K)),ut!==void 0)return ut;if(!M(K))return K;var Dt=F(K);if(Dt){if(ut=j(K),!It)return m(K,ut)}else{var Ct=A(K),ie=Ct==P||Ct==O;if(I(K))return c(K,It);if(Ct==at||Ct==V||ie&&!jt){if(ut=rt||ie?{}:_(K),!It)return rt?x(K,h(ut,K)):v(K,l(ut,K))}else{if(!T[Ct])return jt?K:{};ut=E(K,Ct,It)}}At||(At=new a);var zt=At.get(K);if(zt)return zt;At.set(K,ut),H(K)?K.forEach(function(gt){ut.add(ft(gt,Z,St,gt,K,At))}):z(K)&&K.forEach(function(gt,Et){ut.set(Et,ft(gt,Z,St,Et,K,At))});var me=ae?rt?S:y:rt?X:L,se=Dt?void 0:me(K);return n(se||K,function(gt,Et){se&&(Et=gt,gt=K[Et]),o(ut,Et,ft(gt,Z,St,Et,K,At))}),ut}e.exports=ft},3118:(e,i,t)=>{var a=t(3218),n=Object.create,o=function(){function l(){}return function(h){if(!a(h))return{};if(n)return n(h);l.prototype=h;var c=new l;return l.prototype=void 0,c}}();e.exports=o},731:(e,i,t)=>{var a=t(8668),n=t(7443),o=t(1196),l=t(9932),h=t(1717),c=t(4757),m=200;function v(x,y,S,A){var j=-1,E=n,_=!0,F=x.length,I=[],z=y.length;if(!F)return I;S&&(y=l(y,h(S))),A?(E=o,_=!1):y.length>=m&&(E=c,_=!1,y=new a(y));t:for(;++j<F;){var M=x[j],H=S==null?M:S(M);if(M=A||M!==0?M:0,_&&H===H){for(var L=z;L--;)if(y[L]===H)continue t;I.push(M)}else E(y,H,A)||I.push(M)}return I}e.exports=v},1848:e=>{function i(t,a,n,o){for(var l=t.length,h=n+(o?1:-1);o?h--:++h<l;)if(a(t[h],h,t))return h;return-1}e.exports=i},1078:(e,i,t)=>{var a=t(2488),n=t(7285);function o(l,h,c,m,v){var x=-1,y=l.length;for(c||(c=n),v||(v=[]);++x<y;){var S=l[x];h>0&&c(S)?h>1?o(S,h-1,c,m,v):a(v,S):m||(v[v.length]=S)}return v}e.exports=o},8483:(e,i,t)=>{var a=t(5063),n=a();e.exports=n},7816:(e,i,t)=>{var a=t(8483),n=t(3674);function o(l,h){return l&&a(l,h,n)}e.exports=o},7786:(e,i,t)=>{var a=t(1811),n=t(327);function o(l,h){h=a(h,l);for(var c=0,m=h.length;l!=null&&c<m;)l=l[n(h[c++])];return c&&c==m?l:void 0}e.exports=o},8866:(e,i,t)=>{var a=t(2488),n=t(1469);function o(l,h,c){var m=h(l);return n(l)?m:a(m,c(l))}e.exports=o},4239:(e,i,t)=>{var a=t(2705),n=t(9607),o=t(2333),l="[object Null]",h="[object Undefined]",c=a?a.toStringTag:void 0;function m(v){return v==null?v===void 0?h:l:c&&c in Object(v)?n(v):o(v)}e.exports=m},13:e=>{function i(t,a){return t!=null&&a in Object(t)}e.exports=i},2118:(e,i,t)=>{var a=t(1848),n=t(2722),o=t(2351);function l(h,c,m){return c===c?o(h,c,m):a(h,n,m)}e.exports=l},8975:(e,i,t)=>{var a=t(7816);function n(o,l,h,c){return a(o,function(m,v,x){l(c,h(m),v,x)}),c}e.exports=n},9454:(e,i,t)=>{var a=t(4239),n=t(7005),o="[object Arguments]";function l(h){return n(h)&&a(h)==o}e.exports=l},939:(e,i,t)=>{var a=t(2492),n=t(7005);function o(l,h,c,m,v){return l===h?!0:l==null||h==null||!n(l)&&!n(h)?l!==l&&h!==h:a(l,h,c,m,o,v)}e.exports=o},2492:(e,i,t)=>{var a=t(6384),n=t(7114),o=t(8351),l=t(6096),h=t(4160),c=t(1469),m=t(4144),v=t(6719),x=1,y="[object Arguments]",S="[object Array]",A="[object Object]",j=Object.prototype,E=j.hasOwnProperty;function _(F,I,z,M,H,L){var X=c(F),$=c(I),U=X?S:h(F),Q=$?S:h(I);U=U==y?A:U,Q=Q==y?A:Q;var V=U==A,st=Q==A,G=U==Q;if(G&&m(F)){if(!m(I))return!1;X=!0,V=!1}if(G&&!V)return L||(L=new a),X||v(F)?n(F,I,z,M,H,L):o(F,I,U,z,M,H,L);if(!(z&x)){var q=V&&E.call(F,"__wrapped__"),ot=st&&E.call(I,"__wrapped__");if(q||ot){var P=q?F.value():F,O=ot?I.value():I;return L||(L=new a),H(P,O,z,M,L)}}return G?(L||(L=new a),l(F,I,z,M,H,L)):!1}e.exports=_},5588:(e,i,t)=>{var a=t(4160),n=t(7005),o="[object Map]";function l(h){return n(h)&&a(h)==o}e.exports=l},2958:(e,i,t)=>{var a=t(6384),n=t(939),o=1,l=2;function h(c,m,v,x){var y=v.length,S=y,A=!x;if(c==null)return!S;for(c=Object(c);y--;){var j=v[y];if(A&&j[2]?j[1]!==c[j[0]]:!(j[0]in c))return!1}for(;++y<S;){j=v[y];var E=j[0],_=c[E],F=j[1];if(A&&j[2]){if(_===void 0&&!(E in c))return!1}else{var I=new a;if(x)var z=x(_,F,E,c,m,I);if(!(z===void 0?n(F,_,o|l,x,I):z))return!1}}return!0}e.exports=h},2722:e=>{function i(t){return t!==t}e.exports=i},8458:(e,i,t)=>{var a=t(3560),n=t(5346),o=t(3218),l=t(346),h=/[\\^$.*+?()[\]{}|]/g,c=/^\[object .+?Constructor\]$/,m=Function.prototype,v=Object.prototype,x=m.toString,y=v.hasOwnProperty,S=RegExp("^"+x.call(y).replace(h,"\\$&").replace(/hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\\])/g,"$1.*?")+"$");function A(j){if(!o(j)||n(j))return!1;var E=a(j)?S:c;return E.test(l(j))}e.exports=A},9221:(e,i,t)=>{var a=t(4160),n=t(7005),o="[object Set]";function l(h){return n(h)&&a(h)==o}e.exports=l},8749:(e,i,t)=>{var a=t(4239),n=t(1780),o=t(7005),l="[object Arguments]",h="[object Array]",c="[object Boolean]",m="[object Date]",v="[object Error]",x="[object Function]",y="[object Map]",S="[object Number]",A="[object Object]",j="[object RegExp]",E="[object Set]",_="[object String]",F="[object WeakMap]",I="[object ArrayBuffer]",z="[object DataView]",M="[object Float32Array]",H="[object Float64Array]",L="[object Int8Array]",X="[object Int16Array]",$="[object Int32Array]",U="[object Uint8Array]",Q="[object Uint8ClampedArray]",V="[object Uint16Array]",st="[object Uint32Array]",G={};G[M]=G[H]=G[L]=G[X]=G[$]=G[U]=G[Q]=G[V]=G[st]=!0,G[l]=G[h]=G[I]=G[c]=G[z]=G[m]=G[v]=G[x]=G[y]=G[S]=G[A]=G[j]=G[E]=G[_]=G[F]=!1;function q(ot){return o(ot)&&n(ot.length)&&!!G[a(ot)]}e.exports=q},7206:(e,i,t)=>{var a=t(1573),n=t(6432),o=t(6557),l=t(1469),h=t(9601);function c(m){return typeof m=="function"?m:m==null?o:typeof m=="object"?l(m)?n(m[0],m[1]):a(m):h(m)}e.exports=c},280:(e,i,t)=>{var a=t(5726),n=t(6916),o=Object.prototype,l=o.hasOwnProperty;function h(c){if(!a(c))return n(c);var m=[];for(var v in Object(c))l.call(c,v)&&v!="constructor"&&m.push(v);return m}e.exports=h},313:(e,i,t)=>{var a=t(3218),n=t(5726),o=t(3498),l=Object.prototype,h=l.hasOwnProperty;function c(m){if(!a(m))return o(m);var v=n(m),x=[];for(var y in m)y=="constructor"&&(v||!h.call(m,y))||x.push(y);return x}e.exports=c},1573:(e,i,t)=>{var a=t(2958),n=t(1499),o=t(2634);function l(h){var c=n(h);return c.length==1&&c[0][2]?o(c[0][0],c[0][1]):function(m){return m===h||a(m,h,c)}}e.exports=l},6432:(e,i,t)=>{var a=t(939),n=t(7361),o=t(9095),l=t(5403),h=t(9162),c=t(2634),m=t(327),v=1,x=2;function y(S,A){return l(S)&&h(A)?c(m(S),A):function(j){var E=n(j,S);return E===void 0&&E===A?o(j,S):a(A,E,v|x)}}e.exports=y},371:e=>{function i(t){return function(a){return a?.[t]}}e.exports=i},9152:(e,i,t)=>{var a=t(7786);function n(o){return function(l){return a(l,o)}}e.exports=n},5976:(e,i,t)=>{var a=t(6557),n=t(5357),o=t(61);function l(h,c){return o(n(h,c,a),h+"")}e.exports=l},6560:(e,i,t)=>{var a=t(5703),n=t(8777),o=t(6557),l=n?function(h,c){return n(h,"toString",{configurable:!0,enumerable:!1,value:a(c),writable:!0})}:o;e.exports=l},2545:e=>{function i(t,a){for(var n=-1,o=Array(t);++n<t;)o[n]=a(n);return o}e.exports=i},531:(e,i,t)=>{var a=t(2705),n=t(9932),o=t(1469),l=t(3448),h=1/0,c=a?a.prototype:void 0,m=c?c.toString:void 0;function v(x){if(typeof x=="string")return x;if(o(x))return n(x,v)+"";if(l(x))return m?m.call(x):"";var y=x+"";return y=="0"&&1/x==-h?"-0":y}e.exports=v},7561:(e,i,t)=>{var a=t(7990),n=/^\s+/;function o(l){return l&&l.slice(0,a(l)+1).replace(n,"")}e.exports=o},1717:e=>{function i(t){return function(a){return t(a)}}e.exports=i},5652:(e,i,t)=>{var a=t(8668),n=t(7443),o=t(1196),l=t(4757),h=t(3593),c=t(1814),m=200;function v(x,y,S){var A=-1,j=n,E=x.length,_=!0,F=[],I=F;if(S)_=!1,j=o;else if(E>=m){var z=y?null:h(x);if(z)return c(z);_=!1,j=l,I=new a}else I=y?[]:F;t:for(;++A<E;){var M=x[A],H=y?y(M):M;if(M=S||M!==0?M:0,_&&H===H){for(var L=I.length;L--;)if(I[L]===H)continue t;y&&I.push(H),F.push(M)}else j(I,H,S)||(I!==F&&I.push(H),F.push(M))}return F}e.exports=v},4757:e=>{function i(t,a){return t.has(a)}e.exports=i},1811:(e,i,t)=>{var a=t(1469),n=t(5403),o=t(5514),l=t(9833);function h(c,m){return a(c)?c:n(c,m)?[c]:o(l(c))}e.exports=h},4318:(e,i,t)=>{var a=t(1149);function n(o){var l=new o.constructor(o.byteLength);return new a(l).set(new a(o)),l}e.exports=n},4626:(e,i,t)=>{e=t.nmd(e);var a=t(5639),n=i&&!i.nodeType&&i,o=n&&!0&&e&&!e.nodeType&&e,l=o&&o.exports===n,h=l?a.Buffer:void 0,c=h?h.allocUnsafe:void 0;function m(v,x){if(x)return v.slice();var y=v.length,S=c?c(y):new v.constructor(y);return v.copy(S),S}e.exports=m},7157:(e,i,t)=>{var a=t(4318);function n(o,l){var h=l?a(o.buffer):o.buffer;return new o.constructor(h,o.byteOffset,o.byteLength)}e.exports=n},3147:e=>{var i=/\w*$/;function t(a){var n=new a.constructor(a.source,i.exec(a));return n.lastIndex=a.lastIndex,n}e.exports=t},419:(e,i,t)=>{var a=t(2705),n=a?a.prototype:void 0,o=n?n.valueOf:void 0;function l(h){return o?Object(o.call(h)):{}}e.exports=l},7133:(e,i,t)=>{var a=t(4318);function n(o,l){var h=l?a(o.buffer):o.buffer;return new o.constructor(h,o.byteOffset,o.length)}e.exports=n},278:e=>{function i(t,a){var n=-1,o=t.length;for(a||(a=Array(o));++n<o;)a[n]=t[n];return a}e.exports=i},8363:(e,i,t)=>{var a=t(4865),n=t(9465);function o(l,h,c,m){var v=!c;c||(c={});for(var x=-1,y=h.length;++x<y;){var S=h[x],A=m?m(c[S],l[S],S,c,l):void 0;A===void 0&&(A=l[S]),v?n(c,S,A):a(c,S,A)}return c}e.exports=o},8805:(e,i,t)=>{var a=t(8363),n=t(9551);function o(l,h){return a(l,n(l),h)}e.exports=o},1911:(e,i,t)=>{var a=t(8363),n=t(1442);function o(l,h){return a(l,n(l),h)}e.exports=o},4429:(e,i,t)=>{var a=t(5639),n=a["__core-js_shared__"];e.exports=n},5063:e=>{function i(t){return function(a,n,o){for(var l=-1,h=Object(a),c=o(a),m=c.length;m--;){var v=c[t?m:++l];if(n(h[v],v,h)===!1)break}return a}}e.exports=i},7740:(e,i,t)=>{var a=t(7206),n=t(8612),o=t(3674);function l(h){return function(c,m,v){var x=Object(c);if(!n(c)){var y=a(m,3);c=o(c),m=function(A){return y(x[A],A,x)}}var S=h(c,m,v);return S>-1?x[y?c[S]:S]:void 0}}e.exports=l},7779:(e,i,t)=>{var a=t(8975);function n(o,l){return function(h,c){return a(h,o,l(c),{})}}e.exports=n},3593:(e,i,t)=>{var a=t(8525),n=t(308),o=t(1814),l=1/0,h=a&&1/o(new a([,-0]))[1]==l?function(c){return new a(c)}:n;e.exports=h},8777:(e,i,t)=>{var a=t(852),n=function(){try{var o=a(Object,"defineProperty");return o({},"",{}),o}catch{}}();e.exports=n},7114:(e,i,t)=>{var a=t(8668),n=t(2908),o=t(4757),l=1,h=2;function c(m,v,x,y,S,A){var j=x&l,E=m.length,_=v.length;if(E!=_&&!(j&&_>E))return!1;var F=A.get(m),I=A.get(v);if(F&&I)return F==v&&I==m;var z=-1,M=!0,H=x&h?new a:void 0;for(A.set(m,v),A.set(v,m);++z<E;){var L=m[z],X=v[z];if(y)var $=j?y(X,L,z,v,m,A):y(L,X,z,m,v,A);if($!==void 0){if($)continue;M=!1;break}if(H){if(!n(v,function(U,Q){if(!o(H,Q)&&(L===U||S(L,U,x,y,A)))return H.push(Q)})){M=!1;break}}else if(!(L===X||S(L,X,x,y,A))){M=!1;break}}return A.delete(m),A.delete(v),M}e.exports=c},8351:(e,i,t)=>{var a=t(2705),n=t(1149),o=t(7813),l=t(7114),h=t(8776),c=t(1814),m=1,v=2,x="[object Boolean]",y="[object Date]",S="[object Error]",A="[object Map]",j="[object Number]",E="[object RegExp]",_="[object Set]",F="[object String]",I="[object Symbol]",z="[object ArrayBuffer]",M="[object DataView]",H=a?a.prototype:void 0,L=H?H.valueOf:void 0;function X($,U,Q,V,st,G,q){switch(Q){case M:if($.byteLength!=U.byteLength||$.byteOffset!=U.byteOffset)return!1;$=$.buffer,U=U.buffer;case z:return!($.byteLength!=U.byteLength||!G(new n($),new n(U)));case x:case y:case j:return o(+$,+U);case S:return $.name==U.name&&$.message==U.message;case E:case F:return $==U+"";case A:var ot=h;case _:var P=V&m;if(ot||(ot=c),$.size!=U.size&&!P)return!1;var O=q.get($);if(O)return O==U;V|=v,q.set($,U);var D=l(ot($),ot(U),V,st,G,q);return q.delete($),D;case I:if(L)return L.call($)==L.call(U)}return!1}e.exports=X},6096:(e,i,t)=>{var a=t(8234),n=1,o=Object.prototype,l=o.hasOwnProperty;function h(c,m,v,x,y,S){var A=v&n,j=a(c),E=j.length,_=a(m),F=_.length;if(E!=F&&!A)return!1;for(var I=E;I--;){var z=j[I];if(!(A?z in m:l.call(m,z)))return!1}var M=S.get(c),H=S.get(m);if(M&&H)return M==m&&H==c;var L=!0;S.set(c,m),S.set(m,c);for(var X=A;++I<E;){z=j[I];var $=c[z],U=m[z];if(x)var Q=A?x(U,$,z,m,c,S):x($,U,z,c,m,S);if(!(Q===void 0?$===U||y($,U,v,x,S):Q)){L=!1;break}X||(X=z=="constructor")}if(L&&!X){var V=c.constructor,st=m.constructor;V!=st&&"constructor"in c&&"constructor"in m&&!(typeof V=="function"&&V instanceof V&&typeof st=="function"&&st instanceof st)&&(L=!1)}return S.delete(c),S.delete(m),L}e.exports=h},1957:(e,i,t)=>{var a=typeof t.g=="object"&&t.g&&t.g.Object===Object&&t.g;e.exports=a},8234:(e,i,t)=>{var a=t(8866),n=t(9551),o=t(3674);function l(h){return a(h,o,n)}e.exports=l},6904:(e,i,t)=>{var a=t(8866),n=t(1442),o=t(1704);function l(h){return a(h,o,n)}e.exports=l},5050:(e,i,t)=>{var a=t(7019);function n(o,l){var h=o.__data__;return a(l)?h[typeof l=="string"?"string":"hash"]:h.map}e.exports=n},1499:(e,i,t)=>{var a=t(9162),n=t(3674);function o(l){for(var h=n(l),c=h.length;c--;){var m=h[c],v=l[m];h[c]=[m,v,a(v)]}return h}e.exports=o},852:(e,i,t)=>{var a=t(8458),n=t(7801);function o(l,h){var c=n(l,h);return a(c)?c:void 0}e.exports=o},5924:(e,i,t)=>{var a=t(5569),n=a(Object.getPrototypeOf,Object);e.exports=n},9607:(e,i,t)=>{var a=t(2705),n=Object.prototype,o=n.hasOwnProperty,l=n.toString,h=a?a.toStringTag:void 0;function c(m){var v=o.call(m,h),x=m[h];try{m[h]=void 0;var y=!0}catch{}var S=l.call(m);return y&&(v?m[h]=x:delete m[h]),S}e.exports=c},9551:(e,i,t)=>{var a=t(4963),n=t(479),o=Object.prototype,l=o.propertyIsEnumerable,h=Object.getOwnPropertySymbols,c=h?function(m){return m==null?[]:(m=Object(m),a(h(m),function(v){return l.call(m,v)}))}:n;e.exports=c},1442:(e,i,t)=>{var a=t(2488),n=t(5924),o=t(9551),l=t(479),h=Object.getOwnPropertySymbols,c=h?function(m){for(var v=[];m;)a(v,o(m)),m=n(m);return v}:l;e.exports=c},4160:(e,i,t)=>{var a=t(8552),n=t(7071),o=t(3818),l=t(8525),h=t(577),c=t(4239),m=t(346),v="[object Map]",x="[object Object]",y="[object Promise]",S="[object Set]",A="[object WeakMap]",j="[object DataView]",E=m(a),_=m(n),F=m(o),I=m(l),z=m(h),M=c;(a&&M(new a(new ArrayBuffer(1)))!=j||n&&M(new n)!=v||o&&M(o.resolve())!=y||l&&M(new l)!=S||h&&M(new h)!=A)&&(M=function(H){var L=c(H),X=L==x?H.constructor:void 0,$=X?m(X):"";if($)switch($){case E:return j;case _:return v;case F:return y;case I:return S;case z:return A}return L}),e.exports=M},7801:e=>{function i(t,a){return t?.[a]}e.exports=i},222:(e,i,t)=>{var a=t(1811),n=t(5694),o=t(1469),l=t(5776),h=t(1780),c=t(327);function m(v,x,y){x=a(x,v);for(var S=-1,A=x.length,j=!1;++S<A;){var E=c(x[S]);if(!(j=v!=null&&y(v,E)))break;v=v[E]}return j||++S!=A?j:(A=v==null?0:v.length,!!A&&h(A)&&l(E,A)&&(o(v)||n(v)))}e.exports=m},1789:(e,i,t)=>{var a=t(4536);function n(){this.__data__=a?a(null):{},this.size=0}e.exports=n},401:e=>{function i(t){var a=this.has(t)&&delete this.__data__[t];return this.size-=a?1:0,a}e.exports=i},7667:(e,i,t)=>{var a=t(4536),n="__lodash_hash_undefined__",o=Object.prototype,l=o.hasOwnProperty;function h(c){var m=this.__data__;if(a){var v=m[c];return v===n?void 0:v}return l.call(m,c)?m[c]:void 0}e.exports=h},1327:(e,i,t)=>{var a=t(4536),n=Object.prototype,o=n.hasOwnProperty;function l(h){var c=this.__data__;return a?c[h]!==void 0:o.call(c,h)}e.exports=l},1866:(e,i,t)=>{var a=t(4536),n="__lodash_hash_undefined__";function o(l,h){var c=this.__data__;return this.size+=this.has(l)?0:1,c[l]=a&&h===void 0?n:h,this}e.exports=o},3824:e=>{var i=Object.prototype,t=i.hasOwnProperty;function a(n){var o=n.length,l=new n.constructor(o);return o&&typeof n[0]=="string"&&t.call(n,"index")&&(l.index=n.index,l.input=n.input),l}e.exports=a},9148:(e,i,t)=>{var a=t(4318),n=t(7157),o=t(3147),l=t(419),h=t(7133),c="[object Boolean]",m="[object Date]",v="[object Map]",x="[object Number]",y="[object RegExp]",S="[object Set]",A="[object String]",j="[object Symbol]",E="[object ArrayBuffer]",_="[object DataView]",F="[object Float32Array]",I="[object Float64Array]",z="[object Int8Array]",M="[object Int16Array]",H="[object Int32Array]",L="[object Uint8Array]",X="[object Uint8ClampedArray]",$="[object Uint16Array]",U="[object Uint32Array]";function Q(V,st,G){var q=V.constructor;switch(st){case E:return a(V);case c:case m:return new q(+V);case _:return n(V,G);case F:case I:case z:case M:case H:case L:case X:case $:case U:return h(V,G);case v:return new q;case x:case A:return new q(V);case y:return o(V);case S:return new q;case j:return l(V)}}e.exports=Q},8517:(e,i,t)=>{var a=t(3118),n=t(5924),o=t(5726);function l(h){return typeof h.constructor=="function"&&!o(h)?a(n(h)):{}}e.exports=l},7285:(e,i,t)=>{var a=t(2705),n=t(5694),o=t(1469),l=a?a.isConcatSpreadable:void 0;function h(c){return o(c)||n(c)||!!(l&&c&&c[l])}e.exports=h},5776:e=>{var i=9007199254740991,t=/^(?:0|[1-9]\d*)$/;function a(n,o){var l=typeof n;return o=o??i,!!o&&(l=="number"||l!="symbol"&&t.test(n))&&n>-1&&n%1==0&&n<o}e.exports=a},5403:(e,i,t)=>{var a=t(1469),n=t(3448),o=/\.|\[(?:[^[\]]*|(["'])(?:(?!\1)[^\\]|\\.)*?\1)\]/,l=/^\w*$/;function h(c,m){if(a(c))return!1;var v=typeof c;return v=="number"||v=="symbol"||v=="boolean"||c==null||n(c)?!0:l.test(c)||!o.test(c)||m!=null&&c in Object(m)}e.exports=h},7019:e=>{function i(t){var a=typeof t;return a=="string"||a=="number"||a=="symbol"||a=="boolean"?t!=="__proto__":t===null}e.exports=i},5346:(e,i,t)=>{var a=t(4429),n=function(){var l=/[^.]+$/.exec(a&&a.keys&&a.keys.IE_PROTO||"");return l?"Symbol(src)_1."+l:""}();function o(l){return!!n&&n in l}e.exports=o},5726:e=>{var i=Object.prototype;function t(a){var n=a&&a.constructor,o=typeof n=="function"&&n.prototype||i;return a===o}e.exports=t},9162:(e,i,t)=>{var a=t(3218);function n(o){return o===o&&!a(o)}e.exports=n},7040:e=>{function i(){this.__data__=[],this.size=0}e.exports=i},4125:(e,i,t)=>{var a=t(8470),n=Array.prototype,o=n.splice;function l(h){var c=this.__data__,m=a(c,h);if(m<0)return!1;var v=c.length-1;return m==v?c.pop():o.call(c,m,1),--this.size,!0}e.exports=l},2117:(e,i,t)=>{var a=t(8470);function n(o){var l=this.__data__,h=a(l,o);return h<0?void 0:l[h][1]}e.exports=n},7518:(e,i,t)=>{var a=t(8470);function n(o){return a(this.__data__,o)>-1}e.exports=n},4705:(e,i,t)=>{var a=t(8470);function n(o,l){var h=this.__data__,c=a(h,o);return c<0?(++this.size,h.push([o,l])):h[c][1]=l,this}e.exports=n},4785:(e,i,t)=>{var a=t(1989),n=t(8407),o=t(7071);function l(){this.size=0,this.__data__={hash:new a,map:new(o||n),string:new a}}e.exports=l},1285:(e,i,t)=>{var a=t(5050);function n(o){var l=a(this,o).delete(o);return this.size-=l?1:0,l}e.exports=n},6e3:(e,i,t)=>{var a=t(5050);function n(o){return a(this,o).get(o)}e.exports=n},9916:(e,i,t)=>{var a=t(5050);function n(o){return a(this,o).has(o)}e.exports=n},5265:(e,i,t)=>{var a=t(5050);function n(o,l){var h=a(this,o),c=h.size;return h.set(o,l),this.size+=h.size==c?0:1,this}e.exports=n},8776:e=>{function i(t){var a=-1,n=Array(t.size);return t.forEach(function(o,l){n[++a]=[l,o]}),n}e.exports=i},2634:e=>{function i(t,a){return function(n){return n==null?!1:n[t]===a&&(a!==void 0||t in Object(n))}}e.exports=i},4523:(e,i,t)=>{var a=t(8306),n=500;function o(l){var h=a(l,function(m){return c.size===n&&c.clear(),m}),c=h.cache;return h}e.exports=o},4536:(e,i,t)=>{var a=t(852),n=a(Object,"create");e.exports=n},6916:(e,i,t)=>{var a=t(5569),n=a(Object.keys,Object);e.exports=n},3498:e=>{function i(t){var a=[];if(t!=null)for(var n in Object(t))a.push(n);return a}e.exports=i},1167:(e,i,t)=>{e=t.nmd(e);var a=t(1957),n=i&&!i.nodeType&&i,o=n&&!0&&e&&!e.nodeType&&e,l=o&&o.exports===n,h=l&&a.process,c=function(){try{var m=o&&o.require&&o.require("util").types;return m||h&&h.binding&&h.binding("util")}catch{}}();e.exports=c},2333:e=>{var i=Object.prototype,t=i.toString;function a(n){return t.call(n)}e.exports=a},5569:e=>{function i(t,a){return function(n){return t(a(n))}}e.exports=i},5357:(e,i,t)=>{var a=t(6874),n=Math.max;function o(l,h,c){return h=n(h===void 0?l.length-1:h,0),function(){for(var m=arguments,v=-1,x=n(m.length-h,0),y=Array(x);++v<x;)y[v]=m[h+v];v=-1;for(var S=Array(h+1);++v<h;)S[v]=m[v];return S[h]=c(y),a(l,this,S)}}e.exports=o},5639:(e,i,t)=>{var a=t(1957),n=typeof self=="object"&&self&&self.Object===Object&&self,o=a||n||Function("return this")();e.exports=o},619:e=>{var i="__lodash_hash_undefined__";function t(a){return this.__data__.set(a,i),this}e.exports=t},2385:e=>{function i(t){return this.__data__.has(t)}e.exports=i},1814:e=>{function i(t){var a=-1,n=Array(t.size);return t.forEach(function(o){n[++a]=o}),n}e.exports=i},61:(e,i,t)=>{var a=t(6560),n=t(1275),o=n(a);e.exports=o},1275:e=>{var i=800,t=16,a=Date.now;function n(o){var l=0,h=0;return function(){var c=a(),m=t-(c-h);if(h=c,m>0){if(++l>=i)return arguments[0]}else l=0;return o.apply(void 0,arguments)}}e.exports=n},7465:(e,i,t)=>{var a=t(8407);function n(){this.__data__=new a,this.size=0}e.exports=n},3779:e=>{function i(t){var a=this.__data__,n=a.delete(t);return this.size=a.size,n}e.exports=i},7599:e=>{function i(t){return this.__data__.get(t)}e.exports=i},4758:e=>{function i(t){return this.__data__.has(t)}e.exports=i},4309:(e,i,t)=>{var a=t(8407),n=t(7071),o=t(3369),l=200;function h(c,m){var v=this.__data__;if(v instanceof a){var x=v.__data__;if(!n||x.length<l-1)return x.push([c,m]),this.size=++v.size,this;v=this.__data__=new o(x)}return v.set(c,m),this.size=v.size,this}e.exports=h},2351:e=>{function i(t,a,n){for(var o=n-1,l=t.length;++o<l;)if(t[o]===a)return o;return-1}e.exports=i},5514:(e,i,t)=>{var a=t(4523),n=/[^.[\]]+|\[(?:(-?\d+(?:\.\d+)?)|(["'])((?:(?!\2)[^\\]|\\.)*?)\2)\]|(?=(?:\.|\[\])(?:\.|\[\]|$))/g,o=/\\(\\)?/g,l=a(function(h){var c=[];return h.charCodeAt(0)===46&&c.push(""),h.replace(n,function(m,v,x,y){c.push(x?y.replace(o,"$1"):v||m)}),c});e.exports=l},327:(e,i,t)=>{var a=t(3448),n=1/0;function o(l){if(typeof l=="string"||a(l))return l;var h=l+"";return h=="0"&&1/l==-n?"-0":h}e.exports=o},346:e=>{var i=Function.prototype,t=i.toString;function a(n){if(n!=null){try{return t.call(n)}catch{}try{return n+""}catch{}}return""}e.exports=a},7990:e=>{var i=/\s/;function t(a){for(var n=a.length;n--&&i.test(a.charAt(n)););return n}e.exports=t},6678:(e,i,t)=>{var a=t(5990),n=4;function o(l){return a(l,n)}e.exports=o},361:(e,i,t)=>{var a=t(5990),n=1,o=4;function l(h){return a(h,n|o)}e.exports=l},5703:e=>{function i(t){return function(){return t}}e.exports=i},1966:(e,i,t)=>{var a=t(731),n=t(1078),o=t(5976),l=t(9246),h=o(function(c,m){return l(c)?a(c,n(m,1,l,!0)):[]});e.exports=h},7813:e=>{function i(t,a){return t===a||t!==t&&a!==a}e.exports=i},3311:(e,i,t)=>{var a=t(7740),n=t(998),o=a(n);e.exports=o},998:(e,i,t)=>{var a=t(1848),n=t(7206),o=t(554),l=Math.max;function h(c,m,v){var x=c==null?0:c.length;if(!x)return-1;var y=v==null?0:o(v);return y<0&&(y=l(x+y,0)),a(c,n(m,3),y)}e.exports=h},7361:(e,i,t)=>{var a=t(7786);function n(o,l,h){var c=o==null?void 0:a(o,l);return c===void 0?h:c}e.exports=n},9095:(e,i,t)=>{var a=t(13),n=t(222);function o(l,h){return l!=null&&n(l,h,a)}e.exports=o},6557:e=>{function i(t){return t}e.exports=i},3137:(e,i,t)=>{var a=t(5703),n=t(7779),o=t(6557),l=Object.prototype,h=l.toString,c=n(function(m,v,x){v!=null&&typeof v.toString!="function"&&(v=h.call(v)),m[v]=x},a(o));e.exports=c},5694:(e,i,t)=>{var a=t(9454),n=t(7005),o=Object.prototype,l=o.hasOwnProperty,h=o.propertyIsEnumerable,c=a(function(){return arguments}())?a:function(m){return n(m)&&l.call(m,"callee")&&!h.call(m,"callee")};e.exports=c},1469:e=>{var i=Array.isArray;e.exports=i},8612:(e,i,t)=>{var a=t(3560),n=t(1780);function o(l){return l!=null&&n(l.length)&&!a(l)}e.exports=o},9246:(e,i,t)=>{var a=t(8612),n=t(7005);function o(l){return n(l)&&a(l)}e.exports=o},4144:(e,i,t)=>{e=t.nmd(e);var a=t(5639),n=t(5062),o=i&&!i.nodeType&&i,l=o&&!0&&e&&!e.nodeType&&e,h=l&&l.exports===o,c=h?a.Buffer:void 0,m=c?c.isBuffer:void 0,v=m||n;e.exports=v},8446:(e,i,t)=>{var a=t(939);function n(o,l){return a(o,l)}e.exports=n},3560:(e,i,t)=>{var a=t(4239),n=t(3218),o="[object AsyncFunction]",l="[object Function]",h="[object GeneratorFunction]",c="[object Proxy]";function m(v){if(!n(v))return!1;var x=a(v);return x==l||x==h||x==o||x==c}e.exports=m},1780:e=>{var i=9007199254740991;function t(a){return typeof a=="number"&&a>-1&&a%1==0&&a<=i}e.exports=t},6688:(e,i,t)=>{var a=t(5588),n=t(1717),o=t(1167),l=o&&o.isMap,h=l?n(l):a;e.exports=h},3218:e=>{function i(t){var a=typeof t;return t!=null&&(a=="object"||a=="function")}e.exports=i},7005:e=>{function i(t){return t!=null&&typeof t=="object"}e.exports=i},2928:(e,i,t)=>{var a=t(9221),n=t(1717),o=t(1167),l=o&&o.isSet,h=l?n(l):a;e.exports=h},3448:(e,i,t)=>{var a=t(4239),n=t(7005),o="[object Symbol]";function l(h){return typeof h=="symbol"||n(h)&&a(h)==o}e.exports=l},6719:(e,i,t)=>{var a=t(8749),n=t(1717),o=t(1167),l=o&&o.isTypedArray,h=l?n(l):a;e.exports=h},3674:(e,i,t)=>{var a=t(4636),n=t(280),o=t(8612);function l(h){return o(h)?a(h):n(h)}e.exports=l},1704:(e,i,t)=>{var a=t(4636),n=t(313),o=t(8612);function l(h){return o(h)?a(h,!0):n(h)}e.exports=l},8306:(e,i,t)=>{var a=t(3369),n="Expected a function";function o(l,h){if(typeof l!="function"||h!=null&&typeof h!="function")throw new TypeError(n);var c=function(){var m=arguments,v=h?h.apply(this,m):m[0],x=c.cache;if(x.has(v))return x.get(v);var y=l.apply(this,m);return c.cache=x.set(v,y)||x,y};return c.cache=new(o.Cache||a),c}o.Cache=a,e.exports=o},308:e=>{function i(){}e.exports=i},9601:(e,i,t)=>{var a=t(371),n=t(9152),o=t(5403),l=t(327);function h(c){return o(c)?a(l(c)):n(c)}e.exports=h},479:e=>{function i(){return[]}e.exports=i},5062:e=>{function i(){return!1}e.exports=i},8601:(e,i,t)=>{var a=t(4841),n=1/0,o=17976931348623157e292;function l(h){if(!h)return h===0?h:0;if(h=a(h),h===n||h===-n){var c=h<0?-1:1;return c*o}return h===h?h:0}e.exports=l},554:(e,i,t)=>{var a=t(8601);function n(o){var l=a(o),h=l%1;return l===l?h?l-h:l:0}e.exports=n},4841:(e,i,t)=>{var a=t(7561),n=t(3218),o=t(3448),l=NaN,h=/^[-+]0x[0-9a-f]+$/i,c=/^0b[01]+$/i,m=/^0o[0-7]+$/i,v=parseInt;function x(y){if(typeof y=="number")return y;if(o(y))return l;if(n(y)){var S=typeof y.valueOf=="function"?y.valueOf():y;y=n(S)?S+"":S}if(typeof y!="string")return y===0?y:+y;y=a(y);var A=c.test(y);return A||m.test(y)?v(y.slice(2),A?2:8):h.test(y)?l:+y}e.exports=x},9833:(e,i,t)=>{var a=t(531);function n(o){return o==null?"":a(o)}e.exports=n},4908:(e,i,t)=>{var a=t(5652);function n(o){return o&&o.length?a(o):[]}e.exports=n},2569:(e,i,t)=>{var a=t(731),n=t(5976),o=t(9246),l=n(function(h,c){return o(h)?a(h,c):[]});e.exports=l}},p={};function u(e){var i=p[e];if(i!==void 0)return i.exports;var t=p[e]={id:e,loaded:!1,exports:{}};return s[e](t,t.exports,u),t.loaded=!0,t.exports}u.n=e=>{var i=e&&e.__esModule?()=>e.default:()=>e;return u.d(i,{a:i}),i},u.d=(e,i)=>{for(var t in i)u.o(i,t)&&!u.o(e,t)&&Object.defineProperty(e,t,{enumerable:!0,get:i[t]})},u.g=function(){if(typeof globalThis=="object")return globalThis;try{return this||new Function("return this")()}catch{if(typeof window=="object")return window}}(),u.o=(e,i)=>Object.prototype.hasOwnProperty.call(e,i),u.r=e=>{typeof Symbol<"u"&&Symbol.toStringTag&&Object.defineProperty(e,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(e,"__esModule",{value:!0})},u.nmd=e=>(e.paths=[],e.children||(e.children=[]),e);var g={};return(()=>{"use strict";u.r(g),u.d(g,{chordParserFactory:()=>Er,chordRendererFactory:()=>gi});function e(r,f){return r.reduce(function(d,b){return d?b(d):null},f)}var i=u(361),t=u.n(i),a=function(f){if(!Array.isArray(f))throw new TypeError("customFilters should be given as an array");if(f.some(function(d){return typeof d!="function"}))throw new TypeError("The given filter is not a function");return!0};let n=a;function o(r,f){var d=Object.keys(r);if(Object.getOwnPropertySymbols){var b=Object.getOwnPropertySymbols(r);f&&(b=b.filter(function(C){return Object.getOwnPropertyDescriptor(r,C).enumerable})),d.push.apply(d,b)}return d}function l(r){for(var f=1;f<arguments.length;f++){var d=arguments[f]!=null?arguments[f]:{};f%2?o(Object(d),!0).forEach(function(b){h(r,b,d[b])}):Object.getOwnPropertyDescriptors?Object.defineProperties(r,Object.getOwnPropertyDescriptors(d)):o(Object(d)).forEach(function(b){Object.defineProperty(r,b,Object.getOwnPropertyDescriptor(d,b))})}return r}function h(r,f,d){return f in r?Object.defineProperty(r,f,{value:d,enumerable:!0,configurable:!0,writable:!0}):r[f]=d,r}var c={AFlat:"Ab",A:"A",ASharp:"A#",BFlat:"Bb",B:"B",C:"C",CSharp:"C#",DFlat:"Db",D:"D",DSharp:"D#",EFlat:"Eb",E:"E",F:"F",FSharp:"F#",GFlat:"Gb",G:"G",GSharp:"G#"},m={Ab:c.AFlat,A:c.A,"A#":c.ASharp,Bb:c.BFlat,B:c.B,"B#":c.C,Cb:c.B,C:c.C,"C#":c.CSharp,Db:c.DFlat,D:c.D,"D#":c.DSharp,Eb:c.EFlat,E:c.E,"E#":c.F,Fb:c.E,F:c.F,"F#":c.FSharp,Gb:c.GFlat,G:c.G,"G#":c.GSharp},v={Lab:c.AFlat,La:c.A,"La#":c.ASharp,Sib:c.BFlat,Si:c.B,"Si#":c.C,Dob:c.B,Do:c.C,"Do#":c.CSharp,Reb:c.DFlat,R\u00E9b:c.DFlat,Re:c.D,R\u00E9:c.D,"Re#":c.DSharp,"R\xE9#":c.DSharp,Mib:c.EFlat,Mi:c.E,"Mi#":c.F,Fab:c.E,Fa:c.F,"Fa#":c.FSharp,Solb:c.GFlat,Sol:c.G,"Sol#":c.GSharp},x={As:c.AFlat,A:c.A,Ais:c.ASharp,Hes:c.BFlat,H:c.B,His:c.C,Ces:c.B,C:c.C,Cis:c.CSharp,Des:c.DFlat,D:c.D,Dis:c.DSharp,Es:c.EFlat,E:c.E,Eis:c.F,Fes:c.E,F:c.F,Fis:c.FSharp,Ges:c.GFlat,G:c.G,Gis:c.GSharp};function y(r){var f;return Object.keys(r).reduce(function(d,b){return b.match(/.[b|#]$/)&&(f=b.replace("#","\u266F").replace("b","\u266D"),d[f]=r[b]),d},{})}var S=l(l({},m),y(m)),A=l(l({},v),y(v)),j=l({},x),E=l(l(l({},S),A),j),_=Object.keys(E).sort(function(r,f){return f.length-r.length}),F=Object.keys(S).sort(function(r,f){return f.length-r.length}),I=Object.keys(A).sort(function(r,f){return f.length-r.length}),z=Object.keys(j).sort(function(r,f){return f.length-r.length}),M=[{name:"english",notes:F},{name:"german",notes:z},{name:"latin",notes:I}];function H(r){"@babel/helpers - typeof";return H=typeof Symbol=="function"&&typeof Symbol.iterator=="symbol"?function(f){return typeof f}:function(f){return f&&typeof Symbol=="function"&&f.constructor===Symbol&&f!==Symbol.prototype?"symbol":typeof f},H(r)}function L(r,f){for(var d=0;d<f.length;d++){var b=f[d];b.enumerable=b.enumerable||!1,b.configurable=!0,"value"in b&&(b.writable=!0),Object.defineProperty(r,b.key,b)}}function X(r,f,d){return f&&L(r.prototype,f),d&&L(r,d),Object.defineProperty(r,"prototype",{writable:!1}),r}function $(r,f){if(!(r instanceof f))throw new TypeError("Cannot call a class as a function")}function U(r,f){if(typeof f!="function"&&f!==null)throw new TypeError("Super expression must either be null or a function");r.prototype=Object.create(f&&f.prototype,{constructor:{value:r,writable:!0,configurable:!0}}),Object.defineProperty(r,"prototype",{writable:!1}),f&&O(r,f)}function Q(r){var f=ot();return function(){var b=D(r),C;if(f){var R=D(this).constructor;C=Reflect.construct(b,arguments,R)}else C=b.apply(this,arguments);return V(this,C)}}function V(r,f){if(f&&(H(f)==="object"||typeof f=="function"))return f;if(f!==void 0)throw new TypeError("Derived constructors may only return object or undefined");return st(r)}function st(r){if(r===void 0)throw new ReferenceError("this hasn't been initialised - super() hasn't been called");return r}function G(r){var f=typeof Map=="function"?new Map:void 0;return G=function(b){if(b===null||!P(b))return b;if(typeof b!="function")throw new TypeError("Super expression must either be null or a function");if(typeof f<"u"){if(f.has(b))return f.get(b);f.set(b,C)}function C(){return q(b,arguments,D(this).constructor)}return C.prototype=Object.create(b.prototype,{constructor:{value:C,enumerable:!1,writable:!0,configurable:!0}}),O(C,b)},G(r)}function q(r,f,d){return ot()?q=Reflect.construct:q=function(C,R,B){var J=[null];J.push.apply(J,R);var dt=Function.bind.apply(C,J),Ft=new dt;return B&&O(Ft,B.prototype),Ft},q.apply(null,arguments)}function ot(){if(typeof Reflect>"u"||!Reflect.construct||Reflect.construct.sham)return!1;if(typeof Proxy=="function")return!0;try{return Boolean.prototype.valueOf.call(Reflect.construct(Boolean,[],function(){})),!0}catch{return!1}}function P(r){return Function.toString.call(r).indexOf("[native code]")!==-1}function O(r,f){return O=Object.setPrototypeOf||function(b,C){return b.__proto__=C,b},O(r,f)}function D(r){return D=Object.setPrototypeOf?Object.getPrototypeOf:function(d){return d.__proto__||Object.getPrototypeOf(d)},D(r)}var Y=function(r){U(d,r);var f=Q(d);function d(){var b;return $(this,d),b=f.call(this,"The given symbol is not a valid string"),b.name="InvalidInput",b}return X(d)}(G(Error)),at=function(r){U(d,r);var f=Q(d);function d(){var b;$(this,d);var C="An unexpected error happened. Maybe a custom filter returned null instead of throwing an exception?";return b=f.call(this,C),b.name="UnexpectedError",b}return X(d)}(G(Error)),et=function(r){U(d,r);var f=Q(d);function d(b,C,R){var B;return $(this,d),B=f.call(this,b),B.name=R,B.chord=C,B}return X(d)}(G(Error)),mt=function(r){U(d,r);var f=Q(d);function d(b){$(this,d);var C='"'.concat(b.input.symbol,'" does not seems to be a chord');return f.call(this,C,b,"NoSymbolFound")}return X(d)}(et),Tt=function(r){U(d,r);var f=Q(d);function d(b,C){$(this,d);var R='The chord descriptor "'.concat(b.input.descriptor,'" contains unknown or duplicated modifiers: "').concat(C,'"');return f.call(this,R,b,"InvalidModifier")}return X(d)}(et),Mt=function(r){U(d,r);var f=Q(d);function d(b,C){$(this,d);var R='"'.concat(b.input.symbol,'" describes a chord with an invalid intervals combo: ')+C.join(" and ");return f.call(this,R,b,"InvalidIntervals")}return X(d)}(et),Ut=u(1469),Ht=u.n(Ut),Kt=u(8446),re=u.n(Kt);function wt(r,f){var d=Ht()(f)?f:[f];return re()(r,d)}function W(r,f){return Xt(r,f,"oneOf")}function Wt(r,f){return Xt(r,f,"all")}function xt(r,f){return Xt(r,f,"none")}function Xt(r,f,d){var b=Ht()(f)?f:[f],C=d==="oneOf"?"some":"every";return b[C](function(R){return d==="none"?!r.includes(R):r.includes(R)})}var ne=[["2","3"],["2","9"],["3","b3"],["4","11"],["5","b5"],["5","#5"],["b6","#5"],["b6","6"],["b6","13"],["6","13"],["b7","bb7"],["7","b7"],["9","b9"],["9","#9"],["11","#11"],["13","b13"]];function he(r){var f=r.normalized.intervals,d=ne.find(function(b){return Wt(f,b)});if(d)throw new Mt(r,d);return r}function Vt(r){var f=r.formatted,d=f.rootNote,b=f.bassNote,C=f.descriptor,R=f.chordChanges,B=d;return C&&(B+=C),R&&R.length&&(B+="("+R.join(",")+")"),b&&(B+="/"+b),r.formatted.symbol=B,r}var T={ma:"major",ma6:"major6",ma7:"major7",dom7:"dominant7",mi:"minor",mi6:"minor6",mi7:"minor7",miMa7:"minorMajor7",aug:"augmented",dim:"diminished",dim7:"diminished7",power:"power",bass:"bass"},ft=[T.ma,T.ma6,T.ma7,T.dom7,T.aug],K=[T.mi,T.mi6,T.mi7,T.miMa7,T.dim,T.dim7],Z;function St(r){return ut(r)||At(r)||jt(r)||de()}function de(){throw new TypeError(`Invalid attempt to spread non-iterable instance.
-In order to be iterable, non-array objects must have a [Symbol.iterator]() method.`)}function jt(r,f){if(r){if(typeof r=="string")return It(r,f);var d=Object.prototype.toString.call(r).slice(8,-1);if(d==="Object"&&r.constructor&&(d=r.constructor.name),d==="Map"||d==="Set")return Array.from(r);if(d==="Arguments"||/^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(d))return It(r,f)}}function At(r){if(typeof Symbol<"u"&&r[Symbol.iterator]!=null||r["@@iterator"]!=null)return Array.from(r)}function ut(r){if(Array.isArray(r))return It(r)}function It(r,f){(f==null||f>r.length)&&(f=r.length);for(var d=0,b=new Array(f);d<f;d++)b[d]=r[d];return b}function rt(r,f,d){return f in r?Object.defineProperty(r,f,{value:d,enumerable:!0,configurable:!0,writable:!0}):r[f]=d,r}var ae=(Z={},rt(Z,T.ma,function(){return""}),rt(Z,T.ma6,function(r){return r.normalized.intervals.includes("9")?"69":"6"}),rt(Z,T.ma7,function(r){return"ma"+zt(r)}),rt(Z,T.dom7,function(r){return r.normalized.intents.alt?"7alt":zt(r)}),rt(Z,T.mi,function(){return"mi"}),rt(Z,T.mi6,function(r){return r.normalized.intervals.includes("9")?"mi69":"mi6"}),rt(Z,T.mi7,function(r){return"mi"+zt(r)}),rt(Z,T.miMa7,function(r){return"miMa"+zt(r)}),rt(Z,T.aug,function(){return"+"}),rt(Z,T.dim,function(){return"dim"}),rt(Z,T.dim7,function(){return"dim7"}),rt(Z,T.power,function(){return"5"}),rt(Z,T.bass,function(){return" bass"}),Z),Dt={add:"add",add7:"Ma7",omit:"omit",sus:"sus"};function Ct(r){return r.formatted={rootNote:r.normalized.rootNote,bassNote:r.normalized.bassNote,descriptor:ie(r),chordChanges:me(r)},r}function ie(r){var f=ae[r.normalized.quality](r);return r.normalized.isSuspended&&(f+=Dt.sus),f}function zt(r){var f=r.normalized.extensions,d=f[f.length-1];return d==="11"&&r.normalized.intents.major&&(d=xt(r.normalized.alterations,["b9","#9"])?"9":"7"),d||"7"}function me(r){var f=Et(r.normalized.omits);if(se(r))return f;var d=gt(r.normalized.quality,r.normalized.adds);return[].concat(St(r.normalized.alterations),St(d),St(f))}function se(r){return r.normalized.intents.alt&&r.normalized.quality===T.dom7}function gt(r,f){return f.filter(function(d){return!([T.ma6,T.mi6].includes(r)&&d==="9")}).map(function(d,b){var C="";return b===0&&(C+=Dt.add,["b","#"].includes(d[0])&&(C+=" ")),C+=d==="7"?Dt.add7:d,C})}function Et(r){return r.map(function(f,d){var b="";return d===0&&(b+=Dt.omit),b+=f==="b3"?"3":f,b})}function Ue(r){var f=[He,lt,Yt,ge];return r.input.descriptor&&(r.input.parsableDescriptor=e(f,r.input.descriptor)),r}function He(r){return r.replace(/[A-LN-Za-z]+/g,function(f){return f.toLowerCase()}).replace("oMit","omit").replace("diM","dim").replace("augMented","augmented")}function lt(r){return r.replace(/ /g,"")}function Yt(r){return r.replace(/(7?dim)(alt|add)/g,"$1 $2").replace(/([m|M])(alt|add)/g,"$1 $2").replace(/i(no[35])/g,"i $1").replace(/([b♭#♯]9)6/g,"$1 6").replace(/(9\/?6)/g," $1")}function ge(r){var f,d,b;return r.replace(/\((.*?)\)/g,function(C,R){return f=[],d="",R.split(",").forEach(function(B){b=!0,B.startsWith("add")?d="add":B.startsWith("omit")?d="omit":B.startsWith("no")?d="no":b=!1,b?f.push(B):f.push(d+B)})," "+f.join(" ")+" "})}function Zt(){var r=arguments.length>0&&arguments[0]!==void 0?arguments[0]:{},f=arguments.length>1?arguments[1]:void 0;return{input:{symbol:f},normalized:{},formatted:{},parserConfiguration:t()(r)}}var nt;function Qt(r){return Mn(r)||je(r)||ve(r)||Ke()}function Ke(){throw new TypeError(`Invalid attempt to spread non-iterable instance.
-In order to be iterable, non-array objects must have a [Symbol.iterator]() method.`)}function ve(r,f){if(r){if(typeof r=="string")return We(r,f);var d=Object.prototype.toString.call(r).slice(8,-1);if(d==="Object"&&r.constructor&&(d=r.constructor.name),d==="Map"||d==="Set")return Array.from(r);if(d==="Arguments"||/^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(d))return We(r,f)}}function je(r){if(typeof Symbol<"u"&&r[Symbol.iterator]!=null||r["@@iterator"]!=null)return Array.from(r)}function Mn(r){if(Array.isArray(r))return We(r)}function We(r,f){(f==null||f>r.length)&&(f=r.length);for(var d=0,b=new Array(f);d<f;d++)b[d]=r[d];return b}function ct(r,f,d){return f in r?Object.defineProperty(r,f,{value:d,enumerable:!0,configurable:!0,writable:!0}):r[f]=d,r}var zn=[c.A,c.ASharp,c.B,c.C,c.CSharp,c.D,c.DSharp,c.E,c.F,c.FSharp,c.G,c.GSharp],Ln=[c.A,c.BFlat,c.B,c.C,c.DFlat,c.D,c.EFlat,c.E,c.F,c.GFlat,c.G,c.AFlat],Gn=(nt={},ct(nt,c.C,{maj:"flat",min:"flat"}),ct(nt,c.CSharp,{maj:"sharp",min:"sharp"}),ct(nt,c.DFlat,{maj:"flat",min:"flat"}),ct(nt,c.D,{maj:"sharp",min:"flat"}),ct(nt,c.DSharp,{maj:"sharp",min:"sharp"}),ct(nt,c.EFlat,{maj:"flat",min:"flat"}),ct(nt,c.E,{maj:"sharp",min:"sharp"}),ct(nt,c.F,{maj:"flat",min:"flat"}),ct(nt,c.FSharp,{maj:"sharp",min:"sharp"}),ct(nt,c.GFlat,{maj:"flat",min:"flat"}),ct(nt,c.G,{maj:"sharp",min:"flat"}),ct(nt,c.GSharp,{maj:"sharp",min:"sharp"}),ct(nt,c.AFlat,{maj:"flat",min:"flat"}),ct(nt,c.A,{maj:"sharp",min:"flat"}),ct(nt,c.ASharp,{maj:"sharp",min:"sharp"}),ct(nt,c.BFlat,{maj:"flat",min:"flat"}),ct(nt,c.B,{maj:"sharp",min:"sharp"}),nt);function Xe(r){var f=r.normalized.rootNote,d=r.normalized.semitones,b=r.normalized.quality,C=ft.includes(b)?"maj":"min",R=Gn[f][C]==="sharp"?zn:Ln,B=R.indexOf(f),J=[].concat(Qt(R.slice(B)),Qt(R.slice(0,B)),Qt(R.slice(B)),Qt(R.slice(0,B))),dt=d.map(function(Ft){return J[Ft]});return r.normalized.notes=dt,r}function Bn(r){return r.normalized.rootNote=E[r.input.rootNote],r.input.bassNote&&(r.normalized.bassNote=E[r.input.bassNote]),r}var $n=u(6678),Ve=u.n($n),Un=u(3311),Hn=u.n(Un),Kn=u(4908),mr=u.n(Kn),Wn=u(2569),gr=u.n(Wn);function vr(r,f){var d=Object.keys(r);if(Object.getOwnPropertySymbols){var b=Object.getOwnPropertySymbols(r);f&&(b=b.filter(function(C){return Object.getOwnPropertyDescriptor(r,C).enumerable})),d.push.apply(d,b)}return d}function oe(r){for(var f=1;f<arguments.length;f++){var d=arguments[f]!=null?arguments[f]:{};f%2?vr(Object(d),!0).forEach(function(b){Ot(r,b,d[b])}):Object.getOwnPropertyDescriptors?Object.defineProperties(r,Object.getOwnPropertyDescriptors(d)):vr(Object(d)).forEach(function(b){Object.defineProperty(r,b,Object.getOwnPropertyDescriptor(d,b))})}return r}function Ot(r,f,d){return f in r?Object.defineProperty(r,f,{value:d,enumerable:!0,configurable:!0,writable:!0}):r[f]=d,r}function br(r){return Zn(r)||Yn(r)||Vn(r)||Xn()}function Xn(){throw new TypeError(`Invalid attempt to spread non-iterable instance.
-In order to be iterable, non-array objects must have a [Symbol.iterator]() method.`)}function Vn(r,f){if(r){if(typeof r=="string")return Ye(r,f);var d=Object.prototype.toString.call(r).slice(8,-1);if(d==="Object"&&r.constructor&&(d=r.constructor.name),d==="Map"||d==="Set")return Array.from(r);if(d==="Arguments"||/^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(d))return Ye(r,f)}}function Yn(r){if(typeof Symbol<"u"&&r[Symbol.iterator]!=null||r["@@iterator"]!=null)return Array.from(r)}function Zn(r){if(Array.isArray(r))return Ye(r)}function Ye(r,f){(f==null||f>r.length)&&(f=r.length);for(var d=0,b=new Array(f);d<f;d++)b[d]=r[d];return b}function yr(r){var f=Ve()(r.normalized.intervals),d={quality:"",isSuspended:!1,extensions:[],alterations:[],adds:[],omits:[]};if(Qn(f))d.quality=T.power;else if(Jn(f))d.quality=T.bass;else{var b=qn(f,r.normalized.intents.major),C=kn(f,r.normalized.intents.major),R=ta(f,r,C,b),B=R.qualityIntervals,J=R.quality,dt=ia(f,J),Ft=["1"].concat(br(B),br(dt)),Jt=fa(f,Ft,J),Pt=Jt.adds,be=Jt.alterations;d=oe(oe({},d),{},{quality:J,isSuspended:C,extensions:dt,alterations:be,adds:Pt,omits:b})}return oe(oe({},r),{},{normalized:oe(oe({},r.normalized),d)})}function Qn(r){return wt(r,["1","5"])}function Jn(r){return wt(r,["1"])}function kn(r,f){return r.includes("4")||r.includes("11")&&f&&!r.includes("3")}function qn(r,f){var d=[];return(xt(r,["b3","3","4","11"])||!f&&xt(r,["b3","4"]))&&d.push(f?"3":"b3"),xt(r,["b5","5","#5","b13"])&&d.push("5"),d}function ta(r,f,d,b){var C=ea(r,f,d,b),R=[{qualityIntervals:["b3"],quality:T.mi},{qualityIntervals:["b3","6"],quality:T.mi6},{qualityIntervals:["b3","7"],quality:T.miMa7},{qualityIntervals:["b3","b7"],quality:T.mi7},{qualityIntervals:["3"],quality:T.ma},{qualityIntervals:["3","6"],quality:T.ma6},{qualityIntervals:["3","7"],quality:T.ma7},{qualityIntervals:["3","b7"],quality:T.dom7},{qualityIntervals:["3","#5"],quality:T.aug},{qualityIntervals:["b3","b5"],quality:T.dim},{qualityIntervals:["b3","b5","bb7"],quality:T.dim7}].sort(function(B,J){return J.qualityIntervals.length-B.qualityIntervals.length});return Hn()(R,function(B){return Wt(C,B.qualityIntervals)})}function ea(r,f,d,b){var C=[ra.bind(null,b),na.bind(null,d,f.normalized.intents.major),aa.bind(null,f.normalized.intents.alt),mr()];return e(C,Ve()(r))}function ra(r,f){var d=Ve()(f);return r.includes("3")?d.push("3"):r.includes("b3")&&d.push("b3"),d}function na(r,f,d){if(r){var b=gr()(d,"4");return b.push(f?"3":"b3"),b}return d}function aa(r,f){if(r){var d=gr()(f,"b5","#5");return d.push("5"),d}return f}function ia(r,f){var d=[];return sa(f)&&(oa(r,f)?d.push("9","11","13"):ua(r,f)?d.push("9","13"):ca(r)?d.push("9","11"):la(r)&&d.push("9")),d}function sa(r){return[T.ma7,T.dom7,T.mi7,T.miMa7].includes(r)}function xr(r){return[T.mi7,T.miMa7].includes(r)}function oa(r,f){return xr(f)&&W(r,"13")&&W(r,["11","#11"])&&W(r,["b9","9","#9"])}function ua(r,f){return!xr(f)&&W(r,"13")&&W(r,["b9","9","#9"])}function ca(r){return W(r,"11")&&W(r,["b9","9","#9"])}function la(r){return r.includes("9")}function fa(r,f,d){var b=[],C=[];return r.filter(function(R){return R!=="5"&&R!=="4"}).forEach(function(R){f.includes(R)||(pa(d,R)?C.push(R):b.push(R))}),ha(r)&&b.push("3"),{adds:Sr(b),alterations:Sr(C)}}function pa(r,f){var d,b=(d={},Ot(d,T.ma,["b5","#5","#11","b13"]),Ot(d,T.ma6,["b5","#5","#11","b13"]),Ot(d,T.ma7,["b5","#5","#11","b13"]),Ot(d,T.dom7,["b5","#5","b9","#9","#11","b13"]),Ot(d,T.mi,["b5","#5","#11","b13"]),Ot(d,T.mi6,["b5","#5","#11","b13"]),Ot(d,T.mi7,["b5","#5","#11","b13"]),Ot(d,T.miMa7,["b5","#5","#11","b13"]),Ot(d,T.aug,[]),Ot(d,T.dim,[]),Ot(d,T.dim7,[]),d);return b[r].includes(f)}function ha(r){return Wt(r,["3","4"])}function Sr(r){return r.sort(function(f,d){var b=Number.parseInt(f.replace(/[b#]/,"")),C=Number.parseInt(d.replace(/[b#]/,""));return b-C})}function da(r,f){var d=f.input.symbol,b=r.join("|"),C=new RegExp("^("+b+")(.*?)(/("+b+"))?$"),R=d.match(C);if(R&&R[1])return f.input.rootNote=R[1],R[2]&&(f.input.descriptor=R[2]),R[4]&&(f.input.bassNote=R[4]),f;throw new mt(f)}function Ar(r,f){var d=Object.keys(r);if(Object.getOwnPropertySymbols){var b=Object.getOwnPropertySymbols(r);f&&(b=b.filter(function(C){return Object.getOwnPropertyDescriptor(r,C).enumerable})),d.push.apply(d,b)}return d}function Ce(r){for(var f=1;f<arguments.length;f++){var d=arguments[f]!=null?arguments[f]:{};f%2?Ar(Object(d),!0).forEach(function(b){ma(r,b,d[b])}):Object.getOwnPropertyDescriptors?Object.defineProperties(r,Object.getOwnPropertyDescriptors(d)):Ar(Object(d)).forEach(function(b){Object.defineProperty(r,b,Object.getOwnPropertyDescriptor(d,b))})}return r}function ma(r,f,d){return f in r?Object.defineProperty(r,f,{value:d,enumerable:!0,configurable:!0,writable:!0}):r[f]=d,r}var w={ma:"ma",mi:"mi",dim:"dim",halfDim:"halfDim",aug:"aug",seventh:"seventh",sus:"sus",sus2:"sus2",ninth:"ninth",eleventh:"eleventh",thirteenth:"thirteenth",fifthFlat:"b5",fifthSharp:"#5",ninthFlat:"b9",ninthSharp:"#9",eleventhSharp:"#11",thirteenthFlat:"b13",add3:"add3",add4:"add4",addb6:"addb6",add6:"add6",add69:"add69",add7:"add7",add9:"add9",add11:"add11",add13:"add13",bass:"bass",omit3:"omit3",omit5:"omit5",power:"power",alt:"alt"},Ze={"^":[w.ma,w.add7],\u0394:[w.ma,w.add7],M:w.ma,Ma:w.ma,Maj:w.ma,Major:w.ma,ma:w.ma,maj:w.ma,major:w.ma},ga=Tr(Ze,w.add7,function(r){return r+"7"}),va=Tr(Ze,w.add7,function(r){return"add"+r+"7"}),Or=Ce(Ce(Ce(Ce({},Ze),ga),{},{"-":w.mi,m:w.mi,Mi:w.mi,Min:w.mi,Minor:w.mi,mi:w.mi,min:w.mi,minor:w.mi,"\xB0":w.dim,o:w.dim,0:w.dim,dim:w.dim,"dim.":w.dim,diminished:w.dim,\u00D8:w.halfDim,\u00F8:w.halfDim,h:w.halfDim,"+":w.aug,aug:w.aug,augmented:w.aug,7:w.seventh,4:w.sus,sus:w.sus,sus4:w.sus,suspended:w.sus,suspended4:w.sus,sus2:w.sus2,suspended2:w.sus2,9:w.ninth,11:w.eleventh,13:w.thirteenth,b3:w.mi,b5:w.fifthFlat,"\u266D5":w.fifthFlat,"#5":w.fifthSharp,"\u266F5":w.fifthSharp,b9:w.ninthFlat,"\u266D9":w.ninthFlat,addb9:w.ninthFlat,"add\u266D9":w.ninthFlat,"#9":w.ninthSharp,"\u266F9":w.ninthSharp,"add#9":w.ninthSharp,"add\u266F9":w.ninthSharp,"#11":w.eleventhSharp,"\u266F11":w.eleventhSharp,"add#11":w.eleventhSharp,b13:w.thirteenthFlat,"\u266D13":w.thirteenthFlat,addb13:w.thirteenthFlat,"add\u266D13":w.thirteenthFlat},va),{},{2:w.add9,add2:w.add9,add3:w.add3,add4:w.add4,addb6:w.addb6,b6:w.addb6,6:w.add6,add6:w.add6,"6/9":w.add69,69:w.add69,96:w.add69,"9/6":w.add69,add9:w.add9,add11:w.add11,add13:w.add13,bass:w.bass,omit3:w.omit3,no3:w.omit3,omit5:w.omit5,no5:w.omit5,5:w.power,alt:w.alt,"alt.":w.alt,altered:w.alt});function Tr(r,f,d){return Object.keys(r).map(d).reduce(function(b,C){return b[C]=f,b},{})}var ba=Object.keys(Or).sort(function(r,f){return f.length-r.length});let N=w,Ee={1:0,2:2,b3:3,3:4,4:5,b5:6,5:7,"#5":8,b6:8,6:9,bb7:9,b7:10,7:11,b9:13,9:14,"#9":15,11:17,"#11":18,b13:20,13:21};function Gt(r){return Aa(r)||Sa(r)||xa(r)||ya()}function ya(){throw new TypeError(`Invalid attempt to spread non-iterable instance.
-In order to be iterable, non-array objects must have a [Symbol.iterator]() method.`)}function xa(r,f){if(r){if(typeof r=="string")return Qe(r,f);var d=Object.prototype.toString.call(r).slice(8,-1);if(d==="Object"&&r.constructor&&(d=r.constructor.name),d==="Map"||d==="Set")return Array.from(r);if(d==="Arguments"||/^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(d))return Qe(r,f)}}function Sa(r){if(typeof Symbol<"u"&&r[Symbol.iterator]!=null||r["@@iterator"]!=null)return Array.from(r)}function Aa(r){if(Array.isArray(r))return Qe(r)}function Qe(r,f){(f==null||f>r.length)&&(f=r.length);for(var d=0,b=new Array(f);d<f;d++)b[d]=r[d];return b}function Oa(r,f){var d=[];return f.input.parsableDescriptor&&(d=Ta(f)),f.input.modifiers=d,f.normalized.intervals=wa(d,r),f.normalized.semitones=_a(f.normalized.intervals),f.normalized.intents=Ma(d),f}function Ta(r){var f=r.input.parsableDescriptor,d=[],b=new RegExp(ba.map(Ra).join("|"),"g"),C=f.match(b),R=f,B;if(C&&C.forEach(function(J){B=Or[J],Array.isArray(B)||(B=[B]),B.forEach(function(dt){d.includes(dt)||(d.push(dt),R=R.replace(J,""))})}),d.length===0)throw new mt(r);if(R.trim().length>0)throw new Tt(r,R);return d}function wa(r,f){return r.includes(N.power)?["1","5"]:r.includes(N.bass)?["1"]:mr()(["1"].concat(Gt(ja(r)),Gt(Ca(r)),Gt(Ea(r,f)),Gt(Fa(r)),Gt(Ia(r)),Gt(Da(r,f)),Gt(Pa(r,f)),Gt(Na(r,f)))).sort(function(d,b){return Ee[d]-Ee[b]})}function ja(r){var f=[];return r.includes(N.omit3)?[]:(W(r,[N.sus,N.sus2])||(Je(r)?r.includes(N.eleventh)||f.push("3"):f.push("b3")),r.includes(N.add3)&&f.push("3"),f)}function Ca(r){var f=[];return W(r,[N.sus,N.add4])&&f.push("4"),f}function Ea(r,f){var d=[];return r.includes(N.omit5)?[]:((W(r,[N.dim,N.halfDim,N.fifthFlat])||ue(r,f,"b5"))&&d.push("b5"),(W(r,[N.aug,N.fifthSharp])||ue(r,f,"#5"))&&d.push("#5"),!d.length&&!r.includes(N.thirteenthFlat)&&d.push("5"),d)}function Fa(r){var f=[];return W(r,[N.addb6])&&f.push("b6"),W(r,[N.add6,N.add69])&&!jr(r)&&!W(r,[N.halfDim])&&f.push("6"),f}function Ia(r){var f=[];return W(r,[N.alt])&&f.push("b7"),W(r,[N.seventh,N.halfDim])?r.includes(N.dim)?f.push("bb7"):r.includes(N.halfDim)?f.push("b7"):f.push(wr(r)):W(r,[N.ninth,N.eleventh,N.thirteenth])&&f.push(wr(r)),r.includes(N.add7)&&f.push("7"),f}function wr(r){return r.includes(N.ma)?"7":"b7"}function Da(r,f){var d=[];return W(r,[N.add69,N.ninth,N.eleventh,N.thirteenth])&&xt(r,[N.ninthFlat,N.ninthSharp])&&d.push("9"),W(r,[N.sus2,N.add9])&&d.push("9"),(W(r,[N.ninthFlat])||ue(r,f,"b9"))&&d.push("b9"),(W(r,[N.ninthSharp])||ue(r,f,"#9"))&&d.push("#9"),d}function Pa(r,f){var d=[];return(W(r,[N.thirteenth])&&!Je(r)||W(r,[N.eleventh,N.add11]))&&d.push("11"),(W(r,[N.eleventhSharp])||ue(r,f,"#11"))&&d.push("#11"),d}function Na(r,f){var d=[];return(W(r,[N.add13,N.thirteenth])||W(r,[N.add6,N.add69])&&jr(r)||W(r,[N.add6,N.add69])&&W(r,[N.halfDim]))&&d.push("13"),(W(r,[N.thirteenthFlat])||ue(r,f,"b13"))&&d.push("b13"),d}function ue(r,f,d){return r.includes(N.alt)&&f.includes(d)}function Je(r){return xt(r,[N.mi,N.dim,N.dim7,N.halfDim])}function jr(r){return W(r,[N.seventh,N.ninth,N.eleventh,N.thirteenth])}function Ra(r){return r.replace(/[.\-*+?^${}()|[\]\\]/g,"\\$&")}function _a(r){return r.map(function(f){return Ee[f]}).sort(function(f,d){return f-d})}function Ma(r){return{major:Je(r),eleventh:r.includes(N.eleventh),alt:r.includes(N.alt)}}function za(r){return $a(r)||Ba(r)||Ga(r)||La()}function La(){throw new TypeError(`Invalid attempt to spread non-iterable instance.
-In order to be iterable, non-array objects must have a [Symbol.iterator]() method.`)}function Ga(r,f){if(r){if(typeof r=="string")return ke(r,f);var d=Object.prototype.toString.call(r).slice(8,-1);if(d==="Object"&&r.constructor&&(d=r.constructor.name),d==="Map"||d==="Set")return Array.from(r);if(d==="Arguments"||/^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(d))return ke(r,f)}}function Ba(r){if(typeof Symbol<"u"&&r[Symbol.iterator]!=null||r["@@iterator"]!=null)return Array.from(r)}function $a(r){if(Array.isArray(r))return ke(r)}function ke(r,f){(f==null||f>r.length)&&(f=r.length);for(var d=0,b=new Array(f);d<f;d++)b[d]=r[d];return b}function Ua(){var r=arguments.length>0&&arguments[0]!==void 0?arguments[0]:{},f=["b5","#5","b9","#9","#11","b13"],d=["english","german","latin"],b=r.notationSystems,C=b===void 0?t()(d):b,R=r.altIntervals,B=R===void 0?t()(f):R,J=r.customFilters,dt=J===void 0?[]:J;return Ha(B,f),Ka(C,d),n(dt),Ft;function Ft(Jt){var Pt=[];if(!Wa(Jt)){var be=new Y;Pt.push(qe(be))}var ye=t()(M).filter(function(Nt){return C.includes(Nt.name)}),Bt,xe,$t;if(!Pt.length)for(;ye.length&&!Bt;){$t=ye.shift(),xe=[Zt.bind(null,r),da.bind(null,$t.notes),Ue,Oa.bind(null,B),he,Bn,yr,Ct,Vt,Xe].concat(za(dt));try{Bt=e(xe,Jt),Bt?Bt.input.notationSystem=$t.name:Pt.push(Xa($t.name))}catch(Nt){Pt.push(qe(Nt,$t.name))}}return Bt||{error:Pt}}}function Ha(r,f){Cr("altIntervals",r,f,!0)}function Ka(r,f){Cr("notationSystems",r,f)}function Cr(r,f,d,b){if(!Array.isArray(f))throw new TypeError("'".concat(r,"' should be an array"));if(!b&&f.length===0)throw new TypeError("'".concat(r,"' cannot be empty"));f.forEach(function(C){if(!d.includes(C))throw new TypeError("'".concat(C,"' is not a valid value for ").concat(r))})}function Wa(r){return typeof r=="string"&&r.length>0}function Xa(r){var f=new at;return qe(f,r)}function qe(r,f){return{type:r.name,chord:r.chord,message:r.message,notationSystem:f}}let Er=Ua;function Fr(r,f){var d=Object.keys(r);if(Object.getOwnPropertySymbols){var b=Object.getOwnPropertySymbols(r);f&&(b=b.filter(function(C){return Object.getOwnPropertyDescriptor(r,C).enumerable})),d.push.apply(d,b)}return d}function Fe(r){for(var f=1;f<arguments.length;f++){var d=arguments[f]!=null?arguments[f]:{};f%2?Fr(Object(d),!0).forEach(function(b){Va(r,b,d[b])}):Object.getOwnPropertyDescriptors?Object.defineProperties(r,Object.getOwnPropertyDescriptors(d)):Fr(Object(d)).forEach(function(b){Object.defineProperty(r,b,Object.getOwnPropertyDescriptor(d,b))})}return r}function Va(r,f,d){return f in r?Object.defineProperty(r,f,{value:d,enumerable:!0,configurable:!0,writable:!0}):r[f]=d,r}var Lt={sus2:"sus2",add2:"2",omit:"no",ma:"M",mi:"m",dim:"\xB0",aug7:"7+",eleventh:"11"};function Ya(r){var f,d=r.formatted.chordChanges;return Za(r)?(f=Lt.sus2,d=[]):Qa(r)?(f=Lt.add2,d=[]):Ja(r)?(f=Lt.aug7,d=[]):(f=r.formatted.descriptor.replace("mi",Lt.mi).replace(/[m|M]a/,Lt.ma).replace("dim",Lt.dim),ka(r)&&(f=f.replace(/7sus|9sus/,Lt.eleventh))),d=d.map(function(b){return b.replace(/[m|M]a/,Lt.ma).replace("omit",Lt.omit)}),Fe(Fe({},r),{},{formatted:Fe(Fe({},r.formatted),{},{descriptor:f,chordChanges:d})})}function Za(r){return wt(r.normalized.intervals,["1","5","9"])}function Qa(r){return wt(r.normalized.intervals,["1","3","5","9"])}function Ja(r){return wt(r.normalized.intervals,["1","3","#5","b7"])}function ka(r){return r.normalized.intents.eleventh}var qa=u(1966),ti=u.n(qa);function ei(){var r=arguments.length>0&&arguments[0]!==void 0?arguments[0]:"none",f=arguments.length>1?arguments[1]:void 0;if(r==="none")return f;var d={max:["4","b5","#5","6","bb7","b7","7","b9","9","#9","11","#11","b13","13"],core:["4","b9","9","#9","11","#11","b13","13"]},b=ti()(f.normalized.intervals,d[r]);xt(b,["b3","3"])&&b.push(f.normalized.intents.major?"3":"b3"),xt(b,["b5","5","#5"])&&b.push("5"),f.normalized.intervals=b,f.normalized.semitones=b.map(function(R){return Ee[R]}),f.normalized.intents.eleventh=!1,f.normalized.intents.alt=!1,r==="max"&&delete f.normalized.bassNote;var C=[yr,Ct,Xe];return e(C,f)}var ri=u(3137),ni=u.n(ri),Ir=["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"],Dr={"C#":"Db","D#":"Eb","F#":"Gb","G#":"Ab","A#":"Bb"},ai=ni()(Dr);function ii(r,f,d){var b=d.normalized,C=b.rootNote,R=b.bassNote,B=Nr(C);if(d.normalized.rootNote=Pr(B,r,f),d.formatted.rootNote=d.normalized.rootNote,R){var J=Nr(R);d.normalized.bassNote=Pr(J,r,f),d.formatted.bassNote=d.normalized.bassNote}return Xe(d)}function Pr(r,f,d){var b=Ir.indexOf(r),C=b+f,R=Math.floor(C/12),B=C-R*12,J=Ir[B];return d&&Dr[J]||J}function Nr(r){return ai[r]||r}var tr={german:{Ab:"As",A:"A","A#":"Ais",Bb:"Hes",B:"H",C:"C","C#":"Cis",Db:"Des",D:"D","D#":"Dis",Eb:"Es",E:"E",F:"F","F#":"Fis",Gb:"Ges",G:"G","G#":"Gis"},latin:{Ab:"Lab",A:"La","A#":"La#",Bb:"Sib",B:"Si",C:"Do","C#":"Do#",Db:"Reb",D:"Re","D#":"Re#",Eb:"Mib",E:"Mi",F:"Fa","F#":"Fa#",Gb:"Solb",G:"Sol","G#":"Sol#"}},si=Object.keys(tr);function oi(){var r=arguments.length>0&&arguments[0]!==void 0?arguments[0]:"english",f=arguments.length>1?arguments[1]:void 0,d=r==="auto"?f.input.notationSystem:r;return d==="english"?f:si.includes(d)?(f.formatted.rootNote=tr[d][f.formatted.rootNote],f.formatted.bassNote&&(f.formatted.bassNote=tr[d][f.formatted.bassNote]),f):null}function Rr(r){return r&&r.formatted&&r.formatted.symbol?r.formatted.symbol:null}function ui(r){delete r.parserConfiguration.notationSystems;var f=t()(r),d=Rr(r),b=Er(r.parserConfiguration),C=b(d);return f.input=C.input,f}function er(r){"@babel/helpers - typeof";return er=typeof Symbol=="function"&&typeof Symbol.iterator=="symbol"?function(f){return typeof f}:function(f){return f&&typeof Symbol=="function"&&f.constructor===Symbol&&f!==Symbol.prototype?"symbol":typeof f},er(r)}function ci(r){return hi(r)||pi(r)||fi(r)||li()}function li(){throw new TypeError(`Invalid attempt to spread non-iterable instance.
-In order to be iterable, non-array objects must have a [Symbol.iterator]() method.`)}function fi(r,f){if(r){if(typeof r=="string")return rr(r,f);var d=Object.prototype.toString.call(r).slice(8,-1);if(d==="Object"&&r.constructor&&(d=r.constructor.name),d==="Map"||d==="Set")return Array.from(r);if(d==="Arguments"||/^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(d))return rr(r,f)}}function pi(r){if(typeof Symbol<"u"&&r[Symbol.iterator]!=null||r["@@iterator"]!=null)return Array.from(r)}function hi(r){if(Array.isArray(r))return rr(r)}function rr(r,f){(f==null||f>r.length)&&(f=r.length);for(var d=0,b=new Array(f);d<f;d++)b[d]=r[d];return b}function di(){var r=arguments.length>0&&arguments[0]!==void 0?arguments[0]:{},f=r.useShortNamings,d=f===void 0?!1:f,b=r.simplify,C=b===void 0?"none":b,R=r.transposeValue,B=R===void 0?0:R,J=r.harmonizeAccidentals,dt=J===void 0?!1:J,Ft=r.useFlats,Jt=Ft===void 0?!1:Ft,Pt=r.printer,be=Pt===void 0?"text":Pt,ye=r.notationSystem,Bt=ye===void 0?"english":ye,xe=r.customFilters,$t=xe===void 0?[]:xe;n($t);var Nt=[];return["max","core"].includes(C)&&Nt.push(ei.bind(null,C)),(dt||B!==0)&&Nt.push(ii.bind(null,B,Jt)),d&&Nt.push(Ya),Nt.push.apply(Nt,[oi.bind(null,Bt),Vt].concat(ci($t))),vi;function vi(_r){if(!mi(_r))return null;var Mr=e(Nt,t()(_r));return be==="raw"?ui(Mr):Rr(Mr)}}var mi=function(f){return f&&er(f)==="object"&&!f.error&&f.input};let gi=di})(),g})()})});var _n=Ie(mn(),1);var Cn=Ie(jn(),1),Le=class{constructor(p){let u=/.*?(irealb(?:ook)?):\/\/([^"]*)/.exec(p),e=decodeURIComponent(u[2]).split("===");e.length>1&&(this.name=e.pop()),this.songs=e.map(i=>{try{return new Ae(i,u[1]==="irealbook")}catch(t){let a=i.split("="),n=Ae.parseTitle(a[0].trim());return console.error(`[ireal-musicxml] [${n}] ${t}`),null}}).filter(i=>i!==null).reduce((i,t)=>{if(i.length>0){let a=(0,Cn.default)(i[i.length-1].title,t.title);if(a[0][0]===0&&a.every(n=>n[0]===0||n[1].match(/^\d+$/)))return i[i.length-1].cells=i[i.length-1].cells.concat(t.cells),i}return i.push(t),i},[])}},Ge=class{constructor(){this.annots=[],this.comments=[],this.bars="",this.spacer=0,this.chord=null}},ee=class{constructor(p,u="",g=null,e=null){this.note=p,this.modifiers=u,this.over=g,this.alternate=e}},Ae=class s{constructor(p,u=!1){if(this.cells=[],this.musicXml="",!p){this.title="",this.composer="",this.style="",this.key="",this.transpose=0,this.groove="",this.bpm=0,this.repeats=0;return}let g=p.split("=");if(u)this.title=s.parseTitle(g[0].trim()),this.composer=s.parseComposer(g[1].trim()),this.style=g[2].trim(),this.key=g[3],this.cells=this.parse(g[5]);else{this.title=s.parseTitle(g[0].trim()),this.composer=s.parseComposer(g[1].trim()),this.style=g[3].trim(),this.key=g[4],this.transpose=+g[5]||0,this.groove=g[7],this.bpm=+g[8],this.repeats=+g[9]||3;let e=g[6].split("1r34LbKcu7");this.cells=this.parse(ki(e[1]))}}static chordRegex=/^([A-G][b#]?)((?:sus|alt|add|[+\-^\dhob#])*)(\*.+?\*)*(\/[A-G][#b]?)?(\(.*?\))?/;static chordRegex2=/^([ Wp])()()(\/[A-G][#b]?)?(\(.*?\))?/;static regExps=[/^\*[a-zA-Z]/,/^T\d\d/,/^N./,/^<.*?>/,s.chordRegex,s.chordRegex2];parse(p){let u=p.trim(),g=[];for(;u;){let a=!1;for(let n=0;n<s.regExps.length;n++){let o=s.regExps[n].exec(u);if(o){a=!0,o.length<=2?(g.push(o[0]),u=u.substr(o[0].length)):(g.push(o),u=u.substr(o[0].length));break}}a||(u[0]!==","&&g.push(u[0]),u=u.substr(1))}let e=[],i=this.newCell(e),t=null;for(let a=0;a<g.length;a++){let n=g[a];switch(n instanceof Array&&(i.chord=this.parseChord(n),n=" "),n[0]){case"{":case"[":t&&(t.bars+=")",t=null),i.bars=n,n=null;break;case"|":t&&(t.bars+=")",t=null),i.bars="(",n=null;break;case"]":case"}":case"Z":t&&(t.bars+=n,t=null),n=null;break;case"n":i.chord=new ee(n[0]);break;case",":n=null;break;case"S":case"T":case"Q":case"N":case"U":case"s":case"l":case"f":case"*":i.annots.push(n),n=null;break;case"Y":i.spacer++,n=null,t=null;break;case"r":case"x":case"W":i.chord=new ee(n);break;case"<":n=n.substr(1,n.length-2),i.comments.push(n),n=null;break;default:}n&&a<g.length-1&&(t=i,i=this.newCell(e))}return e}static parseTitle(p){return p.replace(/(.*)(, )(A|The)$/g,"$3 $1")}static parseComposer(p){let u=p.split(/(\s+)/);return u.length==3?u[2]+u[1]+u[0]:p}parseChord(p){var u=p[1]||" ",g=p[2]||"",e=p[3]||"";e&&(g+=e.substr(1,e.length-2));var i=p[4]||"";i[0]==="/"&&(i=i.substr(1));var t=p[5]||null;if(t&&(p=s.chordRegex.exec(t.substr(1,t.length-2)),p?t=this.parseChord(p):t=null),u===" "&&!t&&!i)return null;if(i){var a=i[1]==="#"||i[1]==="b"?2:1;i=new ee(i.substr(0,a),i.substr(a),null,null)}else i=null;return new ee(u,g,i,t)}newCell(p){var u=new Ge;return p.push(u),u}};function ki(s){let p="",u;for(;s.length>51;)u=s.substring(0,50),s=s.substring(50),p=p+qi(u);return p=p+s,p=p.replace(/Kcl/g,"| x").replace(/LZ/g," |").replace(/XyQ/g,"   "),p}function qi(s){let p=s.split("");for(let u=0;u<5;u++)p[49-u]=s[u],p[u]=s[49-u];for(let u=10;u<24;u++)p[49-u]=s[u],p[u]=s[49-u];return p.join("")}var Nn=Ie(En(),1),Rn=Ie(Fn(),1);var Te={name:"ireal-musicxml",version:"2.0.0",description:"iReal Pro to MusicXML converter.",author:"Karim Ratib <karim.ratib@gmail.com> (https://github.com/infojunkie)",license:"GPL-3.0-only",repository:{type:"git",url:"https://github.com/infojunkie/ireal-musicxml"},homepage:"https://github.com/infojunkie/ireal-musicxml",type:"module",main:"build/ireal-musicxml.js",types:"build/ireal-musicxml.d.ts",files:["LICENSE.txt","build/*","src/*"],bin:{"ireal-musicxml":"src/cli/cli.js"},scripts:{build:"esbuild src/lib/index.js --bundle --minify --sourcemap --outfile=build/ireal-musicxml.js && cp src/types/* build/",test:"npm run test:lint && npm run test:spec","test:spec":"node --test","test:typescript":"npm run build && ts-mocha test/**/*.spec.ts","test:lint":"eslint src --fix"},devDependencies:{"@xmldom/xmldom":"^0.8.0",esbuild:"0.24.0",eslint:"^9.13.0",resolve:"^1.22.8","sanitize-filename":"^1.6.3",typescript:"^4.3.2","validate-with-xmllint":"^1.2.0","xpath.js":"^1.1.0"},dependencies:{"chord-symbol":"^3.0.0","fast-diff":"^1.2.0",jstoxml:"^2.0.6",promise:"^8.1.0"}};var we=class{static name=Te.name;static version=Te.version;static author=Te.author;static description=Te.description};var{chordParserFactory:es,chordRendererFactory:rs}=Rn.default,tt=class{static Debug=0;static Info=1;static Warn=2;static Error=3;static None=4},In="4.0",Dn=7,Pn=40,$e=class s{static defaultOptions={divisions:768,notation:"rhythmic",step:"B",octave:4,notehead:"slash",noteheadSize:"large",date:!0,clef:!1,keySignature:!1,pageWidth:210,pageHeight:297,pageMargin:15,logLevel:tt.Warn};static sequenceAttributes=["divisions","key","time","staves","part-symbol","instruments","clef","staff-details","transpose","directive","measure-style"];static sequenceNote=["cue","pitch","rest","unpitched","duration","tie","voice","type","dot","accidental","time-modification","stem","notehead","notehead-text","staff","beam","notations","lyric","play"];static sequenceNotations=["accidental-mark","arpeggiate","articulations","dynamics","fermata","glissando","non-arpeggiate","ornaments","other-notation","slide","slur","technical","tied","tuplet"];static sequenceBarline=["bar-style","footnote","level","wavy-line","segno","coda","fermata","ending","repeat"];static mapAlter={"#":1,b:-1};static mapFifthsToAlters={sharp:["F","C","G","D","A","E","B"],flat:["B","E","A","D","G","C","F"]};static mapRepeats={"D.C. al Coda":s.prototype.convertDaCapo,"D.C. al Fine":s.prototype.convertDaCapo,"D.C. al 1st End.":s.prototype.convertDaCapo,"D.C. al 2nd End.":s.prototype.convertDaCapo,"D.C. al 3rd End.":s.prototype.convertDaCapo,"D.S. al Coda":s.prototype.convertDalSegno,"D.S. al Fine":s.prototype.convertDalSegno,"D.S. al 1st End.":s.prototype.convertDalSegno,"D.S. al 2nd End.":s.prototype.convertDalSegno,"D.S. al 3rd End.":s.prototype.convertDalSegno,Fine:s.prototype.convertFine,"3x":s.prototype.convertRepeatNx,"4x":s.prototype.convertRepeatNx,"5x":s.prototype.convertRepeatNx,"6x":s.prototype.convertRepeatNx,"7x":s.prototype.convertRepeatNx,"8x":s.prototype.convertRepeatNx};static convert(p,u={}){let g=Object.assign({},this.defaultOptions,u);return new s(p,g).convert()}constructor(p,u){this.song=p,this.options=u,this.time={beats:4,beatType:4},this.fifths=null,this.measure=null,this.barRepeat=0,this.codas=[],this.repeats=0,this.emptyCells=0,this.emptyCellNewSystem=!1,this.cellWidth=(this.options.pageWidth-2*this.options.pageMargin)/16,this.parseChord=es({altIntervals:["b5","b9"]}),this.renderChord=rs({useShortNamings:!0,printer:"raw"})}convert(){return Nn.default.toXML(this.convertSong(),{header:`
+var __create = Object.create;
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __getProtoOf = Object.getPrototypeOf;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __commonJS = (cb, mod) => function __require() {
+  return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
+};
+var __copyProps = (to, from, except, desc) => {
+  if (from && typeof from === "object" || typeof from === "function") {
+    for (let key of __getOwnPropNames(from))
+      if (!__hasOwnProp.call(to, key) && key !== except)
+        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+  }
+  return to;
+};
+var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
+  // If the importer is in node compatibility mode or this is not an ESM
+  // file that has been converted to a CommonJS file using a Babel-
+  // compatible transform (i.e. "__esModule" has not been set), then set
+  // "default" to the CommonJS "module.exports" for node compatibility.
+  isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
+  mod
+));
+
+// node_modules/asap/browser-raw.js
+var require_browser_raw = __commonJS({
+  "node_modules/asap/browser-raw.js"(exports, module) {
+    "use strict";
+    module.exports = rawAsap;
+    function rawAsap(task) {
+      if (!queue.length) {
+        requestFlush();
+        flushing = true;
+      }
+      queue[queue.length] = task;
+    }
+    var queue = [];
+    var flushing = false;
+    var requestFlush;
+    var index = 0;
+    var capacity = 1024;
+    function flush() {
+      while (index < queue.length) {
+        var currentIndex = index;
+        index = index + 1;
+        queue[currentIndex].call();
+        if (index > capacity) {
+          for (var scan = 0, newLength = queue.length - index; scan < newLength; scan++) {
+            queue[scan] = queue[scan + index];
+          }
+          queue.length -= index;
+          index = 0;
+        }
+      }
+      queue.length = 0;
+      index = 0;
+      flushing = false;
+    }
+    var scope = typeof global !== "undefined" ? global : self;
+    var BrowserMutationObserver = scope.MutationObserver || scope.WebKitMutationObserver;
+    if (typeof BrowserMutationObserver === "function") {
+      requestFlush = makeRequestCallFromMutationObserver(flush);
+    } else {
+      requestFlush = makeRequestCallFromTimer(flush);
+    }
+    rawAsap.requestFlush = requestFlush;
+    function makeRequestCallFromMutationObserver(callback) {
+      var toggle = 1;
+      var observer = new BrowserMutationObserver(callback);
+      var node = document.createTextNode("");
+      observer.observe(node, { characterData: true });
+      return function requestCall() {
+        toggle = -toggle;
+        node.data = toggle;
+      };
+    }
+    function makeRequestCallFromTimer(callback) {
+      return function requestCall() {
+        var timeoutHandle = setTimeout(handleTimer, 0);
+        var intervalHandle = setInterval(handleTimer, 50);
+        function handleTimer() {
+          clearTimeout(timeoutHandle);
+          clearInterval(intervalHandle);
+          callback();
+        }
+      };
+    }
+    rawAsap.makeRequestCallFromTimer = makeRequestCallFromTimer;
+  }
+});
+
+// node_modules/promise/lib/core.js
+var require_core = __commonJS({
+  "node_modules/promise/lib/core.js"(exports, module) {
+    "use strict";
+    var asap = require_browser_raw();
+    function noop() {
+    }
+    var LAST_ERROR = null;
+    var IS_ERROR = {};
+    function getThen(obj) {
+      try {
+        return obj.then;
+      } catch (ex) {
+        LAST_ERROR = ex;
+        return IS_ERROR;
+      }
+    }
+    function tryCallOne(fn, a) {
+      try {
+        return fn(a);
+      } catch (ex) {
+        LAST_ERROR = ex;
+        return IS_ERROR;
+      }
+    }
+    function tryCallTwo(fn, a, b) {
+      try {
+        fn(a, b);
+      } catch (ex) {
+        LAST_ERROR = ex;
+        return IS_ERROR;
+      }
+    }
+    module.exports = Promise3;
+    function Promise3(fn) {
+      if (typeof this !== "object") {
+        throw new TypeError("Promises must be constructed via new");
+      }
+      if (typeof fn !== "function") {
+        throw new TypeError("Promise constructor's argument is not a function");
+      }
+      this._x = 0;
+      this._y = 0;
+      this._z = null;
+      this._A = null;
+      if (fn === noop) return;
+      doResolve(fn, this);
+    }
+    Promise3._B = null;
+    Promise3._C = null;
+    Promise3._D = noop;
+    Promise3.prototype.then = function(onFulfilled, onRejected) {
+      if (this.constructor !== Promise3) {
+        return safeThen(this, onFulfilled, onRejected);
+      }
+      var res = new Promise3(noop);
+      handle(this, new Handler(onFulfilled, onRejected, res));
+      return res;
+    };
+    function safeThen(self2, onFulfilled, onRejected) {
+      return new self2.constructor(function(resolve2, reject2) {
+        var res = new Promise3(noop);
+        res.then(resolve2, reject2);
+        handle(self2, new Handler(onFulfilled, onRejected, res));
+      });
+    }
+    function handle(self2, deferred) {
+      while (self2._y === 3) {
+        self2 = self2._z;
+      }
+      if (Promise3._B) {
+        Promise3._B(self2);
+      }
+      if (self2._y === 0) {
+        if (self2._x === 0) {
+          self2._x = 1;
+          self2._A = deferred;
+          return;
+        }
+        if (self2._x === 1) {
+          self2._x = 2;
+          self2._A = [self2._A, deferred];
+          return;
+        }
+        self2._A.push(deferred);
+        return;
+      }
+      handleResolved(self2, deferred);
+    }
+    function handleResolved(self2, deferred) {
+      asap(function() {
+        var cb = self2._y === 1 ? deferred.onFulfilled : deferred.onRejected;
+        if (cb === null) {
+          if (self2._y === 1) {
+            resolve(deferred.promise, self2._z);
+          } else {
+            reject(deferred.promise, self2._z);
+          }
+          return;
+        }
+        var ret = tryCallOne(cb, self2._z);
+        if (ret === IS_ERROR) {
+          reject(deferred.promise, LAST_ERROR);
+        } else {
+          resolve(deferred.promise, ret);
+        }
+      });
+    }
+    function resolve(self2, newValue) {
+      if (newValue === self2) {
+        return reject(
+          self2,
+          new TypeError("A promise cannot be resolved with itself.")
+        );
+      }
+      if (newValue && (typeof newValue === "object" || typeof newValue === "function")) {
+        var then = getThen(newValue);
+        if (then === IS_ERROR) {
+          return reject(self2, LAST_ERROR);
+        }
+        if (then === self2.then && newValue instanceof Promise3) {
+          self2._y = 3;
+          self2._z = newValue;
+          finale(self2);
+          return;
+        } else if (typeof then === "function") {
+          doResolve(then.bind(newValue), self2);
+          return;
+        }
+      }
+      self2._y = 1;
+      self2._z = newValue;
+      finale(self2);
+    }
+    function reject(self2, newValue) {
+      self2._y = 2;
+      self2._z = newValue;
+      if (Promise3._C) {
+        Promise3._C(self2, newValue);
+      }
+      finale(self2);
+    }
+    function finale(self2) {
+      if (self2._x === 1) {
+        handle(self2, self2._A);
+        self2._A = null;
+      }
+      if (self2._x === 2) {
+        for (var i = 0; i < self2._A.length; i++) {
+          handle(self2, self2._A[i]);
+        }
+        self2._A = null;
+      }
+    }
+    function Handler(onFulfilled, onRejected, promise) {
+      this.onFulfilled = typeof onFulfilled === "function" ? onFulfilled : null;
+      this.onRejected = typeof onRejected === "function" ? onRejected : null;
+      this.promise = promise;
+    }
+    function doResolve(fn, promise) {
+      var done = false;
+      var res = tryCallTwo(fn, function(value) {
+        if (done) return;
+        done = true;
+        resolve(promise, value);
+      }, function(reason) {
+        if (done) return;
+        done = true;
+        reject(promise, reason);
+      });
+      if (!done && res === IS_ERROR) {
+        done = true;
+        reject(promise, LAST_ERROR);
+      }
+    }
+  }
+});
+
+// node_modules/promise/lib/done.js
+var require_done = __commonJS({
+  "node_modules/promise/lib/done.js"(exports, module) {
+    "use strict";
+    var Promise3 = require_core();
+    module.exports = Promise3;
+    Promise3.prototype.done = function(onFulfilled, onRejected) {
+      var self2 = arguments.length ? this.then.apply(this, arguments) : this;
+      self2.then(null, function(err) {
+        setTimeout(function() {
+          throw err;
+        }, 0);
+      });
+    };
+  }
+});
+
+// node_modules/promise/lib/finally.js
+var require_finally = __commonJS({
+  "node_modules/promise/lib/finally.js"(exports, module) {
+    "use strict";
+    var Promise3 = require_core();
+    module.exports = Promise3;
+    Promise3.prototype.finally = function(f) {
+      return this.then(function(value) {
+        return Promise3.resolve(f()).then(function() {
+          return value;
+        });
+      }, function(err) {
+        return Promise3.resolve(f()).then(function() {
+          throw err;
+        });
+      });
+    };
+  }
+});
+
+// node_modules/promise/lib/es6-extensions.js
+var require_es6_extensions = __commonJS({
+  "node_modules/promise/lib/es6-extensions.js"(exports, module) {
+    "use strict";
+    var Promise3 = require_core();
+    module.exports = Promise3;
+    var TRUE = valuePromise(true);
+    var FALSE = valuePromise(false);
+    var NULL = valuePromise(null);
+    var UNDEFINED = valuePromise(void 0);
+    var ZERO = valuePromise(0);
+    var EMPTYSTRING = valuePromise("");
+    function valuePromise(value) {
+      var p = new Promise3(Promise3._D);
+      p._y = 1;
+      p._z = value;
+      return p;
+    }
+    Promise3.resolve = function(value) {
+      if (value instanceof Promise3) return value;
+      if (value === null) return NULL;
+      if (value === void 0) return UNDEFINED;
+      if (value === true) return TRUE;
+      if (value === false) return FALSE;
+      if (value === 0) return ZERO;
+      if (value === "") return EMPTYSTRING;
+      if (typeof value === "object" || typeof value === "function") {
+        try {
+          var then = value.then;
+          if (typeof then === "function") {
+            return new Promise3(then.bind(value));
+          }
+        } catch (ex) {
+          return new Promise3(function(resolve, reject) {
+            reject(ex);
+          });
+        }
+      }
+      return valuePromise(value);
+    };
+    var iterableToArray = function(iterable) {
+      if (typeof Array.from === "function") {
+        iterableToArray = Array.from;
+        return Array.from(iterable);
+      }
+      iterableToArray = function(x) {
+        return Array.prototype.slice.call(x);
+      };
+      return Array.prototype.slice.call(iterable);
+    };
+    Promise3.all = function(arr) {
+      var args = iterableToArray(arr);
+      return new Promise3(function(resolve, reject) {
+        if (args.length === 0) return resolve([]);
+        var remaining = args.length;
+        function res(i2, val) {
+          if (val && (typeof val === "object" || typeof val === "function")) {
+            if (val instanceof Promise3 && val.then === Promise3.prototype.then) {
+              while (val._y === 3) {
+                val = val._z;
+              }
+              if (val._y === 1) return res(i2, val._z);
+              if (val._y === 2) reject(val._z);
+              val.then(function(val2) {
+                res(i2, val2);
+              }, reject);
+              return;
+            } else {
+              var then = val.then;
+              if (typeof then === "function") {
+                var p = new Promise3(then.bind(val));
+                p.then(function(val2) {
+                  res(i2, val2);
+                }, reject);
+                return;
+              }
+            }
+          }
+          args[i2] = val;
+          if (--remaining === 0) {
+            resolve(args);
+          }
+        }
+        for (var i = 0; i < args.length; i++) {
+          res(i, args[i]);
+        }
+      });
+    };
+    function onSettledFulfill(value) {
+      return { status: "fulfilled", value };
+    }
+    function onSettledReject(reason) {
+      return { status: "rejected", reason };
+    }
+    function mapAllSettled(item) {
+      if (item && (typeof item === "object" || typeof item === "function")) {
+        if (item instanceof Promise3 && item.then === Promise3.prototype.then) {
+          return item.then(onSettledFulfill, onSettledReject);
+        }
+        var then = item.then;
+        if (typeof then === "function") {
+          return new Promise3(then.bind(item)).then(onSettledFulfill, onSettledReject);
+        }
+      }
+      return onSettledFulfill(item);
+    }
+    Promise3.allSettled = function(iterable) {
+      return Promise3.all(iterableToArray(iterable).map(mapAllSettled));
+    };
+    Promise3.reject = function(value) {
+      return new Promise3(function(resolve, reject) {
+        reject(value);
+      });
+    };
+    Promise3.race = function(values) {
+      return new Promise3(function(resolve, reject) {
+        iterableToArray(values).forEach(function(value) {
+          Promise3.resolve(value).then(resolve, reject);
+        });
+      });
+    };
+    Promise3.prototype["catch"] = function(onRejected) {
+      return this.then(null, onRejected);
+    };
+    function getAggregateError(errors) {
+      if (typeof AggregateError === "function") {
+        return new AggregateError(errors, "All promises were rejected");
+      }
+      var error = new Error("All promises were rejected");
+      error.name = "AggregateError";
+      error.errors = errors;
+      return error;
+    }
+    Promise3.any = function promiseAny(values) {
+      return new Promise3(function(resolve, reject) {
+        var promises = iterableToArray(values);
+        var hasResolved = false;
+        var rejectionReasons = [];
+        function resolveOnce(value) {
+          if (!hasResolved) {
+            hasResolved = true;
+            resolve(value);
+          }
+        }
+        function rejectionCheck(reason) {
+          rejectionReasons.push(reason);
+          if (rejectionReasons.length === promises.length) {
+            reject(getAggregateError(rejectionReasons));
+          }
+        }
+        if (promises.length === 0) {
+          reject(getAggregateError(rejectionReasons));
+        } else {
+          promises.forEach(function(value) {
+            Promise3.resolve(value).then(resolveOnce, rejectionCheck);
+          });
+        }
+      });
+    };
+  }
+});
+
+// node_modules/asap/browser-asap.js
+var require_browser_asap = __commonJS({
+  "node_modules/asap/browser-asap.js"(exports, module) {
+    "use strict";
+    var rawAsap = require_browser_raw();
+    var freeTasks = [];
+    var pendingErrors = [];
+    var requestErrorThrow = rawAsap.makeRequestCallFromTimer(throwFirstError);
+    function throwFirstError() {
+      if (pendingErrors.length) {
+        throw pendingErrors.shift();
+      }
+    }
+    module.exports = asap;
+    function asap(task) {
+      var rawTask;
+      if (freeTasks.length) {
+        rawTask = freeTasks.pop();
+      } else {
+        rawTask = new RawTask();
+      }
+      rawTask.task = task;
+      rawAsap(rawTask);
+    }
+    function RawTask() {
+      this.task = null;
+    }
+    RawTask.prototype.call = function() {
+      try {
+        this.task.call();
+      } catch (error) {
+        if (asap.onerror) {
+          asap.onerror(error);
+        } else {
+          pendingErrors.push(error);
+          requestErrorThrow();
+        }
+      } finally {
+        this.task = null;
+        freeTasks[freeTasks.length] = this;
+      }
+    };
+  }
+});
+
+// node_modules/promise/lib/node-extensions.js
+var require_node_extensions = __commonJS({
+  "node_modules/promise/lib/node-extensions.js"(exports, module) {
+    "use strict";
+    var Promise3 = require_core();
+    var asap = require_browser_asap();
+    module.exports = Promise3;
+    Promise3.denodeify = function(fn, argumentCount) {
+      if (typeof argumentCount === "number" && argumentCount !== Infinity) {
+        return denodeifyWithCount(fn, argumentCount);
+      } else {
+        return denodeifyWithoutCount(fn);
+      }
+    };
+    var callbackFn = "function (err, res) {if (err) { rj(err); } else { rs(res); }}";
+    function denodeifyWithCount(fn, argumentCount) {
+      var args = [];
+      for (var i = 0; i < argumentCount; i++) {
+        args.push("a" + i);
+      }
+      var body = [
+        "return function (" + args.join(",") + ") {",
+        "var self = this;",
+        "return new Promise(function (rs, rj) {",
+        "var res = fn.call(",
+        ["self"].concat(args).concat([callbackFn]).join(","),
+        ");",
+        "if (res &&",
+        '(typeof res === "object" || typeof res === "function") &&',
+        'typeof res.then === "function"',
+        ") {rs(res);}",
+        "});",
+        "};"
+      ].join("");
+      return Function(["Promise", "fn"], body)(Promise3, fn);
+    }
+    function denodeifyWithoutCount(fn) {
+      var fnLength = Math.max(fn.length - 1, 3);
+      var args = [];
+      for (var i = 0; i < fnLength; i++) {
+        args.push("a" + i);
+      }
+      var body = [
+        "return function (" + args.join(",") + ") {",
+        "var self = this;",
+        "var args;",
+        "var argLength = arguments.length;",
+        "if (arguments.length > " + fnLength + ") {",
+        "args = new Array(arguments.length + 1);",
+        "for (var i = 0; i < arguments.length; i++) {",
+        "args[i] = arguments[i];",
+        "}",
+        "}",
+        "return new Promise(function (rs, rj) {",
+        "var cb = " + callbackFn + ";",
+        "var res;",
+        "switch (argLength) {",
+        args.concat(["extra"]).map(function(_, index) {
+          return "case " + index + ":res = fn.call(" + ["self"].concat(args.slice(0, index)).concat("cb").join(",") + ");break;";
+        }).join(""),
+        "default:",
+        "args[argLength] = cb;",
+        "res = fn.apply(self, args);",
+        "}",
+        "if (res &&",
+        '(typeof res === "object" || typeof res === "function") &&',
+        'typeof res.then === "function"',
+        ") {rs(res);}",
+        "});",
+        "};"
+      ].join("");
+      return Function(
+        ["Promise", "fn"],
+        body
+      )(Promise3, fn);
+    }
+    Promise3.nodeify = function(fn) {
+      return function() {
+        var args = Array.prototype.slice.call(arguments);
+        var callback = typeof args[args.length - 1] === "function" ? args.pop() : null;
+        var ctx = this;
+        try {
+          return fn.apply(this, arguments).nodeify(callback, ctx);
+        } catch (ex) {
+          if (callback === null || typeof callback == "undefined") {
+            return new Promise3(function(resolve, reject) {
+              reject(ex);
+            });
+          } else {
+            asap(function() {
+              callback.call(ctx, ex);
+            });
+          }
+        }
+      };
+    };
+    Promise3.prototype.nodeify = function(callback, ctx) {
+      if (typeof callback != "function") return this;
+      this.then(function(value) {
+        asap(function() {
+          callback.call(ctx, null, value);
+        });
+      }, function(err) {
+        asap(function() {
+          callback.call(ctx, err);
+        });
+      });
+    };
+  }
+});
+
+// node_modules/promise/lib/synchronous.js
+var require_synchronous = __commonJS({
+  "node_modules/promise/lib/synchronous.js"(exports, module) {
+    "use strict";
+    var Promise3 = require_core();
+    module.exports = Promise3;
+    Promise3.enableSynchronous = function() {
+      Promise3.prototype.isPending = function() {
+        return this.getState() == 0;
+      };
+      Promise3.prototype.isFulfilled = function() {
+        return this.getState() == 1;
+      };
+      Promise3.prototype.isRejected = function() {
+        return this.getState() == 2;
+      };
+      Promise3.prototype.getValue = function() {
+        if (this._y === 3) {
+          return this._z.getValue();
+        }
+        if (!this.isFulfilled()) {
+          throw new Error("Cannot get a value of an unfulfilled promise.");
+        }
+        return this._z;
+      };
+      Promise3.prototype.getReason = function() {
+        if (this._y === 3) {
+          return this._z.getReason();
+        }
+        if (!this.isRejected()) {
+          throw new Error("Cannot get a rejection reason of a non-rejected promise.");
+        }
+        return this._z;
+      };
+      Promise3.prototype.getState = function() {
+        if (this._y === 3) {
+          return this._z.getState();
+        }
+        if (this._y === -1 || this._y === -2) {
+          return 0;
+        }
+        return this._y;
+      };
+    };
+    Promise3.disableSynchronous = function() {
+      Promise3.prototype.isPending = void 0;
+      Promise3.prototype.isFulfilled = void 0;
+      Promise3.prototype.isRejected = void 0;
+      Promise3.prototype.getValue = void 0;
+      Promise3.prototype.getReason = void 0;
+      Promise3.prototype.getState = void 0;
+    };
+  }
+});
+
+// node_modules/promise/lib/index.js
+var require_lib = __commonJS({
+  "node_modules/promise/lib/index.js"(exports, module) {
+    "use strict";
+    module.exports = require_core();
+    require_done();
+    require_finally();
+    require_es6_extensions();
+    require_node_extensions();
+    require_synchronous();
+  }
+});
+
+// node_modules/promise/index.js
+var require_promise = __commonJS({
+  "node_modules/promise/index.js"(exports, module) {
+    "use strict";
+    module.exports = require_lib();
+  }
+});
+
+// node_modules/fast-diff/diff.js
+var require_diff = __commonJS({
+  "node_modules/fast-diff/diff.js"(exports, module) {
+    var DIFF_DELETE = -1;
+    var DIFF_INSERT = 1;
+    var DIFF_EQUAL = 0;
+    function diff_main(text1, text2, cursor_pos, cleanup, _fix_unicode) {
+      if (text1 === text2) {
+        if (text1) {
+          return [[DIFF_EQUAL, text1]];
+        }
+        return [];
+      }
+      if (cursor_pos != null) {
+        var editdiff = find_cursor_edit_diff(text1, text2, cursor_pos);
+        if (editdiff) {
+          return editdiff;
+        }
+      }
+      var commonlength = diff_commonPrefix(text1, text2);
+      var commonprefix = text1.substring(0, commonlength);
+      text1 = text1.substring(commonlength);
+      text2 = text2.substring(commonlength);
+      commonlength = diff_commonSuffix(text1, text2);
+      var commonsuffix = text1.substring(text1.length - commonlength);
+      text1 = text1.substring(0, text1.length - commonlength);
+      text2 = text2.substring(0, text2.length - commonlength);
+      var diffs = diff_compute_(text1, text2);
+      if (commonprefix) {
+        diffs.unshift([DIFF_EQUAL, commonprefix]);
+      }
+      if (commonsuffix) {
+        diffs.push([DIFF_EQUAL, commonsuffix]);
+      }
+      diff_cleanupMerge(diffs, _fix_unicode);
+      if (cleanup) {
+        diff_cleanupSemantic(diffs);
+      }
+      return diffs;
+    }
+    function diff_compute_(text1, text2) {
+      var diffs;
+      if (!text1) {
+        return [[DIFF_INSERT, text2]];
+      }
+      if (!text2) {
+        return [[DIFF_DELETE, text1]];
+      }
+      var longtext = text1.length > text2.length ? text1 : text2;
+      var shorttext = text1.length > text2.length ? text2 : text1;
+      var i = longtext.indexOf(shorttext);
+      if (i !== -1) {
+        diffs = [
+          [DIFF_INSERT, longtext.substring(0, i)],
+          [DIFF_EQUAL, shorttext],
+          [DIFF_INSERT, longtext.substring(i + shorttext.length)]
+        ];
+        if (text1.length > text2.length) {
+          diffs[0][0] = diffs[2][0] = DIFF_DELETE;
+        }
+        return diffs;
+      }
+      if (shorttext.length === 1) {
+        return [
+          [DIFF_DELETE, text1],
+          [DIFF_INSERT, text2]
+        ];
+      }
+      var hm = diff_halfMatch_(text1, text2);
+      if (hm) {
+        var text1_a = hm[0];
+        var text1_b = hm[1];
+        var text2_a = hm[2];
+        var text2_b = hm[3];
+        var mid_common = hm[4];
+        var diffs_a = diff_main(text1_a, text2_a);
+        var diffs_b = diff_main(text1_b, text2_b);
+        return diffs_a.concat([[DIFF_EQUAL, mid_common]], diffs_b);
+      }
+      return diff_bisect_(text1, text2);
+    }
+    function diff_bisect_(text1, text2) {
+      var text1_length = text1.length;
+      var text2_length = text2.length;
+      var max_d = Math.ceil((text1_length + text2_length) / 2);
+      var v_offset = max_d;
+      var v_length = 2 * max_d;
+      var v1 = new Array(v_length);
+      var v2 = new Array(v_length);
+      for (var x = 0; x < v_length; x++) {
+        v1[x] = -1;
+        v2[x] = -1;
+      }
+      v1[v_offset + 1] = 0;
+      v2[v_offset + 1] = 0;
+      var delta = text1_length - text2_length;
+      var front = delta % 2 !== 0;
+      var k1start = 0;
+      var k1end = 0;
+      var k2start = 0;
+      var k2end = 0;
+      for (var d = 0; d < max_d; d++) {
+        for (var k1 = -d + k1start; k1 <= d - k1end; k1 += 2) {
+          var k1_offset = v_offset + k1;
+          var x1;
+          if (k1 === -d || k1 !== d && v1[k1_offset - 1] < v1[k1_offset + 1]) {
+            x1 = v1[k1_offset + 1];
+          } else {
+            x1 = v1[k1_offset - 1] + 1;
+          }
+          var y1 = x1 - k1;
+          while (x1 < text1_length && y1 < text2_length && text1.charAt(x1) === text2.charAt(y1)) {
+            x1++;
+            y1++;
+          }
+          v1[k1_offset] = x1;
+          if (x1 > text1_length) {
+            k1end += 2;
+          } else if (y1 > text2_length) {
+            k1start += 2;
+          } else if (front) {
+            var k2_offset = v_offset + delta - k1;
+            if (k2_offset >= 0 && k2_offset < v_length && v2[k2_offset] !== -1) {
+              var x2 = text1_length - v2[k2_offset];
+              if (x1 >= x2) {
+                return diff_bisectSplit_(text1, text2, x1, y1);
+              }
+            }
+          }
+        }
+        for (var k2 = -d + k2start; k2 <= d - k2end; k2 += 2) {
+          var k2_offset = v_offset + k2;
+          var x2;
+          if (k2 === -d || k2 !== d && v2[k2_offset - 1] < v2[k2_offset + 1]) {
+            x2 = v2[k2_offset + 1];
+          } else {
+            x2 = v2[k2_offset - 1] + 1;
+          }
+          var y2 = x2 - k2;
+          while (x2 < text1_length && y2 < text2_length && text1.charAt(text1_length - x2 - 1) === text2.charAt(text2_length - y2 - 1)) {
+            x2++;
+            y2++;
+          }
+          v2[k2_offset] = x2;
+          if (x2 > text1_length) {
+            k2end += 2;
+          } else if (y2 > text2_length) {
+            k2start += 2;
+          } else if (!front) {
+            var k1_offset = v_offset + delta - k2;
+            if (k1_offset >= 0 && k1_offset < v_length && v1[k1_offset] !== -1) {
+              var x1 = v1[k1_offset];
+              var y1 = v_offset + x1 - k1_offset;
+              x2 = text1_length - x2;
+              if (x1 >= x2) {
+                return diff_bisectSplit_(text1, text2, x1, y1);
+              }
+            }
+          }
+        }
+      }
+      return [
+        [DIFF_DELETE, text1],
+        [DIFF_INSERT, text2]
+      ];
+    }
+    function diff_bisectSplit_(text1, text2, x, y) {
+      var text1a = text1.substring(0, x);
+      var text2a = text2.substring(0, y);
+      var text1b = text1.substring(x);
+      var text2b = text2.substring(y);
+      var diffs = diff_main(text1a, text2a);
+      var diffsb = diff_main(text1b, text2b);
+      return diffs.concat(diffsb);
+    }
+    function diff_commonPrefix(text1, text2) {
+      if (!text1 || !text2 || text1.charAt(0) !== text2.charAt(0)) {
+        return 0;
+      }
+      var pointermin = 0;
+      var pointermax = Math.min(text1.length, text2.length);
+      var pointermid = pointermax;
+      var pointerstart = 0;
+      while (pointermin < pointermid) {
+        if (text1.substring(pointerstart, pointermid) == text2.substring(pointerstart, pointermid)) {
+          pointermin = pointermid;
+          pointerstart = pointermin;
+        } else {
+          pointermax = pointermid;
+        }
+        pointermid = Math.floor((pointermax - pointermin) / 2 + pointermin);
+      }
+      if (is_surrogate_pair_start(text1.charCodeAt(pointermid - 1))) {
+        pointermid--;
+      }
+      return pointermid;
+    }
+    function diff_commonOverlap_(text1, text2) {
+      var text1_length = text1.length;
+      var text2_length = text2.length;
+      if (text1_length == 0 || text2_length == 0) {
+        return 0;
+      }
+      if (text1_length > text2_length) {
+        text1 = text1.substring(text1_length - text2_length);
+      } else if (text1_length < text2_length) {
+        text2 = text2.substring(0, text1_length);
+      }
+      var text_length = Math.min(text1_length, text2_length);
+      if (text1 == text2) {
+        return text_length;
+      }
+      var best = 0;
+      var length = 1;
+      while (true) {
+        var pattern = text1.substring(text_length - length);
+        var found = text2.indexOf(pattern);
+        if (found == -1) {
+          return best;
+        }
+        length += found;
+        if (found == 0 || text1.substring(text_length - length) == text2.substring(0, length)) {
+          best = length;
+          length++;
+        }
+      }
+    }
+    function diff_commonSuffix(text1, text2) {
+      if (!text1 || !text2 || text1.slice(-1) !== text2.slice(-1)) {
+        return 0;
+      }
+      var pointermin = 0;
+      var pointermax = Math.min(text1.length, text2.length);
+      var pointermid = pointermax;
+      var pointerend = 0;
+      while (pointermin < pointermid) {
+        if (text1.substring(text1.length - pointermid, text1.length - pointerend) == text2.substring(text2.length - pointermid, text2.length - pointerend)) {
+          pointermin = pointermid;
+          pointerend = pointermin;
+        } else {
+          pointermax = pointermid;
+        }
+        pointermid = Math.floor((pointermax - pointermin) / 2 + pointermin);
+      }
+      if (is_surrogate_pair_end(text1.charCodeAt(text1.length - pointermid))) {
+        pointermid--;
+      }
+      return pointermid;
+    }
+    function diff_halfMatch_(text1, text2) {
+      var longtext = text1.length > text2.length ? text1 : text2;
+      var shorttext = text1.length > text2.length ? text2 : text1;
+      if (longtext.length < 4 || shorttext.length * 2 < longtext.length) {
+        return null;
+      }
+      function diff_halfMatchI_(longtext2, shorttext2, i) {
+        var seed = longtext2.substring(i, i + Math.floor(longtext2.length / 4));
+        var j = -1;
+        var best_common = "";
+        var best_longtext_a, best_longtext_b, best_shorttext_a, best_shorttext_b;
+        while ((j = shorttext2.indexOf(seed, j + 1)) !== -1) {
+          var prefixLength = diff_commonPrefix(
+            longtext2.substring(i),
+            shorttext2.substring(j)
+          );
+          var suffixLength = diff_commonSuffix(
+            longtext2.substring(0, i),
+            shorttext2.substring(0, j)
+          );
+          if (best_common.length < suffixLength + prefixLength) {
+            best_common = shorttext2.substring(j - suffixLength, j) + shorttext2.substring(j, j + prefixLength);
+            best_longtext_a = longtext2.substring(0, i - suffixLength);
+            best_longtext_b = longtext2.substring(i + prefixLength);
+            best_shorttext_a = shorttext2.substring(0, j - suffixLength);
+            best_shorttext_b = shorttext2.substring(j + prefixLength);
+          }
+        }
+        if (best_common.length * 2 >= longtext2.length) {
+          return [
+            best_longtext_a,
+            best_longtext_b,
+            best_shorttext_a,
+            best_shorttext_b,
+            best_common
+          ];
+        } else {
+          return null;
+        }
+      }
+      var hm1 = diff_halfMatchI_(
+        longtext,
+        shorttext,
+        Math.ceil(longtext.length / 4)
+      );
+      var hm2 = diff_halfMatchI_(
+        longtext,
+        shorttext,
+        Math.ceil(longtext.length / 2)
+      );
+      var hm;
+      if (!hm1 && !hm2) {
+        return null;
+      } else if (!hm2) {
+        hm = hm1;
+      } else if (!hm1) {
+        hm = hm2;
+      } else {
+        hm = hm1[4].length > hm2[4].length ? hm1 : hm2;
+      }
+      var text1_a, text1_b, text2_a, text2_b;
+      if (text1.length > text2.length) {
+        text1_a = hm[0];
+        text1_b = hm[1];
+        text2_a = hm[2];
+        text2_b = hm[3];
+      } else {
+        text2_a = hm[0];
+        text2_b = hm[1];
+        text1_a = hm[2];
+        text1_b = hm[3];
+      }
+      var mid_common = hm[4];
+      return [text1_a, text1_b, text2_a, text2_b, mid_common];
+    }
+    function diff_cleanupSemantic(diffs) {
+      var changes = false;
+      var equalities = [];
+      var equalitiesLength = 0;
+      var lastequality = null;
+      var pointer = 0;
+      var length_insertions1 = 0;
+      var length_deletions1 = 0;
+      var length_insertions2 = 0;
+      var length_deletions2 = 0;
+      while (pointer < diffs.length) {
+        if (diffs[pointer][0] == DIFF_EQUAL) {
+          equalities[equalitiesLength++] = pointer;
+          length_insertions1 = length_insertions2;
+          length_deletions1 = length_deletions2;
+          length_insertions2 = 0;
+          length_deletions2 = 0;
+          lastequality = diffs[pointer][1];
+        } else {
+          if (diffs[pointer][0] == DIFF_INSERT) {
+            length_insertions2 += diffs[pointer][1].length;
+          } else {
+            length_deletions2 += diffs[pointer][1].length;
+          }
+          if (lastequality && lastequality.length <= Math.max(length_insertions1, length_deletions1) && lastequality.length <= Math.max(length_insertions2, length_deletions2)) {
+            diffs.splice(equalities[equalitiesLength - 1], 0, [
+              DIFF_DELETE,
+              lastequality
+            ]);
+            diffs[equalities[equalitiesLength - 1] + 1][0] = DIFF_INSERT;
+            equalitiesLength--;
+            equalitiesLength--;
+            pointer = equalitiesLength > 0 ? equalities[equalitiesLength - 1] : -1;
+            length_insertions1 = 0;
+            length_deletions1 = 0;
+            length_insertions2 = 0;
+            length_deletions2 = 0;
+            lastequality = null;
+            changes = true;
+          }
+        }
+        pointer++;
+      }
+      if (changes) {
+        diff_cleanupMerge(diffs);
+      }
+      diff_cleanupSemanticLossless(diffs);
+      pointer = 1;
+      while (pointer < diffs.length) {
+        if (diffs[pointer - 1][0] == DIFF_DELETE && diffs[pointer][0] == DIFF_INSERT) {
+          var deletion = diffs[pointer - 1][1];
+          var insertion = diffs[pointer][1];
+          var overlap_length1 = diff_commonOverlap_(deletion, insertion);
+          var overlap_length2 = diff_commonOverlap_(insertion, deletion);
+          if (overlap_length1 >= overlap_length2) {
+            if (overlap_length1 >= deletion.length / 2 || overlap_length1 >= insertion.length / 2) {
+              diffs.splice(pointer, 0, [
+                DIFF_EQUAL,
+                insertion.substring(0, overlap_length1)
+              ]);
+              diffs[pointer - 1][1] = deletion.substring(
+                0,
+                deletion.length - overlap_length1
+              );
+              diffs[pointer + 1][1] = insertion.substring(overlap_length1);
+              pointer++;
+            }
+          } else {
+            if (overlap_length2 >= deletion.length / 2 || overlap_length2 >= insertion.length / 2) {
+              diffs.splice(pointer, 0, [
+                DIFF_EQUAL,
+                deletion.substring(0, overlap_length2)
+              ]);
+              diffs[pointer - 1][0] = DIFF_INSERT;
+              diffs[pointer - 1][1] = insertion.substring(
+                0,
+                insertion.length - overlap_length2
+              );
+              diffs[pointer + 1][0] = DIFF_DELETE;
+              diffs[pointer + 1][1] = deletion.substring(overlap_length2);
+              pointer++;
+            }
+          }
+          pointer++;
+        }
+        pointer++;
+      }
+    }
+    var nonAlphaNumericRegex_ = /[^a-zA-Z0-9]/;
+    var whitespaceRegex_ = /\s/;
+    var linebreakRegex_ = /[\r\n]/;
+    var blanklineEndRegex_ = /\n\r?\n$/;
+    var blanklineStartRegex_ = /^\r?\n\r?\n/;
+    function diff_cleanupSemanticLossless(diffs) {
+      function diff_cleanupSemanticScore_(one, two) {
+        if (!one || !two) {
+          return 6;
+        }
+        var char1 = one.charAt(one.length - 1);
+        var char2 = two.charAt(0);
+        var nonAlphaNumeric1 = char1.match(nonAlphaNumericRegex_);
+        var nonAlphaNumeric2 = char2.match(nonAlphaNumericRegex_);
+        var whitespace1 = nonAlphaNumeric1 && char1.match(whitespaceRegex_);
+        var whitespace2 = nonAlphaNumeric2 && char2.match(whitespaceRegex_);
+        var lineBreak1 = whitespace1 && char1.match(linebreakRegex_);
+        var lineBreak2 = whitespace2 && char2.match(linebreakRegex_);
+        var blankLine1 = lineBreak1 && one.match(blanklineEndRegex_);
+        var blankLine2 = lineBreak2 && two.match(blanklineStartRegex_);
+        if (blankLine1 || blankLine2) {
+          return 5;
+        } else if (lineBreak1 || lineBreak2) {
+          return 4;
+        } else if (nonAlphaNumeric1 && !whitespace1 && whitespace2) {
+          return 3;
+        } else if (whitespace1 || whitespace2) {
+          return 2;
+        } else if (nonAlphaNumeric1 || nonAlphaNumeric2) {
+          return 1;
+        }
+        return 0;
+      }
+      var pointer = 1;
+      while (pointer < diffs.length - 1) {
+        if (diffs[pointer - 1][0] == DIFF_EQUAL && diffs[pointer + 1][0] == DIFF_EQUAL) {
+          var equality1 = diffs[pointer - 1][1];
+          var edit = diffs[pointer][1];
+          var equality2 = diffs[pointer + 1][1];
+          var commonOffset = diff_commonSuffix(equality1, edit);
+          if (commonOffset) {
+            var commonString = edit.substring(edit.length - commonOffset);
+            equality1 = equality1.substring(0, equality1.length - commonOffset);
+            edit = commonString + edit.substring(0, edit.length - commonOffset);
+            equality2 = commonString + equality2;
+          }
+          var bestEquality1 = equality1;
+          var bestEdit = edit;
+          var bestEquality2 = equality2;
+          var bestScore = diff_cleanupSemanticScore_(equality1, edit) + diff_cleanupSemanticScore_(edit, equality2);
+          while (edit.charAt(0) === equality2.charAt(0)) {
+            equality1 += edit.charAt(0);
+            edit = edit.substring(1) + equality2.charAt(0);
+            equality2 = equality2.substring(1);
+            var score = diff_cleanupSemanticScore_(equality1, edit) + diff_cleanupSemanticScore_(edit, equality2);
+            if (score >= bestScore) {
+              bestScore = score;
+              bestEquality1 = equality1;
+              bestEdit = edit;
+              bestEquality2 = equality2;
+            }
+          }
+          if (diffs[pointer - 1][1] != bestEquality1) {
+            if (bestEquality1) {
+              diffs[pointer - 1][1] = bestEquality1;
+            } else {
+              diffs.splice(pointer - 1, 1);
+              pointer--;
+            }
+            diffs[pointer][1] = bestEdit;
+            if (bestEquality2) {
+              diffs[pointer + 1][1] = bestEquality2;
+            } else {
+              diffs.splice(pointer + 1, 1);
+              pointer--;
+            }
+          }
+        }
+        pointer++;
+      }
+    }
+    function diff_cleanupMerge(diffs, fix_unicode) {
+      diffs.push([DIFF_EQUAL, ""]);
+      var pointer = 0;
+      var count_delete = 0;
+      var count_insert = 0;
+      var text_delete = "";
+      var text_insert = "";
+      var commonlength;
+      while (pointer < diffs.length) {
+        if (pointer < diffs.length - 1 && !diffs[pointer][1]) {
+          diffs.splice(pointer, 1);
+          continue;
+        }
+        switch (diffs[pointer][0]) {
+          case DIFF_INSERT:
+            count_insert++;
+            text_insert += diffs[pointer][1];
+            pointer++;
+            break;
+          case DIFF_DELETE:
+            count_delete++;
+            text_delete += diffs[pointer][1];
+            pointer++;
+            break;
+          case DIFF_EQUAL:
+            var previous_equality = pointer - count_insert - count_delete - 1;
+            if (fix_unicode) {
+              if (previous_equality >= 0 && ends_with_pair_start(diffs[previous_equality][1])) {
+                var stray = diffs[previous_equality][1].slice(-1);
+                diffs[previous_equality][1] = diffs[previous_equality][1].slice(
+                  0,
+                  -1
+                );
+                text_delete = stray + text_delete;
+                text_insert = stray + text_insert;
+                if (!diffs[previous_equality][1]) {
+                  diffs.splice(previous_equality, 1);
+                  pointer--;
+                  var k = previous_equality - 1;
+                  if (diffs[k] && diffs[k][0] === DIFF_INSERT) {
+                    count_insert++;
+                    text_insert = diffs[k][1] + text_insert;
+                    k--;
+                  }
+                  if (diffs[k] && diffs[k][0] === DIFF_DELETE) {
+                    count_delete++;
+                    text_delete = diffs[k][1] + text_delete;
+                    k--;
+                  }
+                  previous_equality = k;
+                }
+              }
+              if (starts_with_pair_end(diffs[pointer][1])) {
+                var stray = diffs[pointer][1].charAt(0);
+                diffs[pointer][1] = diffs[pointer][1].slice(1);
+                text_delete += stray;
+                text_insert += stray;
+              }
+            }
+            if (pointer < diffs.length - 1 && !diffs[pointer][1]) {
+              diffs.splice(pointer, 1);
+              break;
+            }
+            if (text_delete.length > 0 || text_insert.length > 0) {
+              if (text_delete.length > 0 && text_insert.length > 0) {
+                commonlength = diff_commonPrefix(text_insert, text_delete);
+                if (commonlength !== 0) {
+                  if (previous_equality >= 0) {
+                    diffs[previous_equality][1] += text_insert.substring(
+                      0,
+                      commonlength
+                    );
+                  } else {
+                    diffs.splice(0, 0, [
+                      DIFF_EQUAL,
+                      text_insert.substring(0, commonlength)
+                    ]);
+                    pointer++;
+                  }
+                  text_insert = text_insert.substring(commonlength);
+                  text_delete = text_delete.substring(commonlength);
+                }
+                commonlength = diff_commonSuffix(text_insert, text_delete);
+                if (commonlength !== 0) {
+                  diffs[pointer][1] = text_insert.substring(text_insert.length - commonlength) + diffs[pointer][1];
+                  text_insert = text_insert.substring(
+                    0,
+                    text_insert.length - commonlength
+                  );
+                  text_delete = text_delete.substring(
+                    0,
+                    text_delete.length - commonlength
+                  );
+                }
+              }
+              var n = count_insert + count_delete;
+              if (text_delete.length === 0 && text_insert.length === 0) {
+                diffs.splice(pointer - n, n);
+                pointer = pointer - n;
+              } else if (text_delete.length === 0) {
+                diffs.splice(pointer - n, n, [DIFF_INSERT, text_insert]);
+                pointer = pointer - n + 1;
+              } else if (text_insert.length === 0) {
+                diffs.splice(pointer - n, n, [DIFF_DELETE, text_delete]);
+                pointer = pointer - n + 1;
+              } else {
+                diffs.splice(
+                  pointer - n,
+                  n,
+                  [DIFF_DELETE, text_delete],
+                  [DIFF_INSERT, text_insert]
+                );
+                pointer = pointer - n + 2;
+              }
+            }
+            if (pointer !== 0 && diffs[pointer - 1][0] === DIFF_EQUAL) {
+              diffs[pointer - 1][1] += diffs[pointer][1];
+              diffs.splice(pointer, 1);
+            } else {
+              pointer++;
+            }
+            count_insert = 0;
+            count_delete = 0;
+            text_delete = "";
+            text_insert = "";
+            break;
+        }
+      }
+      if (diffs[diffs.length - 1][1] === "") {
+        diffs.pop();
+      }
+      var changes = false;
+      pointer = 1;
+      while (pointer < diffs.length - 1) {
+        if (diffs[pointer - 1][0] === DIFF_EQUAL && diffs[pointer + 1][0] === DIFF_EQUAL) {
+          if (diffs[pointer][1].substring(
+            diffs[pointer][1].length - diffs[pointer - 1][1].length
+          ) === diffs[pointer - 1][1]) {
+            diffs[pointer][1] = diffs[pointer - 1][1] + diffs[pointer][1].substring(
+              0,
+              diffs[pointer][1].length - diffs[pointer - 1][1].length
+            );
+            diffs[pointer + 1][1] = diffs[pointer - 1][1] + diffs[pointer + 1][1];
+            diffs.splice(pointer - 1, 1);
+            changes = true;
+          } else if (diffs[pointer][1].substring(0, diffs[pointer + 1][1].length) == diffs[pointer + 1][1]) {
+            diffs[pointer - 1][1] += diffs[pointer + 1][1];
+            diffs[pointer][1] = diffs[pointer][1].substring(diffs[pointer + 1][1].length) + diffs[pointer + 1][1];
+            diffs.splice(pointer + 1, 1);
+            changes = true;
+          }
+        }
+        pointer++;
+      }
+      if (changes) {
+        diff_cleanupMerge(diffs, fix_unicode);
+      }
+    }
+    function is_surrogate_pair_start(charCode) {
+      return charCode >= 55296 && charCode <= 56319;
+    }
+    function is_surrogate_pair_end(charCode) {
+      return charCode >= 56320 && charCode <= 57343;
+    }
+    function starts_with_pair_end(str) {
+      return is_surrogate_pair_end(str.charCodeAt(0));
+    }
+    function ends_with_pair_start(str) {
+      return is_surrogate_pair_start(str.charCodeAt(str.length - 1));
+    }
+    function remove_empty_tuples(tuples) {
+      var ret = [];
+      for (var i = 0; i < tuples.length; i++) {
+        if (tuples[i][1].length > 0) {
+          ret.push(tuples[i]);
+        }
+      }
+      return ret;
+    }
+    function make_edit_splice(before, oldMiddle, newMiddle, after) {
+      if (ends_with_pair_start(before) || starts_with_pair_end(after)) {
+        return null;
+      }
+      return remove_empty_tuples([
+        [DIFF_EQUAL, before],
+        [DIFF_DELETE, oldMiddle],
+        [DIFF_INSERT, newMiddle],
+        [DIFF_EQUAL, after]
+      ]);
+    }
+    function find_cursor_edit_diff(oldText, newText, cursor_pos) {
+      var oldRange = typeof cursor_pos === "number" ? { index: cursor_pos, length: 0 } : cursor_pos.oldRange;
+      var newRange = typeof cursor_pos === "number" ? null : cursor_pos.newRange;
+      var oldLength = oldText.length;
+      var newLength = newText.length;
+      if (oldRange.length === 0 && (newRange === null || newRange.length === 0)) {
+        var oldCursor = oldRange.index;
+        var oldBefore = oldText.slice(0, oldCursor);
+        var oldAfter = oldText.slice(oldCursor);
+        var maybeNewCursor = newRange ? newRange.index : null;
+        editBefore: {
+          var newCursor = oldCursor + newLength - oldLength;
+          if (maybeNewCursor !== null && maybeNewCursor !== newCursor) {
+            break editBefore;
+          }
+          if (newCursor < 0 || newCursor > newLength) {
+            break editBefore;
+          }
+          var newBefore = newText.slice(0, newCursor);
+          var newAfter = newText.slice(newCursor);
+          if (newAfter !== oldAfter) {
+            break editBefore;
+          }
+          var prefixLength = Math.min(oldCursor, newCursor);
+          var oldPrefix = oldBefore.slice(0, prefixLength);
+          var newPrefix = newBefore.slice(0, prefixLength);
+          if (oldPrefix !== newPrefix) {
+            break editBefore;
+          }
+          var oldMiddle = oldBefore.slice(prefixLength);
+          var newMiddle = newBefore.slice(prefixLength);
+          return make_edit_splice(oldPrefix, oldMiddle, newMiddle, oldAfter);
+        }
+        editAfter: {
+          if (maybeNewCursor !== null && maybeNewCursor !== oldCursor) {
+            break editAfter;
+          }
+          var cursor = oldCursor;
+          var newBefore = newText.slice(0, cursor);
+          var newAfter = newText.slice(cursor);
+          if (newBefore !== oldBefore) {
+            break editAfter;
+          }
+          var suffixLength = Math.min(oldLength - cursor, newLength - cursor);
+          var oldSuffix = oldAfter.slice(oldAfter.length - suffixLength);
+          var newSuffix = newAfter.slice(newAfter.length - suffixLength);
+          if (oldSuffix !== newSuffix) {
+            break editAfter;
+          }
+          var oldMiddle = oldAfter.slice(0, oldAfter.length - suffixLength);
+          var newMiddle = newAfter.slice(0, newAfter.length - suffixLength);
+          return make_edit_splice(oldBefore, oldMiddle, newMiddle, oldSuffix);
+        }
+      }
+      if (oldRange.length > 0 && newRange && newRange.length === 0) {
+        replaceRange: {
+          var oldPrefix = oldText.slice(0, oldRange.index);
+          var oldSuffix = oldText.slice(oldRange.index + oldRange.length);
+          var prefixLength = oldPrefix.length;
+          var suffixLength = oldSuffix.length;
+          if (newLength < prefixLength + suffixLength) {
+            break replaceRange;
+          }
+          var newPrefix = newText.slice(0, prefixLength);
+          var newSuffix = newText.slice(newLength - suffixLength);
+          if (oldPrefix !== newPrefix || oldSuffix !== newSuffix) {
+            break replaceRange;
+          }
+          var oldMiddle = oldText.slice(prefixLength, oldLength - suffixLength);
+          var newMiddle = newText.slice(prefixLength, newLength - suffixLength);
+          return make_edit_splice(oldPrefix, oldMiddle, newMiddle, oldSuffix);
+        }
+      }
+      return null;
+    }
+    function diff2(text1, text2, cursor_pos, cleanup) {
+      return diff_main(text1, text2, cursor_pos, cleanup, true);
+    }
+    diff2.INSERT = DIFF_INSERT;
+    diff2.DELETE = DIFF_DELETE;
+    diff2.EQUAL = DIFF_EQUAL;
+    module.exports = diff2;
+  }
+});
+
+// node_modules/jstoxml/dist/jstoxml.js
+var require_jstoxml = __commonJS({
+  "node_modules/jstoxml/dist/jstoxml.js"(exports) {
+    (function(global2, factory) {
+      if (typeof define === "function" && define.amd) {
+        define(["exports"], factory);
+      } else if (typeof exports !== "undefined") {
+        factory(exports);
+      } else {
+        var mod = {
+          exports: {}
+        };
+        factory(mod.exports);
+        global2.jstoxml = mod.exports;
+      }
+    })(typeof globalThis !== "undefined" ? globalThis : typeof self !== "undefined" ? self : exports, function(_exports) {
+      "use strict";
+      Object.defineProperty(_exports, "__esModule", {
+        value: true
+      });
+      _exports.toXML = _exports.default = void 0;
+      function _toConsumableArray(arr) {
+        return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread();
+      }
+      function _nonIterableSpread() {
+        throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+      }
+      function _unsupportedIterableToArray(o, minLen) {
+        if (!o) return;
+        if (typeof o === "string") return _arrayLikeToArray(o, minLen);
+        var n = Object.prototype.toString.call(o).slice(8, -1);
+        if (n === "Object" && o.constructor) n = o.constructor.name;
+        if (n === "Map" || n === "Set") return Array.from(o);
+        if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
+      }
+      function _iterableToArray(iter) {
+        if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter);
+      }
+      function _arrayWithoutHoles(arr) {
+        if (Array.isArray(arr)) return _arrayLikeToArray(arr);
+      }
+      function _arrayLikeToArray(arr, len) {
+        if (len == null || len > arr.length) len = arr.length;
+        for (var i = 0, arr2 = new Array(len); i < len; i++) {
+          arr2[i] = arr[i];
+        }
+        return arr2;
+      }
+      function ownKeys(object, enumerableOnly) {
+        var keys = Object.keys(object);
+        if (Object.getOwnPropertySymbols) {
+          var symbols = Object.getOwnPropertySymbols(object);
+          enumerableOnly && (symbols = symbols.filter(function(sym) {
+            return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+          })), keys.push.apply(keys, symbols);
+        }
+        return keys;
+      }
+      function _objectSpread(target) {
+        for (var i = 1; i < arguments.length; i++) {
+          var source = null != arguments[i] ? arguments[i] : {};
+          i % 2 ? ownKeys(Object(source), true).forEach(function(key) {
+            _defineProperty(target, key, source[key]);
+          }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function(key) {
+            Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
+          });
+        }
+        return target;
+      }
+      function _defineProperty(obj, key, value) {
+        if (key in obj) {
+          Object.defineProperty(obj, key, { value, enumerable: true, configurable: true, writable: true });
+        } else {
+          obj[key] = value;
+        }
+        return obj;
+      }
+      function _typeof(obj) {
+        "@babel/helpers - typeof";
+        return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(obj2) {
+          return typeof obj2;
+        } : function(obj2) {
+          return obj2 && "function" == typeof Symbol && obj2.constructor === Symbol && obj2 !== Symbol.prototype ? "symbol" : typeof obj2;
+        }, _typeof(obj);
+      }
+      var ARRAY = "array";
+      var BOOLEAN = "boolean";
+      var DATE = "date";
+      var NULL = "null";
+      var NUMBER = "number";
+      var OBJECT = "object";
+      var SPECIAL_OBJECT = "special-object";
+      var STRING = "string";
+      var PRIVATE_VARS = ["_selfCloseTag", "_attrs"];
+      var PRIVATE_VARS_REGEXP = new RegExp(PRIVATE_VARS.join("|"), "g");
+      var getIndentStr = function getIndentStr2() {
+        var indent = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : "";
+        var depth = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : 0;
+        return indent.repeat(depth);
+      };
+      var getType = function getType2(val) {
+        return Array.isArray(val) && ARRAY || _typeof(val) === OBJECT && val !== null && val._name && SPECIAL_OBJECT || val instanceof Date && DATE || val === null && NULL || _typeof(val);
+      };
+      var filterStr = function filterStr2() {
+        var inputStr = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : "";
+        var filter = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : {};
+        if (typeof inputStr !== "string") {
+          return inputStr;
+        }
+        var regexp = new RegExp("(".concat(Object.keys(filter).join("|"), ")(?!(\\w|#)*;)"), "g");
+        return String(inputStr).replace(regexp, function(str, entity) {
+          return filter[entity] || "";
+        });
+      };
+      var getAttributeKeyVals = function getAttributeKeyVals2() {
+        var attributes = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : {};
+        var filter = arguments.length > 1 ? arguments[1] : void 0;
+        var keyVals = [];
+        if (Array.isArray(attributes)) {
+          keyVals = attributes.map(function(attr) {
+            var key = Object.keys(attr)[0];
+            var val = attr[key];
+            var filteredVal = filter ? filterStr(val, filter) : val;
+            var valStr = filteredVal === true ? "" : '="'.concat(filteredVal, '"');
+            return "".concat(key).concat(valStr);
+          });
+        } else {
+          var keys = Object.keys(attributes);
+          keyVals = keys.map(function(key) {
+            var filteredVal = filter ? filterStr(attributes[key], filter) : attributes[key];
+            var valStr = attributes[key] === true ? "" : '="'.concat(filteredVal, '"');
+            return "".concat(key).concat(valStr);
+          });
+        }
+        return keyVals;
+      };
+      var formatAttributes = function formatAttributes2() {
+        var attributes = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : {};
+        var filter = arguments.length > 1 ? arguments[1] : void 0;
+        var keyVals = getAttributeKeyVals(attributes, filter);
+        if (keyVals.length === 0) return "";
+        var keysValsJoined = keyVals.join(" ");
+        return " ".concat(keysValsJoined);
+      };
+      var objToArray = function objToArray2() {
+        var obj = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : {};
+        return Object.keys(obj).map(function(key) {
+          return {
+            _name: key,
+            _content: obj[key]
+          };
+        });
+      };
+      var PRIMITIVE_TYPES = [STRING, NUMBER, BOOLEAN];
+      var isPrimitive = function isPrimitive2(val) {
+        return PRIMITIVE_TYPES.includes(getType(val));
+      };
+      var SIMPLE_TYPES = [].concat(PRIMITIVE_TYPES, [DATE, SPECIAL_OBJECT]);
+      var isSimpleType = function isSimpleType2(val) {
+        return SIMPLE_TYPES.includes(getType(val));
+      };
+      var isSimpleXML = function isSimpleXML2(xmlStr) {
+        return !xmlStr.match("<");
+      };
+      var DEFAULT_XML_HEADER = '<?xml version="1.0" encoding="UTF-8"?>';
+      var getHeaderString = function getHeaderString2(_ref) {
+        var header = _ref.header, indent = _ref.indent, isOutputStart = _ref.isOutputStart;
+        var shouldOutputHeader = header && isOutputStart;
+        if (!shouldOutputHeader) return "";
+        var shouldUseDefaultHeader = _typeof(header) === BOOLEAN;
+        return shouldUseDefaultHeader ? DEFAULT_XML_HEADER : header;
+      };
+      var defaultEntityFilter = {
+        "<": "&lt;",
+        ">": "&gt;",
+        "&": "&amp;"
+      };
+      var toXML = function toXML2() {
+        var obj = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : {};
+        var config = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : {};
+        var _config$depth = config.depth, depth = _config$depth === void 0 ? 0 : _config$depth, indent = config.indent, _isFirstItem = config._isFirstItem, _config$_isOutputStar = config._isOutputStart, _isOutputStart = _config$_isOutputStar === void 0 ? true : _config$_isOutputStar, header = config.header, _config$attributesFil = config.attributesFilter, rawAttributesFilter = _config$attributesFil === void 0 ? {} : _config$attributesFil, _config$filter = config.filter, rawFilter = _config$filter === void 0 ? {} : _config$filter;
+        var shouldTurnOffAttributesFilter = typeof rawAttributesFilter === "boolean" && !rawAttributesFilter;
+        var attributesFilter = shouldTurnOffAttributesFilter ? {} : _objectSpread(_objectSpread(_objectSpread({}, defaultEntityFilter), {
+          '"': "&quot;"
+        }), rawAttributesFilter);
+        var shouldTurnOffFilter = typeof rawFilter === "boolean" && !rawFilter;
+        var filter = shouldTurnOffFilter ? {} : _objectSpread(_objectSpread({}, defaultEntityFilter), rawFilter);
+        var indentStr = getIndentStr(indent, depth);
+        var valType = getType(obj);
+        var headerStr = getHeaderString({
+          header,
+          indent,
+          depth,
+          isOutputStart: _isOutputStart
+        });
+        var isOutputStart = _isOutputStart && !headerStr && _isFirstItem && depth === 0;
+        var outputStr = "";
+        switch (valType) {
+          case "special-object": {
+            var _name = obj._name, _content = obj._content;
+            if (_content === null) {
+              outputStr = _name;
+              break;
+            }
+            var isArrayOfPrimitives = Array.isArray(_content) && _content.every(isPrimitive);
+            if (isArrayOfPrimitives) {
+              var primitives = _content.map(function(a) {
+                return toXML2({
+                  _name,
+                  _content: a
+                }, _objectSpread(_objectSpread({}, config), {}, {
+                  depth,
+                  _isOutputStart: false
+                }));
+              });
+              return primitives.join("");
+            }
+            if (_name.match(PRIVATE_VARS_REGEXP)) break;
+            var newVal = toXML2(_content, _objectSpread(_objectSpread({}, config), {}, {
+              depth: depth + 1,
+              _isOutputStart: isOutputStart
+            }));
+            var newValType = getType(newVal);
+            var isNewValSimple = isSimpleXML(newVal);
+            var preIndentStr = indent && !isOutputStart ? "\n" : "";
+            var preTag = "".concat(preIndentStr).concat(indentStr);
+            if (_name === "_comment") {
+              outputStr += "".concat(preTag, "<!-- ").concat(_content, " -->");
+              break;
+            }
+            var valIsEmpty = newValType === "undefined" || newVal === "";
+            var shouldSelfClose = _typeof(obj._selfCloseTag) === BOOLEAN ? valIsEmpty && obj._selfCloseTag : valIsEmpty;
+            var selfCloseStr = shouldSelfClose ? "/" : "";
+            var attributesString = formatAttributes(obj._attrs, attributesFilter);
+            var tag = "<".concat(_name).concat(attributesString).concat(selfCloseStr, ">");
+            var preTagCloseStr = indent && !isNewValSimple ? "\n".concat(indentStr) : "";
+            var postTag = !shouldSelfClose ? "".concat(newVal).concat(preTagCloseStr, "</").concat(_name, ">") : "";
+            outputStr += "".concat(preTag).concat(tag).concat(postTag);
+            break;
+          }
+          case "object": {
+            var keys = Object.keys(obj);
+            var outputArr = keys.map(function(key, index) {
+              var newConfig = _objectSpread(_objectSpread({}, config), {}, {
+                _isFirstItem: index === 0,
+                _isLastItem: index + 1 === keys.length,
+                _isOutputStart: isOutputStart
+              });
+              var outputObj = {
+                _name: key
+              };
+              if (getType(obj[key]) === "object") {
+                PRIVATE_VARS.forEach(function(privateVar) {
+                  var val = obj[key][privateVar];
+                  if (typeof val !== "undefined") {
+                    outputObj[privateVar] = val;
+                    delete obj[key][privateVar];
+                  }
+                });
+                var hasContent = typeof obj[key]._content !== "undefined";
+                if (hasContent) {
+                  if (Object.keys(obj[key]).length > 1) {
+                    var newContentObj = Object.assign({}, obj[key]);
+                    delete newContentObj._content;
+                    outputObj._content = [].concat(_toConsumableArray(objToArray(newContentObj)), [obj[key]._content]);
+                  }
+                }
+              }
+              if (typeof outputObj._content === "undefined") outputObj._content = obj[key];
+              var xml = toXML2(outputObj, newConfig, key);
+              return xml;
+            }, config);
+            outputStr = outputArr.join("");
+            break;
+          }
+          case "function": {
+            var fnResult = obj(config);
+            outputStr = toXML2(fnResult, config);
+            break;
+          }
+          case "array": {
+            var _outputArr = obj.map(function(singleVal, index) {
+              var newConfig = _objectSpread(_objectSpread({}, config), {}, {
+                _isFirstItem: index === 0,
+                _isLastItem: index + 1 === obj.length,
+                _isOutputStart: isOutputStart
+              });
+              return toXML2(singleVal, newConfig);
+            });
+            outputStr = _outputArr.join("");
+            break;
+          }
+          // number, string, boolean, date, null, etc
+          default: {
+            outputStr = filterStr(obj, filter);
+            break;
+          }
+        }
+        return "".concat(headerStr).concat(outputStr);
+      };
+      _exports.toXML = toXML;
+      var _default = {
+        toXML
+      };
+      _exports.default = _default;
+    });
+  }
+});
+
+// node_modules/chord-symbol/lib/chord-symbol.js
+var require_chord_symbol = __commonJS({
+  "node_modules/chord-symbol/lib/chord-symbol.js"(exports, module) {
+    (function webpackUniversalModuleDefinition(root, factory) {
+      if (typeof exports === "object" && typeof module === "object")
+        module.exports = factory();
+      else if (typeof define === "function" && define.amd)
+        define([], factory);
+      else if (typeof exports === "object")
+        exports["chord-symbol"] = factory();
+      else
+        root["chord-symbol"] = factory();
+    })(typeof self !== "undefined" ? self : exports, function() {
+      return (
+        /******/
+        (() => {
+          var __webpack_modules__ = {
+            /***/
+            8552: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var getNative = __webpack_require__2(852), root = __webpack_require__2(5639);
+                var DataView = getNative(root, "DataView");
+                module2.exports = DataView;
+              }
+            ),
+            /***/
+            1989: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var hashClear = __webpack_require__2(1789), hashDelete = __webpack_require__2(401), hashGet = __webpack_require__2(7667), hashHas = __webpack_require__2(1327), hashSet = __webpack_require__2(1866);
+                function Hash(entries) {
+                  var index = -1, length = entries == null ? 0 : entries.length;
+                  this.clear();
+                  while (++index < length) {
+                    var entry = entries[index];
+                    this.set(entry[0], entry[1]);
+                  }
+                }
+                Hash.prototype.clear = hashClear;
+                Hash.prototype["delete"] = hashDelete;
+                Hash.prototype.get = hashGet;
+                Hash.prototype.has = hashHas;
+                Hash.prototype.set = hashSet;
+                module2.exports = Hash;
+              }
+            ),
+            /***/
+            8407: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var listCacheClear = __webpack_require__2(7040), listCacheDelete = __webpack_require__2(4125), listCacheGet = __webpack_require__2(2117), listCacheHas = __webpack_require__2(7518), listCacheSet = __webpack_require__2(4705);
+                function ListCache(entries) {
+                  var index = -1, length = entries == null ? 0 : entries.length;
+                  this.clear();
+                  while (++index < length) {
+                    var entry = entries[index];
+                    this.set(entry[0], entry[1]);
+                  }
+                }
+                ListCache.prototype.clear = listCacheClear;
+                ListCache.prototype["delete"] = listCacheDelete;
+                ListCache.prototype.get = listCacheGet;
+                ListCache.prototype.has = listCacheHas;
+                ListCache.prototype.set = listCacheSet;
+                module2.exports = ListCache;
+              }
+            ),
+            /***/
+            7071: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var getNative = __webpack_require__2(852), root = __webpack_require__2(5639);
+                var Map2 = getNative(root, "Map");
+                module2.exports = Map2;
+              }
+            ),
+            /***/
+            3369: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var mapCacheClear = __webpack_require__2(4785), mapCacheDelete = __webpack_require__2(1285), mapCacheGet = __webpack_require__2(6e3), mapCacheHas = __webpack_require__2(9916), mapCacheSet = __webpack_require__2(5265);
+                function MapCache(entries) {
+                  var index = -1, length = entries == null ? 0 : entries.length;
+                  this.clear();
+                  while (++index < length) {
+                    var entry = entries[index];
+                    this.set(entry[0], entry[1]);
+                  }
+                }
+                MapCache.prototype.clear = mapCacheClear;
+                MapCache.prototype["delete"] = mapCacheDelete;
+                MapCache.prototype.get = mapCacheGet;
+                MapCache.prototype.has = mapCacheHas;
+                MapCache.prototype.set = mapCacheSet;
+                module2.exports = MapCache;
+              }
+            ),
+            /***/
+            3818: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var getNative = __webpack_require__2(852), root = __webpack_require__2(5639);
+                var Promise3 = getNative(root, "Promise");
+                module2.exports = Promise3;
+              }
+            ),
+            /***/
+            8525: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var getNative = __webpack_require__2(852), root = __webpack_require__2(5639);
+                var Set = getNative(root, "Set");
+                module2.exports = Set;
+              }
+            ),
+            /***/
+            8668: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var MapCache = __webpack_require__2(3369), setCacheAdd = __webpack_require__2(619), setCacheHas = __webpack_require__2(2385);
+                function SetCache(values) {
+                  var index = -1, length = values == null ? 0 : values.length;
+                  this.__data__ = new MapCache();
+                  while (++index < length) {
+                    this.add(values[index]);
+                  }
+                }
+                SetCache.prototype.add = SetCache.prototype.push = setCacheAdd;
+                SetCache.prototype.has = setCacheHas;
+                module2.exports = SetCache;
+              }
+            ),
+            /***/
+            6384: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var ListCache = __webpack_require__2(8407), stackClear = __webpack_require__2(7465), stackDelete = __webpack_require__2(3779), stackGet = __webpack_require__2(7599), stackHas = __webpack_require__2(4758), stackSet = __webpack_require__2(4309);
+                function Stack(entries) {
+                  var data = this.__data__ = new ListCache(entries);
+                  this.size = data.size;
+                }
+                Stack.prototype.clear = stackClear;
+                Stack.prototype["delete"] = stackDelete;
+                Stack.prototype.get = stackGet;
+                Stack.prototype.has = stackHas;
+                Stack.prototype.set = stackSet;
+                module2.exports = Stack;
+              }
+            ),
+            /***/
+            2705: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var root = __webpack_require__2(5639);
+                var Symbol2 = root.Symbol;
+                module2.exports = Symbol2;
+              }
+            ),
+            /***/
+            1149: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var root = __webpack_require__2(5639);
+                var Uint8Array2 = root.Uint8Array;
+                module2.exports = Uint8Array2;
+              }
+            ),
+            /***/
+            577: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var getNative = __webpack_require__2(852), root = __webpack_require__2(5639);
+                var WeakMap = getNative(root, "WeakMap");
+                module2.exports = WeakMap;
+              }
+            ),
+            /***/
+            6874: (
+              /***/
+              (module2) => {
+                function apply(func, thisArg, args) {
+                  switch (args.length) {
+                    case 0:
+                      return func.call(thisArg);
+                    case 1:
+                      return func.call(thisArg, args[0]);
+                    case 2:
+                      return func.call(thisArg, args[0], args[1]);
+                    case 3:
+                      return func.call(thisArg, args[0], args[1], args[2]);
+                  }
+                  return func.apply(thisArg, args);
+                }
+                module2.exports = apply;
+              }
+            ),
+            /***/
+            7412: (
+              /***/
+              (module2) => {
+                function arrayEach(array, iteratee) {
+                  var index = -1, length = array == null ? 0 : array.length;
+                  while (++index < length) {
+                    if (iteratee(array[index], index, array) === false) {
+                      break;
+                    }
+                  }
+                  return array;
+                }
+                module2.exports = arrayEach;
+              }
+            ),
+            /***/
+            4963: (
+              /***/
+              (module2) => {
+                function arrayFilter(array, predicate) {
+                  var index = -1, length = array == null ? 0 : array.length, resIndex = 0, result = [];
+                  while (++index < length) {
+                    var value = array[index];
+                    if (predicate(value, index, array)) {
+                      result[resIndex++] = value;
+                    }
+                  }
+                  return result;
+                }
+                module2.exports = arrayFilter;
+              }
+            ),
+            /***/
+            7443: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var baseIndexOf = __webpack_require__2(2118);
+                function arrayIncludes(array, value) {
+                  var length = array == null ? 0 : array.length;
+                  return !!length && baseIndexOf(array, value, 0) > -1;
+                }
+                module2.exports = arrayIncludes;
+              }
+            ),
+            /***/
+            1196: (
+              /***/
+              (module2) => {
+                function arrayIncludesWith(array, value, comparator) {
+                  var index = -1, length = array == null ? 0 : array.length;
+                  while (++index < length) {
+                    if (comparator(value, array[index])) {
+                      return true;
+                    }
+                  }
+                  return false;
+                }
+                module2.exports = arrayIncludesWith;
+              }
+            ),
+            /***/
+            4636: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var baseTimes = __webpack_require__2(2545), isArguments = __webpack_require__2(5694), isArray = __webpack_require__2(1469), isBuffer = __webpack_require__2(4144), isIndex = __webpack_require__2(5776), isTypedArray = __webpack_require__2(6719);
+                var objectProto = Object.prototype;
+                var hasOwnProperty = objectProto.hasOwnProperty;
+                function arrayLikeKeys(value, inherited) {
+                  var isArr = isArray(value), isArg = !isArr && isArguments(value), isBuff = !isArr && !isArg && isBuffer(value), isType = !isArr && !isArg && !isBuff && isTypedArray(value), skipIndexes = isArr || isArg || isBuff || isType, result = skipIndexes ? baseTimes(value.length, String) : [], length = result.length;
+                  for (var key in value) {
+                    if ((inherited || hasOwnProperty.call(value, key)) && !(skipIndexes && // Safari 9 has enumerable `arguments.length` in strict mode.
+                    (key == "length" || // Node.js 0.10 has enumerable non-index properties on buffers.
+                    isBuff && (key == "offset" || key == "parent") || // PhantomJS 2 has enumerable non-index properties on typed arrays.
+                    isType && (key == "buffer" || key == "byteLength" || key == "byteOffset") || // Skip index properties.
+                    isIndex(key, length)))) {
+                      result.push(key);
+                    }
+                  }
+                  return result;
+                }
+                module2.exports = arrayLikeKeys;
+              }
+            ),
+            /***/
+            9932: (
+              /***/
+              (module2) => {
+                function arrayMap(array, iteratee) {
+                  var index = -1, length = array == null ? 0 : array.length, result = Array(length);
+                  while (++index < length) {
+                    result[index] = iteratee(array[index], index, array);
+                  }
+                  return result;
+                }
+                module2.exports = arrayMap;
+              }
+            ),
+            /***/
+            2488: (
+              /***/
+              (module2) => {
+                function arrayPush(array, values) {
+                  var index = -1, length = values.length, offset = array.length;
+                  while (++index < length) {
+                    array[offset + index] = values[index];
+                  }
+                  return array;
+                }
+                module2.exports = arrayPush;
+              }
+            ),
+            /***/
+            2908: (
+              /***/
+              (module2) => {
+                function arraySome(array, predicate) {
+                  var index = -1, length = array == null ? 0 : array.length;
+                  while (++index < length) {
+                    if (predicate(array[index], index, array)) {
+                      return true;
+                    }
+                  }
+                  return false;
+                }
+                module2.exports = arraySome;
+              }
+            ),
+            /***/
+            4865: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var baseAssignValue = __webpack_require__2(9465), eq = __webpack_require__2(7813);
+                var objectProto = Object.prototype;
+                var hasOwnProperty = objectProto.hasOwnProperty;
+                function assignValue(object, key, value) {
+                  var objValue = object[key];
+                  if (!(hasOwnProperty.call(object, key) && eq(objValue, value)) || value === void 0 && !(key in object)) {
+                    baseAssignValue(object, key, value);
+                  }
+                }
+                module2.exports = assignValue;
+              }
+            ),
+            /***/
+            8470: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var eq = __webpack_require__2(7813);
+                function assocIndexOf(array, key) {
+                  var length = array.length;
+                  while (length--) {
+                    if (eq(array[length][0], key)) {
+                      return length;
+                    }
+                  }
+                  return -1;
+                }
+                module2.exports = assocIndexOf;
+              }
+            ),
+            /***/
+            4037: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var copyObject = __webpack_require__2(8363), keys = __webpack_require__2(3674);
+                function baseAssign(object, source) {
+                  return object && copyObject(source, keys(source), object);
+                }
+                module2.exports = baseAssign;
+              }
+            ),
+            /***/
+            3886: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var copyObject = __webpack_require__2(8363), keysIn = __webpack_require__2(1704);
+                function baseAssignIn(object, source) {
+                  return object && copyObject(source, keysIn(source), object);
+                }
+                module2.exports = baseAssignIn;
+              }
+            ),
+            /***/
+            9465: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var defineProperty = __webpack_require__2(8777);
+                function baseAssignValue(object, key, value) {
+                  if (key == "__proto__" && defineProperty) {
+                    defineProperty(object, key, {
+                      "configurable": true,
+                      "enumerable": true,
+                      "value": value,
+                      "writable": true
+                    });
+                  } else {
+                    object[key] = value;
+                  }
+                }
+                module2.exports = baseAssignValue;
+              }
+            ),
+            /***/
+            5990: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var Stack = __webpack_require__2(6384), arrayEach = __webpack_require__2(7412), assignValue = __webpack_require__2(4865), baseAssign = __webpack_require__2(4037), baseAssignIn = __webpack_require__2(3886), cloneBuffer = __webpack_require__2(4626), copyArray = __webpack_require__2(278), copySymbols = __webpack_require__2(8805), copySymbolsIn = __webpack_require__2(1911), getAllKeys = __webpack_require__2(8234), getAllKeysIn = __webpack_require__2(6904), getTag = __webpack_require__2(4160), initCloneArray = __webpack_require__2(3824), initCloneByTag = __webpack_require__2(9148), initCloneObject = __webpack_require__2(8517), isArray = __webpack_require__2(1469), isBuffer = __webpack_require__2(4144), isMap = __webpack_require__2(6688), isObject = __webpack_require__2(3218), isSet = __webpack_require__2(2928), keys = __webpack_require__2(3674), keysIn = __webpack_require__2(1704);
+                var CLONE_DEEP_FLAG = 1, CLONE_FLAT_FLAG = 2, CLONE_SYMBOLS_FLAG = 4;
+                var argsTag = "[object Arguments]", arrayTag = "[object Array]", boolTag = "[object Boolean]", dateTag = "[object Date]", errorTag = "[object Error]", funcTag = "[object Function]", genTag = "[object GeneratorFunction]", mapTag = "[object Map]", numberTag = "[object Number]", objectTag = "[object Object]", regexpTag = "[object RegExp]", setTag = "[object Set]", stringTag = "[object String]", symbolTag = "[object Symbol]", weakMapTag = "[object WeakMap]";
+                var arrayBufferTag = "[object ArrayBuffer]", dataViewTag = "[object DataView]", float32Tag = "[object Float32Array]", float64Tag = "[object Float64Array]", int8Tag = "[object Int8Array]", int16Tag = "[object Int16Array]", int32Tag = "[object Int32Array]", uint8Tag = "[object Uint8Array]", uint8ClampedTag = "[object Uint8ClampedArray]", uint16Tag = "[object Uint16Array]", uint32Tag = "[object Uint32Array]";
+                var cloneableTags = {};
+                cloneableTags[argsTag] = cloneableTags[arrayTag] = cloneableTags[arrayBufferTag] = cloneableTags[dataViewTag] = cloneableTags[boolTag] = cloneableTags[dateTag] = cloneableTags[float32Tag] = cloneableTags[float64Tag] = cloneableTags[int8Tag] = cloneableTags[int16Tag] = cloneableTags[int32Tag] = cloneableTags[mapTag] = cloneableTags[numberTag] = cloneableTags[objectTag] = cloneableTags[regexpTag] = cloneableTags[setTag] = cloneableTags[stringTag] = cloneableTags[symbolTag] = cloneableTags[uint8Tag] = cloneableTags[uint8ClampedTag] = cloneableTags[uint16Tag] = cloneableTags[uint32Tag] = true;
+                cloneableTags[errorTag] = cloneableTags[funcTag] = cloneableTags[weakMapTag] = false;
+                function baseClone(value, bitmask, customizer, key, object, stack) {
+                  var result, isDeep = bitmask & CLONE_DEEP_FLAG, isFlat = bitmask & CLONE_FLAT_FLAG, isFull = bitmask & CLONE_SYMBOLS_FLAG;
+                  if (customizer) {
+                    result = object ? customizer(value, key, object, stack) : customizer(value);
+                  }
+                  if (result !== void 0) {
+                    return result;
+                  }
+                  if (!isObject(value)) {
+                    return value;
+                  }
+                  var isArr = isArray(value);
+                  if (isArr) {
+                    result = initCloneArray(value);
+                    if (!isDeep) {
+                      return copyArray(value, result);
+                    }
+                  } else {
+                    var tag = getTag(value), isFunc = tag == funcTag || tag == genTag;
+                    if (isBuffer(value)) {
+                      return cloneBuffer(value, isDeep);
+                    }
+                    if (tag == objectTag || tag == argsTag || isFunc && !object) {
+                      result = isFlat || isFunc ? {} : initCloneObject(value);
+                      if (!isDeep) {
+                        return isFlat ? copySymbolsIn(value, baseAssignIn(result, value)) : copySymbols(value, baseAssign(result, value));
+                      }
+                    } else {
+                      if (!cloneableTags[tag]) {
+                        return object ? value : {};
+                      }
+                      result = initCloneByTag(value, tag, isDeep);
+                    }
+                  }
+                  stack || (stack = new Stack());
+                  var stacked = stack.get(value);
+                  if (stacked) {
+                    return stacked;
+                  }
+                  stack.set(value, result);
+                  if (isSet(value)) {
+                    value.forEach(function(subValue) {
+                      result.add(baseClone(subValue, bitmask, customizer, subValue, value, stack));
+                    });
+                  } else if (isMap(value)) {
+                    value.forEach(function(subValue, key2) {
+                      result.set(key2, baseClone(subValue, bitmask, customizer, key2, value, stack));
+                    });
+                  }
+                  var keysFunc = isFull ? isFlat ? getAllKeysIn : getAllKeys : isFlat ? keysIn : keys;
+                  var props = isArr ? void 0 : keysFunc(value);
+                  arrayEach(props || value, function(subValue, key2) {
+                    if (props) {
+                      key2 = subValue;
+                      subValue = value[key2];
+                    }
+                    assignValue(result, key2, baseClone(subValue, bitmask, customizer, key2, value, stack));
+                  });
+                  return result;
+                }
+                module2.exports = baseClone;
+              }
+            ),
+            /***/
+            3118: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var isObject = __webpack_require__2(3218);
+                var objectCreate = Object.create;
+                var baseCreate = /* @__PURE__ */ function() {
+                  function object() {
+                  }
+                  return function(proto) {
+                    if (!isObject(proto)) {
+                      return {};
+                    }
+                    if (objectCreate) {
+                      return objectCreate(proto);
+                    }
+                    object.prototype = proto;
+                    var result = new object();
+                    object.prototype = void 0;
+                    return result;
+                  };
+                }();
+                module2.exports = baseCreate;
+              }
+            ),
+            /***/
+            731: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var SetCache = __webpack_require__2(8668), arrayIncludes = __webpack_require__2(7443), arrayIncludesWith = __webpack_require__2(1196), arrayMap = __webpack_require__2(9932), baseUnary = __webpack_require__2(1717), cacheHas = __webpack_require__2(4757);
+                var LARGE_ARRAY_SIZE = 200;
+                function baseDifference(array, values, iteratee, comparator) {
+                  var index = -1, includes = arrayIncludes, isCommon = true, length = array.length, result = [], valuesLength = values.length;
+                  if (!length) {
+                    return result;
+                  }
+                  if (iteratee) {
+                    values = arrayMap(values, baseUnary(iteratee));
+                  }
+                  if (comparator) {
+                    includes = arrayIncludesWith;
+                    isCommon = false;
+                  } else if (values.length >= LARGE_ARRAY_SIZE) {
+                    includes = cacheHas;
+                    isCommon = false;
+                    values = new SetCache(values);
+                  }
+                  outer:
+                    while (++index < length) {
+                      var value = array[index], computed = iteratee == null ? value : iteratee(value);
+                      value = comparator || value !== 0 ? value : 0;
+                      if (isCommon && computed === computed) {
+                        var valuesIndex = valuesLength;
+                        while (valuesIndex--) {
+                          if (values[valuesIndex] === computed) {
+                            continue outer;
+                          }
+                        }
+                        result.push(value);
+                      } else if (!includes(values, computed, comparator)) {
+                        result.push(value);
+                      }
+                    }
+                  return result;
+                }
+                module2.exports = baseDifference;
+              }
+            ),
+            /***/
+            1848: (
+              /***/
+              (module2) => {
+                function baseFindIndex(array, predicate, fromIndex, fromRight) {
+                  var length = array.length, index = fromIndex + (fromRight ? 1 : -1);
+                  while (fromRight ? index-- : ++index < length) {
+                    if (predicate(array[index], index, array)) {
+                      return index;
+                    }
+                  }
+                  return -1;
+                }
+                module2.exports = baseFindIndex;
+              }
+            ),
+            /***/
+            1078: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var arrayPush = __webpack_require__2(2488), isFlattenable = __webpack_require__2(7285);
+                function baseFlatten(array, depth, predicate, isStrict, result) {
+                  var index = -1, length = array.length;
+                  predicate || (predicate = isFlattenable);
+                  result || (result = []);
+                  while (++index < length) {
+                    var value = array[index];
+                    if (depth > 0 && predicate(value)) {
+                      if (depth > 1) {
+                        baseFlatten(value, depth - 1, predicate, isStrict, result);
+                      } else {
+                        arrayPush(result, value);
+                      }
+                    } else if (!isStrict) {
+                      result[result.length] = value;
+                    }
+                  }
+                  return result;
+                }
+                module2.exports = baseFlatten;
+              }
+            ),
+            /***/
+            8483: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var createBaseFor = __webpack_require__2(5063);
+                var baseFor = createBaseFor();
+                module2.exports = baseFor;
+              }
+            ),
+            /***/
+            7816: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var baseFor = __webpack_require__2(8483), keys = __webpack_require__2(3674);
+                function baseForOwn(object, iteratee) {
+                  return object && baseFor(object, iteratee, keys);
+                }
+                module2.exports = baseForOwn;
+              }
+            ),
+            /***/
+            7786: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var castPath = __webpack_require__2(1811), toKey = __webpack_require__2(327);
+                function baseGet(object, path) {
+                  path = castPath(path, object);
+                  var index = 0, length = path.length;
+                  while (object != null && index < length) {
+                    object = object[toKey(path[index++])];
+                  }
+                  return index && index == length ? object : void 0;
+                }
+                module2.exports = baseGet;
+              }
+            ),
+            /***/
+            8866: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var arrayPush = __webpack_require__2(2488), isArray = __webpack_require__2(1469);
+                function baseGetAllKeys(object, keysFunc, symbolsFunc) {
+                  var result = keysFunc(object);
+                  return isArray(object) ? result : arrayPush(result, symbolsFunc(object));
+                }
+                module2.exports = baseGetAllKeys;
+              }
+            ),
+            /***/
+            4239: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var Symbol2 = __webpack_require__2(2705), getRawTag = __webpack_require__2(9607), objectToString = __webpack_require__2(2333);
+                var nullTag = "[object Null]", undefinedTag = "[object Undefined]";
+                var symToStringTag = Symbol2 ? Symbol2.toStringTag : void 0;
+                function baseGetTag(value) {
+                  if (value == null) {
+                    return value === void 0 ? undefinedTag : nullTag;
+                  }
+                  return symToStringTag && symToStringTag in Object(value) ? getRawTag(value) : objectToString(value);
+                }
+                module2.exports = baseGetTag;
+              }
+            ),
+            /***/
+            13: (
+              /***/
+              (module2) => {
+                function baseHasIn(object, key) {
+                  return object != null && key in Object(object);
+                }
+                module2.exports = baseHasIn;
+              }
+            ),
+            /***/
+            2118: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var baseFindIndex = __webpack_require__2(1848), baseIsNaN = __webpack_require__2(2722), strictIndexOf = __webpack_require__2(2351);
+                function baseIndexOf(array, value, fromIndex) {
+                  return value === value ? strictIndexOf(array, value, fromIndex) : baseFindIndex(array, baseIsNaN, fromIndex);
+                }
+                module2.exports = baseIndexOf;
+              }
+            ),
+            /***/
+            8975: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var baseForOwn = __webpack_require__2(7816);
+                function baseInverter(object, setter, iteratee, accumulator) {
+                  baseForOwn(object, function(value, key, object2) {
+                    setter(accumulator, iteratee(value), key, object2);
+                  });
+                  return accumulator;
+                }
+                module2.exports = baseInverter;
+              }
+            ),
+            /***/
+            9454: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var baseGetTag = __webpack_require__2(4239), isObjectLike = __webpack_require__2(7005);
+                var argsTag = "[object Arguments]";
+                function baseIsArguments(value) {
+                  return isObjectLike(value) && baseGetTag(value) == argsTag;
+                }
+                module2.exports = baseIsArguments;
+              }
+            ),
+            /***/
+            939: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var baseIsEqualDeep = __webpack_require__2(2492), isObjectLike = __webpack_require__2(7005);
+                function baseIsEqual(value, other, bitmask, customizer, stack) {
+                  if (value === other) {
+                    return true;
+                  }
+                  if (value == null || other == null || !isObjectLike(value) && !isObjectLike(other)) {
+                    return value !== value && other !== other;
+                  }
+                  return baseIsEqualDeep(value, other, bitmask, customizer, baseIsEqual, stack);
+                }
+                module2.exports = baseIsEqual;
+              }
+            ),
+            /***/
+            2492: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var Stack = __webpack_require__2(6384), equalArrays = __webpack_require__2(7114), equalByTag = __webpack_require__2(8351), equalObjects = __webpack_require__2(6096), getTag = __webpack_require__2(4160), isArray = __webpack_require__2(1469), isBuffer = __webpack_require__2(4144), isTypedArray = __webpack_require__2(6719);
+                var COMPARE_PARTIAL_FLAG = 1;
+                var argsTag = "[object Arguments]", arrayTag = "[object Array]", objectTag = "[object Object]";
+                var objectProto = Object.prototype;
+                var hasOwnProperty = objectProto.hasOwnProperty;
+                function baseIsEqualDeep(object, other, bitmask, customizer, equalFunc, stack) {
+                  var objIsArr = isArray(object), othIsArr = isArray(other), objTag = objIsArr ? arrayTag : getTag(object), othTag = othIsArr ? arrayTag : getTag(other);
+                  objTag = objTag == argsTag ? objectTag : objTag;
+                  othTag = othTag == argsTag ? objectTag : othTag;
+                  var objIsObj = objTag == objectTag, othIsObj = othTag == objectTag, isSameTag = objTag == othTag;
+                  if (isSameTag && isBuffer(object)) {
+                    if (!isBuffer(other)) {
+                      return false;
+                    }
+                    objIsArr = true;
+                    objIsObj = false;
+                  }
+                  if (isSameTag && !objIsObj) {
+                    stack || (stack = new Stack());
+                    return objIsArr || isTypedArray(object) ? equalArrays(object, other, bitmask, customizer, equalFunc, stack) : equalByTag(object, other, objTag, bitmask, customizer, equalFunc, stack);
+                  }
+                  if (!(bitmask & COMPARE_PARTIAL_FLAG)) {
+                    var objIsWrapped = objIsObj && hasOwnProperty.call(object, "__wrapped__"), othIsWrapped = othIsObj && hasOwnProperty.call(other, "__wrapped__");
+                    if (objIsWrapped || othIsWrapped) {
+                      var objUnwrapped = objIsWrapped ? object.value() : object, othUnwrapped = othIsWrapped ? other.value() : other;
+                      stack || (stack = new Stack());
+                      return equalFunc(objUnwrapped, othUnwrapped, bitmask, customizer, stack);
+                    }
+                  }
+                  if (!isSameTag) {
+                    return false;
+                  }
+                  stack || (stack = new Stack());
+                  return equalObjects(object, other, bitmask, customizer, equalFunc, stack);
+                }
+                module2.exports = baseIsEqualDeep;
+              }
+            ),
+            /***/
+            5588: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var getTag = __webpack_require__2(4160), isObjectLike = __webpack_require__2(7005);
+                var mapTag = "[object Map]";
+                function baseIsMap(value) {
+                  return isObjectLike(value) && getTag(value) == mapTag;
+                }
+                module2.exports = baseIsMap;
+              }
+            ),
+            /***/
+            2958: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var Stack = __webpack_require__2(6384), baseIsEqual = __webpack_require__2(939);
+                var COMPARE_PARTIAL_FLAG = 1, COMPARE_UNORDERED_FLAG = 2;
+                function baseIsMatch(object, source, matchData, customizer) {
+                  var index = matchData.length, length = index, noCustomizer = !customizer;
+                  if (object == null) {
+                    return !length;
+                  }
+                  object = Object(object);
+                  while (index--) {
+                    var data = matchData[index];
+                    if (noCustomizer && data[2] ? data[1] !== object[data[0]] : !(data[0] in object)) {
+                      return false;
+                    }
+                  }
+                  while (++index < length) {
+                    data = matchData[index];
+                    var key = data[0], objValue = object[key], srcValue = data[1];
+                    if (noCustomizer && data[2]) {
+                      if (objValue === void 0 && !(key in object)) {
+                        return false;
+                      }
+                    } else {
+                      var stack = new Stack();
+                      if (customizer) {
+                        var result = customizer(objValue, srcValue, key, object, source, stack);
+                      }
+                      if (!(result === void 0 ? baseIsEqual(srcValue, objValue, COMPARE_PARTIAL_FLAG | COMPARE_UNORDERED_FLAG, customizer, stack) : result)) {
+                        return false;
+                      }
+                    }
+                  }
+                  return true;
+                }
+                module2.exports = baseIsMatch;
+              }
+            ),
+            /***/
+            2722: (
+              /***/
+              (module2) => {
+                function baseIsNaN(value) {
+                  return value !== value;
+                }
+                module2.exports = baseIsNaN;
+              }
+            ),
+            /***/
+            8458: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var isFunction = __webpack_require__2(3560), isMasked = __webpack_require__2(5346), isObject = __webpack_require__2(3218), toSource = __webpack_require__2(346);
+                var reRegExpChar = /[\\^$.*+?()[\]{}|]/g;
+                var reIsHostCtor = /^\[object .+?Constructor\]$/;
+                var funcProto = Function.prototype, objectProto = Object.prototype;
+                var funcToString = funcProto.toString;
+                var hasOwnProperty = objectProto.hasOwnProperty;
+                var reIsNative = RegExp(
+                  "^" + funcToString.call(hasOwnProperty).replace(reRegExpChar, "\\$&").replace(/hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\\])/g, "$1.*?") + "$"
+                );
+                function baseIsNative(value) {
+                  if (!isObject(value) || isMasked(value)) {
+                    return false;
+                  }
+                  var pattern = isFunction(value) ? reIsNative : reIsHostCtor;
+                  return pattern.test(toSource(value));
+                }
+                module2.exports = baseIsNative;
+              }
+            ),
+            /***/
+            9221: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var getTag = __webpack_require__2(4160), isObjectLike = __webpack_require__2(7005);
+                var setTag = "[object Set]";
+                function baseIsSet(value) {
+                  return isObjectLike(value) && getTag(value) == setTag;
+                }
+                module2.exports = baseIsSet;
+              }
+            ),
+            /***/
+            8749: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var baseGetTag = __webpack_require__2(4239), isLength = __webpack_require__2(1780), isObjectLike = __webpack_require__2(7005);
+                var argsTag = "[object Arguments]", arrayTag = "[object Array]", boolTag = "[object Boolean]", dateTag = "[object Date]", errorTag = "[object Error]", funcTag = "[object Function]", mapTag = "[object Map]", numberTag = "[object Number]", objectTag = "[object Object]", regexpTag = "[object RegExp]", setTag = "[object Set]", stringTag = "[object String]", weakMapTag = "[object WeakMap]";
+                var arrayBufferTag = "[object ArrayBuffer]", dataViewTag = "[object DataView]", float32Tag = "[object Float32Array]", float64Tag = "[object Float64Array]", int8Tag = "[object Int8Array]", int16Tag = "[object Int16Array]", int32Tag = "[object Int32Array]", uint8Tag = "[object Uint8Array]", uint8ClampedTag = "[object Uint8ClampedArray]", uint16Tag = "[object Uint16Array]", uint32Tag = "[object Uint32Array]";
+                var typedArrayTags = {};
+                typedArrayTags[float32Tag] = typedArrayTags[float64Tag] = typedArrayTags[int8Tag] = typedArrayTags[int16Tag] = typedArrayTags[int32Tag] = typedArrayTags[uint8Tag] = typedArrayTags[uint8ClampedTag] = typedArrayTags[uint16Tag] = typedArrayTags[uint32Tag] = true;
+                typedArrayTags[argsTag] = typedArrayTags[arrayTag] = typedArrayTags[arrayBufferTag] = typedArrayTags[boolTag] = typedArrayTags[dataViewTag] = typedArrayTags[dateTag] = typedArrayTags[errorTag] = typedArrayTags[funcTag] = typedArrayTags[mapTag] = typedArrayTags[numberTag] = typedArrayTags[objectTag] = typedArrayTags[regexpTag] = typedArrayTags[setTag] = typedArrayTags[stringTag] = typedArrayTags[weakMapTag] = false;
+                function baseIsTypedArray(value) {
+                  return isObjectLike(value) && isLength(value.length) && !!typedArrayTags[baseGetTag(value)];
+                }
+                module2.exports = baseIsTypedArray;
+              }
+            ),
+            /***/
+            7206: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var baseMatches = __webpack_require__2(1573), baseMatchesProperty = __webpack_require__2(6432), identity = __webpack_require__2(6557), isArray = __webpack_require__2(1469), property = __webpack_require__2(9601);
+                function baseIteratee(value) {
+                  if (typeof value == "function") {
+                    return value;
+                  }
+                  if (value == null) {
+                    return identity;
+                  }
+                  if (typeof value == "object") {
+                    return isArray(value) ? baseMatchesProperty(value[0], value[1]) : baseMatches(value);
+                  }
+                  return property(value);
+                }
+                module2.exports = baseIteratee;
+              }
+            ),
+            /***/
+            280: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var isPrototype = __webpack_require__2(5726), nativeKeys = __webpack_require__2(6916);
+                var objectProto = Object.prototype;
+                var hasOwnProperty = objectProto.hasOwnProperty;
+                function baseKeys(object) {
+                  if (!isPrototype(object)) {
+                    return nativeKeys(object);
+                  }
+                  var result = [];
+                  for (var key in Object(object)) {
+                    if (hasOwnProperty.call(object, key) && key != "constructor") {
+                      result.push(key);
+                    }
+                  }
+                  return result;
+                }
+                module2.exports = baseKeys;
+              }
+            ),
+            /***/
+            313: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var isObject = __webpack_require__2(3218), isPrototype = __webpack_require__2(5726), nativeKeysIn = __webpack_require__2(3498);
+                var objectProto = Object.prototype;
+                var hasOwnProperty = objectProto.hasOwnProperty;
+                function baseKeysIn(object) {
+                  if (!isObject(object)) {
+                    return nativeKeysIn(object);
+                  }
+                  var isProto = isPrototype(object), result = [];
+                  for (var key in object) {
+                    if (!(key == "constructor" && (isProto || !hasOwnProperty.call(object, key)))) {
+                      result.push(key);
+                    }
+                  }
+                  return result;
+                }
+                module2.exports = baseKeysIn;
+              }
+            ),
+            /***/
+            1573: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var baseIsMatch = __webpack_require__2(2958), getMatchData = __webpack_require__2(1499), matchesStrictComparable = __webpack_require__2(2634);
+                function baseMatches(source) {
+                  var matchData = getMatchData(source);
+                  if (matchData.length == 1 && matchData[0][2]) {
+                    return matchesStrictComparable(matchData[0][0], matchData[0][1]);
+                  }
+                  return function(object) {
+                    return object === source || baseIsMatch(object, source, matchData);
+                  };
+                }
+                module2.exports = baseMatches;
+              }
+            ),
+            /***/
+            6432: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var baseIsEqual = __webpack_require__2(939), get = __webpack_require__2(7361), hasIn = __webpack_require__2(9095), isKey = __webpack_require__2(5403), isStrictComparable = __webpack_require__2(9162), matchesStrictComparable = __webpack_require__2(2634), toKey = __webpack_require__2(327);
+                var COMPARE_PARTIAL_FLAG = 1, COMPARE_UNORDERED_FLAG = 2;
+                function baseMatchesProperty(path, srcValue) {
+                  if (isKey(path) && isStrictComparable(srcValue)) {
+                    return matchesStrictComparable(toKey(path), srcValue);
+                  }
+                  return function(object) {
+                    var objValue = get(object, path);
+                    return objValue === void 0 && objValue === srcValue ? hasIn(object, path) : baseIsEqual(srcValue, objValue, COMPARE_PARTIAL_FLAG | COMPARE_UNORDERED_FLAG);
+                  };
+                }
+                module2.exports = baseMatchesProperty;
+              }
+            ),
+            /***/
+            371: (
+              /***/
+              (module2) => {
+                function baseProperty(key) {
+                  return function(object) {
+                    return object == null ? void 0 : object[key];
+                  };
+                }
+                module2.exports = baseProperty;
+              }
+            ),
+            /***/
+            9152: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var baseGet = __webpack_require__2(7786);
+                function basePropertyDeep(path) {
+                  return function(object) {
+                    return baseGet(object, path);
+                  };
+                }
+                module2.exports = basePropertyDeep;
+              }
+            ),
+            /***/
+            5976: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var identity = __webpack_require__2(6557), overRest = __webpack_require__2(5357), setToString = __webpack_require__2(61);
+                function baseRest(func, start) {
+                  return setToString(overRest(func, start, identity), func + "");
+                }
+                module2.exports = baseRest;
+              }
+            ),
+            /***/
+            6560: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var constant = __webpack_require__2(5703), defineProperty = __webpack_require__2(8777), identity = __webpack_require__2(6557);
+                var baseSetToString = !defineProperty ? identity : function(func, string) {
+                  return defineProperty(func, "toString", {
+                    "configurable": true,
+                    "enumerable": false,
+                    "value": constant(string),
+                    "writable": true
+                  });
+                };
+                module2.exports = baseSetToString;
+              }
+            ),
+            /***/
+            2545: (
+              /***/
+              (module2) => {
+                function baseTimes(n, iteratee) {
+                  var index = -1, result = Array(n);
+                  while (++index < n) {
+                    result[index] = iteratee(index);
+                  }
+                  return result;
+                }
+                module2.exports = baseTimes;
+              }
+            ),
+            /***/
+            531: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var Symbol2 = __webpack_require__2(2705), arrayMap = __webpack_require__2(9932), isArray = __webpack_require__2(1469), isSymbol = __webpack_require__2(3448);
+                var INFINITY = 1 / 0;
+                var symbolProto = Symbol2 ? Symbol2.prototype : void 0, symbolToString = symbolProto ? symbolProto.toString : void 0;
+                function baseToString(value) {
+                  if (typeof value == "string") {
+                    return value;
+                  }
+                  if (isArray(value)) {
+                    return arrayMap(value, baseToString) + "";
+                  }
+                  if (isSymbol(value)) {
+                    return symbolToString ? symbolToString.call(value) : "";
+                  }
+                  var result = value + "";
+                  return result == "0" && 1 / value == -INFINITY ? "-0" : result;
+                }
+                module2.exports = baseToString;
+              }
+            ),
+            /***/
+            7561: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var trimmedEndIndex = __webpack_require__2(7990);
+                var reTrimStart = /^\s+/;
+                function baseTrim(string) {
+                  return string ? string.slice(0, trimmedEndIndex(string) + 1).replace(reTrimStart, "") : string;
+                }
+                module2.exports = baseTrim;
+              }
+            ),
+            /***/
+            1717: (
+              /***/
+              (module2) => {
+                function baseUnary(func) {
+                  return function(value) {
+                    return func(value);
+                  };
+                }
+                module2.exports = baseUnary;
+              }
+            ),
+            /***/
+            5652: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var SetCache = __webpack_require__2(8668), arrayIncludes = __webpack_require__2(7443), arrayIncludesWith = __webpack_require__2(1196), cacheHas = __webpack_require__2(4757), createSet = __webpack_require__2(3593), setToArray = __webpack_require__2(1814);
+                var LARGE_ARRAY_SIZE = 200;
+                function baseUniq(array, iteratee, comparator) {
+                  var index = -1, includes = arrayIncludes, length = array.length, isCommon = true, result = [], seen = result;
+                  if (comparator) {
+                    isCommon = false;
+                    includes = arrayIncludesWith;
+                  } else if (length >= LARGE_ARRAY_SIZE) {
+                    var set = iteratee ? null : createSet(array);
+                    if (set) {
+                      return setToArray(set);
+                    }
+                    isCommon = false;
+                    includes = cacheHas;
+                    seen = new SetCache();
+                  } else {
+                    seen = iteratee ? [] : result;
+                  }
+                  outer:
+                    while (++index < length) {
+                      var value = array[index], computed = iteratee ? iteratee(value) : value;
+                      value = comparator || value !== 0 ? value : 0;
+                      if (isCommon && computed === computed) {
+                        var seenIndex = seen.length;
+                        while (seenIndex--) {
+                          if (seen[seenIndex] === computed) {
+                            continue outer;
+                          }
+                        }
+                        if (iteratee) {
+                          seen.push(computed);
+                        }
+                        result.push(value);
+                      } else if (!includes(seen, computed, comparator)) {
+                        if (seen !== result) {
+                          seen.push(computed);
+                        }
+                        result.push(value);
+                      }
+                    }
+                  return result;
+                }
+                module2.exports = baseUniq;
+              }
+            ),
+            /***/
+            4757: (
+              /***/
+              (module2) => {
+                function cacheHas(cache, key) {
+                  return cache.has(key);
+                }
+                module2.exports = cacheHas;
+              }
+            ),
+            /***/
+            1811: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var isArray = __webpack_require__2(1469), isKey = __webpack_require__2(5403), stringToPath = __webpack_require__2(5514), toString = __webpack_require__2(9833);
+                function castPath(value, object) {
+                  if (isArray(value)) {
+                    return value;
+                  }
+                  return isKey(value, object) ? [value] : stringToPath(toString(value));
+                }
+                module2.exports = castPath;
+              }
+            ),
+            /***/
+            4318: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var Uint8Array2 = __webpack_require__2(1149);
+                function cloneArrayBuffer(arrayBuffer) {
+                  var result = new arrayBuffer.constructor(arrayBuffer.byteLength);
+                  new Uint8Array2(result).set(new Uint8Array2(arrayBuffer));
+                  return result;
+                }
+                module2.exports = cloneArrayBuffer;
+              }
+            ),
+            /***/
+            4626: (
+              /***/
+              (module2, exports2, __webpack_require__2) => {
+                module2 = __webpack_require__2.nmd(module2);
+                var root = __webpack_require__2(5639);
+                var freeExports = exports2 && !exports2.nodeType && exports2;
+                var freeModule = freeExports && true && module2 && !module2.nodeType && module2;
+                var moduleExports = freeModule && freeModule.exports === freeExports;
+                var Buffer2 = moduleExports ? root.Buffer : void 0, allocUnsafe = Buffer2 ? Buffer2.allocUnsafe : void 0;
+                function cloneBuffer(buffer, isDeep) {
+                  if (isDeep) {
+                    return buffer.slice();
+                  }
+                  var length = buffer.length, result = allocUnsafe ? allocUnsafe(length) : new buffer.constructor(length);
+                  buffer.copy(result);
+                  return result;
+                }
+                module2.exports = cloneBuffer;
+              }
+            ),
+            /***/
+            7157: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var cloneArrayBuffer = __webpack_require__2(4318);
+                function cloneDataView(dataView, isDeep) {
+                  var buffer = isDeep ? cloneArrayBuffer(dataView.buffer) : dataView.buffer;
+                  return new dataView.constructor(buffer, dataView.byteOffset, dataView.byteLength);
+                }
+                module2.exports = cloneDataView;
+              }
+            ),
+            /***/
+            3147: (
+              /***/
+              (module2) => {
+                var reFlags = /\w*$/;
+                function cloneRegExp(regexp) {
+                  var result = new regexp.constructor(regexp.source, reFlags.exec(regexp));
+                  result.lastIndex = regexp.lastIndex;
+                  return result;
+                }
+                module2.exports = cloneRegExp;
+              }
+            ),
+            /***/
+            419: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var Symbol2 = __webpack_require__2(2705);
+                var symbolProto = Symbol2 ? Symbol2.prototype : void 0, symbolValueOf = symbolProto ? symbolProto.valueOf : void 0;
+                function cloneSymbol(symbol) {
+                  return symbolValueOf ? Object(symbolValueOf.call(symbol)) : {};
+                }
+                module2.exports = cloneSymbol;
+              }
+            ),
+            /***/
+            7133: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var cloneArrayBuffer = __webpack_require__2(4318);
+                function cloneTypedArray(typedArray, isDeep) {
+                  var buffer = isDeep ? cloneArrayBuffer(typedArray.buffer) : typedArray.buffer;
+                  return new typedArray.constructor(buffer, typedArray.byteOffset, typedArray.length);
+                }
+                module2.exports = cloneTypedArray;
+              }
+            ),
+            /***/
+            278: (
+              /***/
+              (module2) => {
+                function copyArray(source, array) {
+                  var index = -1, length = source.length;
+                  array || (array = Array(length));
+                  while (++index < length) {
+                    array[index] = source[index];
+                  }
+                  return array;
+                }
+                module2.exports = copyArray;
+              }
+            ),
+            /***/
+            8363: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var assignValue = __webpack_require__2(4865), baseAssignValue = __webpack_require__2(9465);
+                function copyObject(source, props, object, customizer) {
+                  var isNew = !object;
+                  object || (object = {});
+                  var index = -1, length = props.length;
+                  while (++index < length) {
+                    var key = props[index];
+                    var newValue = customizer ? customizer(object[key], source[key], key, object, source) : void 0;
+                    if (newValue === void 0) {
+                      newValue = source[key];
+                    }
+                    if (isNew) {
+                      baseAssignValue(object, key, newValue);
+                    } else {
+                      assignValue(object, key, newValue);
+                    }
+                  }
+                  return object;
+                }
+                module2.exports = copyObject;
+              }
+            ),
+            /***/
+            8805: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var copyObject = __webpack_require__2(8363), getSymbols = __webpack_require__2(9551);
+                function copySymbols(source, object) {
+                  return copyObject(source, getSymbols(source), object);
+                }
+                module2.exports = copySymbols;
+              }
+            ),
+            /***/
+            1911: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var copyObject = __webpack_require__2(8363), getSymbolsIn = __webpack_require__2(1442);
+                function copySymbolsIn(source, object) {
+                  return copyObject(source, getSymbolsIn(source), object);
+                }
+                module2.exports = copySymbolsIn;
+              }
+            ),
+            /***/
+            4429: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var root = __webpack_require__2(5639);
+                var coreJsData = root["__core-js_shared__"];
+                module2.exports = coreJsData;
+              }
+            ),
+            /***/
+            5063: (
+              /***/
+              (module2) => {
+                function createBaseFor(fromRight) {
+                  return function(object, iteratee, keysFunc) {
+                    var index = -1, iterable = Object(object), props = keysFunc(object), length = props.length;
+                    while (length--) {
+                      var key = props[fromRight ? length : ++index];
+                      if (iteratee(iterable[key], key, iterable) === false) {
+                        break;
+                      }
+                    }
+                    return object;
+                  };
+                }
+                module2.exports = createBaseFor;
+              }
+            ),
+            /***/
+            7740: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var baseIteratee = __webpack_require__2(7206), isArrayLike = __webpack_require__2(8612), keys = __webpack_require__2(3674);
+                function createFind(findIndexFunc) {
+                  return function(collection, predicate, fromIndex) {
+                    var iterable = Object(collection);
+                    if (!isArrayLike(collection)) {
+                      var iteratee = baseIteratee(predicate, 3);
+                      collection = keys(collection);
+                      predicate = function(key) {
+                        return iteratee(iterable[key], key, iterable);
+                      };
+                    }
+                    var index = findIndexFunc(collection, predicate, fromIndex);
+                    return index > -1 ? iterable[iteratee ? collection[index] : index] : void 0;
+                  };
+                }
+                module2.exports = createFind;
+              }
+            ),
+            /***/
+            7779: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var baseInverter = __webpack_require__2(8975);
+                function createInverter(setter, toIteratee) {
+                  return function(object, iteratee) {
+                    return baseInverter(object, setter, toIteratee(iteratee), {});
+                  };
+                }
+                module2.exports = createInverter;
+              }
+            ),
+            /***/
+            3593: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var Set = __webpack_require__2(8525), noop = __webpack_require__2(308), setToArray = __webpack_require__2(1814);
+                var INFINITY = 1 / 0;
+                var createSet = !(Set && 1 / setToArray(new Set([, -0]))[1] == INFINITY) ? noop : function(values) {
+                  return new Set(values);
+                };
+                module2.exports = createSet;
+              }
+            ),
+            /***/
+            8777: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var getNative = __webpack_require__2(852);
+                var defineProperty = function() {
+                  try {
+                    var func = getNative(Object, "defineProperty");
+                    func({}, "", {});
+                    return func;
+                  } catch (e) {
+                  }
+                }();
+                module2.exports = defineProperty;
+              }
+            ),
+            /***/
+            7114: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var SetCache = __webpack_require__2(8668), arraySome = __webpack_require__2(2908), cacheHas = __webpack_require__2(4757);
+                var COMPARE_PARTIAL_FLAG = 1, COMPARE_UNORDERED_FLAG = 2;
+                function equalArrays(array, other, bitmask, customizer, equalFunc, stack) {
+                  var isPartial = bitmask & COMPARE_PARTIAL_FLAG, arrLength = array.length, othLength = other.length;
+                  if (arrLength != othLength && !(isPartial && othLength > arrLength)) {
+                    return false;
+                  }
+                  var arrStacked = stack.get(array);
+                  var othStacked = stack.get(other);
+                  if (arrStacked && othStacked) {
+                    return arrStacked == other && othStacked == array;
+                  }
+                  var index = -1, result = true, seen = bitmask & COMPARE_UNORDERED_FLAG ? new SetCache() : void 0;
+                  stack.set(array, other);
+                  stack.set(other, array);
+                  while (++index < arrLength) {
+                    var arrValue = array[index], othValue = other[index];
+                    if (customizer) {
+                      var compared = isPartial ? customizer(othValue, arrValue, index, other, array, stack) : customizer(arrValue, othValue, index, array, other, stack);
+                    }
+                    if (compared !== void 0) {
+                      if (compared) {
+                        continue;
+                      }
+                      result = false;
+                      break;
+                    }
+                    if (seen) {
+                      if (!arraySome(other, function(othValue2, othIndex) {
+                        if (!cacheHas(seen, othIndex) && (arrValue === othValue2 || equalFunc(arrValue, othValue2, bitmask, customizer, stack))) {
+                          return seen.push(othIndex);
+                        }
+                      })) {
+                        result = false;
+                        break;
+                      }
+                    } else if (!(arrValue === othValue || equalFunc(arrValue, othValue, bitmask, customizer, stack))) {
+                      result = false;
+                      break;
+                    }
+                  }
+                  stack["delete"](array);
+                  stack["delete"](other);
+                  return result;
+                }
+                module2.exports = equalArrays;
+              }
+            ),
+            /***/
+            8351: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var Symbol2 = __webpack_require__2(2705), Uint8Array2 = __webpack_require__2(1149), eq = __webpack_require__2(7813), equalArrays = __webpack_require__2(7114), mapToArray = __webpack_require__2(8776), setToArray = __webpack_require__2(1814);
+                var COMPARE_PARTIAL_FLAG = 1, COMPARE_UNORDERED_FLAG = 2;
+                var boolTag = "[object Boolean]", dateTag = "[object Date]", errorTag = "[object Error]", mapTag = "[object Map]", numberTag = "[object Number]", regexpTag = "[object RegExp]", setTag = "[object Set]", stringTag = "[object String]", symbolTag = "[object Symbol]";
+                var arrayBufferTag = "[object ArrayBuffer]", dataViewTag = "[object DataView]";
+                var symbolProto = Symbol2 ? Symbol2.prototype : void 0, symbolValueOf = symbolProto ? symbolProto.valueOf : void 0;
+                function equalByTag(object, other, tag, bitmask, customizer, equalFunc, stack) {
+                  switch (tag) {
+                    case dataViewTag:
+                      if (object.byteLength != other.byteLength || object.byteOffset != other.byteOffset) {
+                        return false;
+                      }
+                      object = object.buffer;
+                      other = other.buffer;
+                    case arrayBufferTag:
+                      if (object.byteLength != other.byteLength || !equalFunc(new Uint8Array2(object), new Uint8Array2(other))) {
+                        return false;
+                      }
+                      return true;
+                    case boolTag:
+                    case dateTag:
+                    case numberTag:
+                      return eq(+object, +other);
+                    case errorTag:
+                      return object.name == other.name && object.message == other.message;
+                    case regexpTag:
+                    case stringTag:
+                      return object == other + "";
+                    case mapTag:
+                      var convert2 = mapToArray;
+                    case setTag:
+                      var isPartial = bitmask & COMPARE_PARTIAL_FLAG;
+                      convert2 || (convert2 = setToArray);
+                      if (object.size != other.size && !isPartial) {
+                        return false;
+                      }
+                      var stacked = stack.get(object);
+                      if (stacked) {
+                        return stacked == other;
+                      }
+                      bitmask |= COMPARE_UNORDERED_FLAG;
+                      stack.set(object, other);
+                      var result = equalArrays(convert2(object), convert2(other), bitmask, customizer, equalFunc, stack);
+                      stack["delete"](object);
+                      return result;
+                    case symbolTag:
+                      if (symbolValueOf) {
+                        return symbolValueOf.call(object) == symbolValueOf.call(other);
+                      }
+                  }
+                  return false;
+                }
+                module2.exports = equalByTag;
+              }
+            ),
+            /***/
+            6096: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var getAllKeys = __webpack_require__2(8234);
+                var COMPARE_PARTIAL_FLAG = 1;
+                var objectProto = Object.prototype;
+                var hasOwnProperty = objectProto.hasOwnProperty;
+                function equalObjects(object, other, bitmask, customizer, equalFunc, stack) {
+                  var isPartial = bitmask & COMPARE_PARTIAL_FLAG, objProps = getAllKeys(object), objLength = objProps.length, othProps = getAllKeys(other), othLength = othProps.length;
+                  if (objLength != othLength && !isPartial) {
+                    return false;
+                  }
+                  var index = objLength;
+                  while (index--) {
+                    var key = objProps[index];
+                    if (!(isPartial ? key in other : hasOwnProperty.call(other, key))) {
+                      return false;
+                    }
+                  }
+                  var objStacked = stack.get(object);
+                  var othStacked = stack.get(other);
+                  if (objStacked && othStacked) {
+                    return objStacked == other && othStacked == object;
+                  }
+                  var result = true;
+                  stack.set(object, other);
+                  stack.set(other, object);
+                  var skipCtor = isPartial;
+                  while (++index < objLength) {
+                    key = objProps[index];
+                    var objValue = object[key], othValue = other[key];
+                    if (customizer) {
+                      var compared = isPartial ? customizer(othValue, objValue, key, other, object, stack) : customizer(objValue, othValue, key, object, other, stack);
+                    }
+                    if (!(compared === void 0 ? objValue === othValue || equalFunc(objValue, othValue, bitmask, customizer, stack) : compared)) {
+                      result = false;
+                      break;
+                    }
+                    skipCtor || (skipCtor = key == "constructor");
+                  }
+                  if (result && !skipCtor) {
+                    var objCtor = object.constructor, othCtor = other.constructor;
+                    if (objCtor != othCtor && ("constructor" in object && "constructor" in other) && !(typeof objCtor == "function" && objCtor instanceof objCtor && typeof othCtor == "function" && othCtor instanceof othCtor)) {
+                      result = false;
+                    }
+                  }
+                  stack["delete"](object);
+                  stack["delete"](other);
+                  return result;
+                }
+                module2.exports = equalObjects;
+              }
+            ),
+            /***/
+            1957: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var freeGlobal = typeof __webpack_require__2.g == "object" && __webpack_require__2.g && __webpack_require__2.g.Object === Object && __webpack_require__2.g;
+                module2.exports = freeGlobal;
+              }
+            ),
+            /***/
+            8234: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var baseGetAllKeys = __webpack_require__2(8866), getSymbols = __webpack_require__2(9551), keys = __webpack_require__2(3674);
+                function getAllKeys(object) {
+                  return baseGetAllKeys(object, keys, getSymbols);
+                }
+                module2.exports = getAllKeys;
+              }
+            ),
+            /***/
+            6904: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var baseGetAllKeys = __webpack_require__2(8866), getSymbolsIn = __webpack_require__2(1442), keysIn = __webpack_require__2(1704);
+                function getAllKeysIn(object) {
+                  return baseGetAllKeys(object, keysIn, getSymbolsIn);
+                }
+                module2.exports = getAllKeysIn;
+              }
+            ),
+            /***/
+            5050: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var isKeyable = __webpack_require__2(7019);
+                function getMapData(map, key) {
+                  var data = map.__data__;
+                  return isKeyable(key) ? data[typeof key == "string" ? "string" : "hash"] : data.map;
+                }
+                module2.exports = getMapData;
+              }
+            ),
+            /***/
+            1499: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var isStrictComparable = __webpack_require__2(9162), keys = __webpack_require__2(3674);
+                function getMatchData(object) {
+                  var result = keys(object), length = result.length;
+                  while (length--) {
+                    var key = result[length], value = object[key];
+                    result[length] = [key, value, isStrictComparable(value)];
+                  }
+                  return result;
+                }
+                module2.exports = getMatchData;
+              }
+            ),
+            /***/
+            852: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var baseIsNative = __webpack_require__2(8458), getValue = __webpack_require__2(7801);
+                function getNative(object, key) {
+                  var value = getValue(object, key);
+                  return baseIsNative(value) ? value : void 0;
+                }
+                module2.exports = getNative;
+              }
+            ),
+            /***/
+            5924: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var overArg = __webpack_require__2(5569);
+                var getPrototype = overArg(Object.getPrototypeOf, Object);
+                module2.exports = getPrototype;
+              }
+            ),
+            /***/
+            9607: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var Symbol2 = __webpack_require__2(2705);
+                var objectProto = Object.prototype;
+                var hasOwnProperty = objectProto.hasOwnProperty;
+                var nativeObjectToString = objectProto.toString;
+                var symToStringTag = Symbol2 ? Symbol2.toStringTag : void 0;
+                function getRawTag(value) {
+                  var isOwn = hasOwnProperty.call(value, symToStringTag), tag = value[symToStringTag];
+                  try {
+                    value[symToStringTag] = void 0;
+                    var unmasked = true;
+                  } catch (e) {
+                  }
+                  var result = nativeObjectToString.call(value);
+                  if (unmasked) {
+                    if (isOwn) {
+                      value[symToStringTag] = tag;
+                    } else {
+                      delete value[symToStringTag];
+                    }
+                  }
+                  return result;
+                }
+                module2.exports = getRawTag;
+              }
+            ),
+            /***/
+            9551: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var arrayFilter = __webpack_require__2(4963), stubArray = __webpack_require__2(479);
+                var objectProto = Object.prototype;
+                var propertyIsEnumerable = objectProto.propertyIsEnumerable;
+                var nativeGetSymbols = Object.getOwnPropertySymbols;
+                var getSymbols = !nativeGetSymbols ? stubArray : function(object) {
+                  if (object == null) {
+                    return [];
+                  }
+                  object = Object(object);
+                  return arrayFilter(nativeGetSymbols(object), function(symbol) {
+                    return propertyIsEnumerable.call(object, symbol);
+                  });
+                };
+                module2.exports = getSymbols;
+              }
+            ),
+            /***/
+            1442: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var arrayPush = __webpack_require__2(2488), getPrototype = __webpack_require__2(5924), getSymbols = __webpack_require__2(9551), stubArray = __webpack_require__2(479);
+                var nativeGetSymbols = Object.getOwnPropertySymbols;
+                var getSymbolsIn = !nativeGetSymbols ? stubArray : function(object) {
+                  var result = [];
+                  while (object) {
+                    arrayPush(result, getSymbols(object));
+                    object = getPrototype(object);
+                  }
+                  return result;
+                };
+                module2.exports = getSymbolsIn;
+              }
+            ),
+            /***/
+            4160: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var DataView = __webpack_require__2(8552), Map2 = __webpack_require__2(7071), Promise3 = __webpack_require__2(3818), Set = __webpack_require__2(8525), WeakMap = __webpack_require__2(577), baseGetTag = __webpack_require__2(4239), toSource = __webpack_require__2(346);
+                var mapTag = "[object Map]", objectTag = "[object Object]", promiseTag = "[object Promise]", setTag = "[object Set]", weakMapTag = "[object WeakMap]";
+                var dataViewTag = "[object DataView]";
+                var dataViewCtorString = toSource(DataView), mapCtorString = toSource(Map2), promiseCtorString = toSource(Promise3), setCtorString = toSource(Set), weakMapCtorString = toSource(WeakMap);
+                var getTag = baseGetTag;
+                if (DataView && getTag(new DataView(new ArrayBuffer(1))) != dataViewTag || Map2 && getTag(new Map2()) != mapTag || Promise3 && getTag(Promise3.resolve()) != promiseTag || Set && getTag(new Set()) != setTag || WeakMap && getTag(new WeakMap()) != weakMapTag) {
+                  getTag = function(value) {
+                    var result = baseGetTag(value), Ctor = result == objectTag ? value.constructor : void 0, ctorString = Ctor ? toSource(Ctor) : "";
+                    if (ctorString) {
+                      switch (ctorString) {
+                        case dataViewCtorString:
+                          return dataViewTag;
+                        case mapCtorString:
+                          return mapTag;
+                        case promiseCtorString:
+                          return promiseTag;
+                        case setCtorString:
+                          return setTag;
+                        case weakMapCtorString:
+                          return weakMapTag;
+                      }
+                    }
+                    return result;
+                  };
+                }
+                module2.exports = getTag;
+              }
+            ),
+            /***/
+            7801: (
+              /***/
+              (module2) => {
+                function getValue(object, key) {
+                  return object == null ? void 0 : object[key];
+                }
+                module2.exports = getValue;
+              }
+            ),
+            /***/
+            222: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var castPath = __webpack_require__2(1811), isArguments = __webpack_require__2(5694), isArray = __webpack_require__2(1469), isIndex = __webpack_require__2(5776), isLength = __webpack_require__2(1780), toKey = __webpack_require__2(327);
+                function hasPath(object, path, hasFunc) {
+                  path = castPath(path, object);
+                  var index = -1, length = path.length, result = false;
+                  while (++index < length) {
+                    var key = toKey(path[index]);
+                    if (!(result = object != null && hasFunc(object, key))) {
+                      break;
+                    }
+                    object = object[key];
+                  }
+                  if (result || ++index != length) {
+                    return result;
+                  }
+                  length = object == null ? 0 : object.length;
+                  return !!length && isLength(length) && isIndex(key, length) && (isArray(object) || isArguments(object));
+                }
+                module2.exports = hasPath;
+              }
+            ),
+            /***/
+            1789: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var nativeCreate = __webpack_require__2(4536);
+                function hashClear() {
+                  this.__data__ = nativeCreate ? nativeCreate(null) : {};
+                  this.size = 0;
+                }
+                module2.exports = hashClear;
+              }
+            ),
+            /***/
+            401: (
+              /***/
+              (module2) => {
+                function hashDelete(key) {
+                  var result = this.has(key) && delete this.__data__[key];
+                  this.size -= result ? 1 : 0;
+                  return result;
+                }
+                module2.exports = hashDelete;
+              }
+            ),
+            /***/
+            7667: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var nativeCreate = __webpack_require__2(4536);
+                var HASH_UNDEFINED = "__lodash_hash_undefined__";
+                var objectProto = Object.prototype;
+                var hasOwnProperty = objectProto.hasOwnProperty;
+                function hashGet(key) {
+                  var data = this.__data__;
+                  if (nativeCreate) {
+                    var result = data[key];
+                    return result === HASH_UNDEFINED ? void 0 : result;
+                  }
+                  return hasOwnProperty.call(data, key) ? data[key] : void 0;
+                }
+                module2.exports = hashGet;
+              }
+            ),
+            /***/
+            1327: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var nativeCreate = __webpack_require__2(4536);
+                var objectProto = Object.prototype;
+                var hasOwnProperty = objectProto.hasOwnProperty;
+                function hashHas(key) {
+                  var data = this.__data__;
+                  return nativeCreate ? data[key] !== void 0 : hasOwnProperty.call(data, key);
+                }
+                module2.exports = hashHas;
+              }
+            ),
+            /***/
+            1866: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var nativeCreate = __webpack_require__2(4536);
+                var HASH_UNDEFINED = "__lodash_hash_undefined__";
+                function hashSet(key, value) {
+                  var data = this.__data__;
+                  this.size += this.has(key) ? 0 : 1;
+                  data[key] = nativeCreate && value === void 0 ? HASH_UNDEFINED : value;
+                  return this;
+                }
+                module2.exports = hashSet;
+              }
+            ),
+            /***/
+            3824: (
+              /***/
+              (module2) => {
+                var objectProto = Object.prototype;
+                var hasOwnProperty = objectProto.hasOwnProperty;
+                function initCloneArray(array) {
+                  var length = array.length, result = new array.constructor(length);
+                  if (length && typeof array[0] == "string" && hasOwnProperty.call(array, "index")) {
+                    result.index = array.index;
+                    result.input = array.input;
+                  }
+                  return result;
+                }
+                module2.exports = initCloneArray;
+              }
+            ),
+            /***/
+            9148: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var cloneArrayBuffer = __webpack_require__2(4318), cloneDataView = __webpack_require__2(7157), cloneRegExp = __webpack_require__2(3147), cloneSymbol = __webpack_require__2(419), cloneTypedArray = __webpack_require__2(7133);
+                var boolTag = "[object Boolean]", dateTag = "[object Date]", mapTag = "[object Map]", numberTag = "[object Number]", regexpTag = "[object RegExp]", setTag = "[object Set]", stringTag = "[object String]", symbolTag = "[object Symbol]";
+                var arrayBufferTag = "[object ArrayBuffer]", dataViewTag = "[object DataView]", float32Tag = "[object Float32Array]", float64Tag = "[object Float64Array]", int8Tag = "[object Int8Array]", int16Tag = "[object Int16Array]", int32Tag = "[object Int32Array]", uint8Tag = "[object Uint8Array]", uint8ClampedTag = "[object Uint8ClampedArray]", uint16Tag = "[object Uint16Array]", uint32Tag = "[object Uint32Array]";
+                function initCloneByTag(object, tag, isDeep) {
+                  var Ctor = object.constructor;
+                  switch (tag) {
+                    case arrayBufferTag:
+                      return cloneArrayBuffer(object);
+                    case boolTag:
+                    case dateTag:
+                      return new Ctor(+object);
+                    case dataViewTag:
+                      return cloneDataView(object, isDeep);
+                    case float32Tag:
+                    case float64Tag:
+                    case int8Tag:
+                    case int16Tag:
+                    case int32Tag:
+                    case uint8Tag:
+                    case uint8ClampedTag:
+                    case uint16Tag:
+                    case uint32Tag:
+                      return cloneTypedArray(object, isDeep);
+                    case mapTag:
+                      return new Ctor();
+                    case numberTag:
+                    case stringTag:
+                      return new Ctor(object);
+                    case regexpTag:
+                      return cloneRegExp(object);
+                    case setTag:
+                      return new Ctor();
+                    case symbolTag:
+                      return cloneSymbol(object);
+                  }
+                }
+                module2.exports = initCloneByTag;
+              }
+            ),
+            /***/
+            8517: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var baseCreate = __webpack_require__2(3118), getPrototype = __webpack_require__2(5924), isPrototype = __webpack_require__2(5726);
+                function initCloneObject(object) {
+                  return typeof object.constructor == "function" && !isPrototype(object) ? baseCreate(getPrototype(object)) : {};
+                }
+                module2.exports = initCloneObject;
+              }
+            ),
+            /***/
+            7285: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var Symbol2 = __webpack_require__2(2705), isArguments = __webpack_require__2(5694), isArray = __webpack_require__2(1469);
+                var spreadableSymbol = Symbol2 ? Symbol2.isConcatSpreadable : void 0;
+                function isFlattenable(value) {
+                  return isArray(value) || isArguments(value) || !!(spreadableSymbol && value && value[spreadableSymbol]);
+                }
+                module2.exports = isFlattenable;
+              }
+            ),
+            /***/
+            5776: (
+              /***/
+              (module2) => {
+                var MAX_SAFE_INTEGER = 9007199254740991;
+                var reIsUint = /^(?:0|[1-9]\d*)$/;
+                function isIndex(value, length) {
+                  var type = typeof value;
+                  length = length == null ? MAX_SAFE_INTEGER : length;
+                  return !!length && (type == "number" || type != "symbol" && reIsUint.test(value)) && (value > -1 && value % 1 == 0 && value < length);
+                }
+                module2.exports = isIndex;
+              }
+            ),
+            /***/
+            5403: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var isArray = __webpack_require__2(1469), isSymbol = __webpack_require__2(3448);
+                var reIsDeepProp = /\.|\[(?:[^[\]]*|(["'])(?:(?!\1)[^\\]|\\.)*?\1)\]/, reIsPlainProp = /^\w*$/;
+                function isKey(value, object) {
+                  if (isArray(value)) {
+                    return false;
+                  }
+                  var type = typeof value;
+                  if (type == "number" || type == "symbol" || type == "boolean" || value == null || isSymbol(value)) {
+                    return true;
+                  }
+                  return reIsPlainProp.test(value) || !reIsDeepProp.test(value) || object != null && value in Object(object);
+                }
+                module2.exports = isKey;
+              }
+            ),
+            /***/
+            7019: (
+              /***/
+              (module2) => {
+                function isKeyable(value) {
+                  var type = typeof value;
+                  return type == "string" || type == "number" || type == "symbol" || type == "boolean" ? value !== "__proto__" : value === null;
+                }
+                module2.exports = isKeyable;
+              }
+            ),
+            /***/
+            5346: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var coreJsData = __webpack_require__2(4429);
+                var maskSrcKey = function() {
+                  var uid = /[^.]+$/.exec(coreJsData && coreJsData.keys && coreJsData.keys.IE_PROTO || "");
+                  return uid ? "Symbol(src)_1." + uid : "";
+                }();
+                function isMasked(func) {
+                  return !!maskSrcKey && maskSrcKey in func;
+                }
+                module2.exports = isMasked;
+              }
+            ),
+            /***/
+            5726: (
+              /***/
+              (module2) => {
+                var objectProto = Object.prototype;
+                function isPrototype(value) {
+                  var Ctor = value && value.constructor, proto = typeof Ctor == "function" && Ctor.prototype || objectProto;
+                  return value === proto;
+                }
+                module2.exports = isPrototype;
+              }
+            ),
+            /***/
+            9162: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var isObject = __webpack_require__2(3218);
+                function isStrictComparable(value) {
+                  return value === value && !isObject(value);
+                }
+                module2.exports = isStrictComparable;
+              }
+            ),
+            /***/
+            7040: (
+              /***/
+              (module2) => {
+                function listCacheClear() {
+                  this.__data__ = [];
+                  this.size = 0;
+                }
+                module2.exports = listCacheClear;
+              }
+            ),
+            /***/
+            4125: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var assocIndexOf = __webpack_require__2(8470);
+                var arrayProto = Array.prototype;
+                var splice = arrayProto.splice;
+                function listCacheDelete(key) {
+                  var data = this.__data__, index = assocIndexOf(data, key);
+                  if (index < 0) {
+                    return false;
+                  }
+                  var lastIndex = data.length - 1;
+                  if (index == lastIndex) {
+                    data.pop();
+                  } else {
+                    splice.call(data, index, 1);
+                  }
+                  --this.size;
+                  return true;
+                }
+                module2.exports = listCacheDelete;
+              }
+            ),
+            /***/
+            2117: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var assocIndexOf = __webpack_require__2(8470);
+                function listCacheGet(key) {
+                  var data = this.__data__, index = assocIndexOf(data, key);
+                  return index < 0 ? void 0 : data[index][1];
+                }
+                module2.exports = listCacheGet;
+              }
+            ),
+            /***/
+            7518: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var assocIndexOf = __webpack_require__2(8470);
+                function listCacheHas(key) {
+                  return assocIndexOf(this.__data__, key) > -1;
+                }
+                module2.exports = listCacheHas;
+              }
+            ),
+            /***/
+            4705: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var assocIndexOf = __webpack_require__2(8470);
+                function listCacheSet(key, value) {
+                  var data = this.__data__, index = assocIndexOf(data, key);
+                  if (index < 0) {
+                    ++this.size;
+                    data.push([key, value]);
+                  } else {
+                    data[index][1] = value;
+                  }
+                  return this;
+                }
+                module2.exports = listCacheSet;
+              }
+            ),
+            /***/
+            4785: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var Hash = __webpack_require__2(1989), ListCache = __webpack_require__2(8407), Map2 = __webpack_require__2(7071);
+                function mapCacheClear() {
+                  this.size = 0;
+                  this.__data__ = {
+                    "hash": new Hash(),
+                    "map": new (Map2 || ListCache)(),
+                    "string": new Hash()
+                  };
+                }
+                module2.exports = mapCacheClear;
+              }
+            ),
+            /***/
+            1285: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var getMapData = __webpack_require__2(5050);
+                function mapCacheDelete(key) {
+                  var result = getMapData(this, key)["delete"](key);
+                  this.size -= result ? 1 : 0;
+                  return result;
+                }
+                module2.exports = mapCacheDelete;
+              }
+            ),
+            /***/
+            6e3: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var getMapData = __webpack_require__2(5050);
+                function mapCacheGet(key) {
+                  return getMapData(this, key).get(key);
+                }
+                module2.exports = mapCacheGet;
+              }
+            ),
+            /***/
+            9916: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var getMapData = __webpack_require__2(5050);
+                function mapCacheHas(key) {
+                  return getMapData(this, key).has(key);
+                }
+                module2.exports = mapCacheHas;
+              }
+            ),
+            /***/
+            5265: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var getMapData = __webpack_require__2(5050);
+                function mapCacheSet(key, value) {
+                  var data = getMapData(this, key), size = data.size;
+                  data.set(key, value);
+                  this.size += data.size == size ? 0 : 1;
+                  return this;
+                }
+                module2.exports = mapCacheSet;
+              }
+            ),
+            /***/
+            8776: (
+              /***/
+              (module2) => {
+                function mapToArray(map) {
+                  var index = -1, result = Array(map.size);
+                  map.forEach(function(value, key) {
+                    result[++index] = [key, value];
+                  });
+                  return result;
+                }
+                module2.exports = mapToArray;
+              }
+            ),
+            /***/
+            2634: (
+              /***/
+              (module2) => {
+                function matchesStrictComparable(key, srcValue) {
+                  return function(object) {
+                    if (object == null) {
+                      return false;
+                    }
+                    return object[key] === srcValue && (srcValue !== void 0 || key in Object(object));
+                  };
+                }
+                module2.exports = matchesStrictComparable;
+              }
+            ),
+            /***/
+            4523: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var memoize = __webpack_require__2(8306);
+                var MAX_MEMOIZE_SIZE = 500;
+                function memoizeCapped(func) {
+                  var result = memoize(func, function(key) {
+                    if (cache.size === MAX_MEMOIZE_SIZE) {
+                      cache.clear();
+                    }
+                    return key;
+                  });
+                  var cache = result.cache;
+                  return result;
+                }
+                module2.exports = memoizeCapped;
+              }
+            ),
+            /***/
+            4536: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var getNative = __webpack_require__2(852);
+                var nativeCreate = getNative(Object, "create");
+                module2.exports = nativeCreate;
+              }
+            ),
+            /***/
+            6916: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var overArg = __webpack_require__2(5569);
+                var nativeKeys = overArg(Object.keys, Object);
+                module2.exports = nativeKeys;
+              }
+            ),
+            /***/
+            3498: (
+              /***/
+              (module2) => {
+                function nativeKeysIn(object) {
+                  var result = [];
+                  if (object != null) {
+                    for (var key in Object(object)) {
+                      result.push(key);
+                    }
+                  }
+                  return result;
+                }
+                module2.exports = nativeKeysIn;
+              }
+            ),
+            /***/
+            1167: (
+              /***/
+              (module2, exports2, __webpack_require__2) => {
+                module2 = __webpack_require__2.nmd(module2);
+                var freeGlobal = __webpack_require__2(1957);
+                var freeExports = exports2 && !exports2.nodeType && exports2;
+                var freeModule = freeExports && true && module2 && !module2.nodeType && module2;
+                var moduleExports = freeModule && freeModule.exports === freeExports;
+                var freeProcess = moduleExports && freeGlobal.process;
+                var nodeUtil = function() {
+                  try {
+                    var types = freeModule && freeModule.require && freeModule.require("util").types;
+                    if (types) {
+                      return types;
+                    }
+                    return freeProcess && freeProcess.binding && freeProcess.binding("util");
+                  } catch (e) {
+                  }
+                }();
+                module2.exports = nodeUtil;
+              }
+            ),
+            /***/
+            2333: (
+              /***/
+              (module2) => {
+                var objectProto = Object.prototype;
+                var nativeObjectToString = objectProto.toString;
+                function objectToString(value) {
+                  return nativeObjectToString.call(value);
+                }
+                module2.exports = objectToString;
+              }
+            ),
+            /***/
+            5569: (
+              /***/
+              (module2) => {
+                function overArg(func, transform) {
+                  return function(arg) {
+                    return func(transform(arg));
+                  };
+                }
+                module2.exports = overArg;
+              }
+            ),
+            /***/
+            5357: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var apply = __webpack_require__2(6874);
+                var nativeMax = Math.max;
+                function overRest(func, start, transform) {
+                  start = nativeMax(start === void 0 ? func.length - 1 : start, 0);
+                  return function() {
+                    var args = arguments, index = -1, length = nativeMax(args.length - start, 0), array = Array(length);
+                    while (++index < length) {
+                      array[index] = args[start + index];
+                    }
+                    index = -1;
+                    var otherArgs = Array(start + 1);
+                    while (++index < start) {
+                      otherArgs[index] = args[index];
+                    }
+                    otherArgs[start] = transform(array);
+                    return apply(func, this, otherArgs);
+                  };
+                }
+                module2.exports = overRest;
+              }
+            ),
+            /***/
+            5639: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var freeGlobal = __webpack_require__2(1957);
+                var freeSelf = typeof self == "object" && self && self.Object === Object && self;
+                var root = freeGlobal || freeSelf || Function("return this")();
+                module2.exports = root;
+              }
+            ),
+            /***/
+            619: (
+              /***/
+              (module2) => {
+                var HASH_UNDEFINED = "__lodash_hash_undefined__";
+                function setCacheAdd(value) {
+                  this.__data__.set(value, HASH_UNDEFINED);
+                  return this;
+                }
+                module2.exports = setCacheAdd;
+              }
+            ),
+            /***/
+            2385: (
+              /***/
+              (module2) => {
+                function setCacheHas(value) {
+                  return this.__data__.has(value);
+                }
+                module2.exports = setCacheHas;
+              }
+            ),
+            /***/
+            1814: (
+              /***/
+              (module2) => {
+                function setToArray(set) {
+                  var index = -1, result = Array(set.size);
+                  set.forEach(function(value) {
+                    result[++index] = value;
+                  });
+                  return result;
+                }
+                module2.exports = setToArray;
+              }
+            ),
+            /***/
+            61: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var baseSetToString = __webpack_require__2(6560), shortOut = __webpack_require__2(1275);
+                var setToString = shortOut(baseSetToString);
+                module2.exports = setToString;
+              }
+            ),
+            /***/
+            1275: (
+              /***/
+              (module2) => {
+                var HOT_COUNT = 800, HOT_SPAN = 16;
+                var nativeNow = Date.now;
+                function shortOut(func) {
+                  var count = 0, lastCalled = 0;
+                  return function() {
+                    var stamp = nativeNow(), remaining = HOT_SPAN - (stamp - lastCalled);
+                    lastCalled = stamp;
+                    if (remaining > 0) {
+                      if (++count >= HOT_COUNT) {
+                        return arguments[0];
+                      }
+                    } else {
+                      count = 0;
+                    }
+                    return func.apply(void 0, arguments);
+                  };
+                }
+                module2.exports = shortOut;
+              }
+            ),
+            /***/
+            7465: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var ListCache = __webpack_require__2(8407);
+                function stackClear() {
+                  this.__data__ = new ListCache();
+                  this.size = 0;
+                }
+                module2.exports = stackClear;
+              }
+            ),
+            /***/
+            3779: (
+              /***/
+              (module2) => {
+                function stackDelete(key) {
+                  var data = this.__data__, result = data["delete"](key);
+                  this.size = data.size;
+                  return result;
+                }
+                module2.exports = stackDelete;
+              }
+            ),
+            /***/
+            7599: (
+              /***/
+              (module2) => {
+                function stackGet(key) {
+                  return this.__data__.get(key);
+                }
+                module2.exports = stackGet;
+              }
+            ),
+            /***/
+            4758: (
+              /***/
+              (module2) => {
+                function stackHas(key) {
+                  return this.__data__.has(key);
+                }
+                module2.exports = stackHas;
+              }
+            ),
+            /***/
+            4309: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var ListCache = __webpack_require__2(8407), Map2 = __webpack_require__2(7071), MapCache = __webpack_require__2(3369);
+                var LARGE_ARRAY_SIZE = 200;
+                function stackSet(key, value) {
+                  var data = this.__data__;
+                  if (data instanceof ListCache) {
+                    var pairs = data.__data__;
+                    if (!Map2 || pairs.length < LARGE_ARRAY_SIZE - 1) {
+                      pairs.push([key, value]);
+                      this.size = ++data.size;
+                      return this;
+                    }
+                    data = this.__data__ = new MapCache(pairs);
+                  }
+                  data.set(key, value);
+                  this.size = data.size;
+                  return this;
+                }
+                module2.exports = stackSet;
+              }
+            ),
+            /***/
+            2351: (
+              /***/
+              (module2) => {
+                function strictIndexOf(array, value, fromIndex) {
+                  var index = fromIndex - 1, length = array.length;
+                  while (++index < length) {
+                    if (array[index] === value) {
+                      return index;
+                    }
+                  }
+                  return -1;
+                }
+                module2.exports = strictIndexOf;
+              }
+            ),
+            /***/
+            5514: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var memoizeCapped = __webpack_require__2(4523);
+                var rePropName = /[^.[\]]+|\[(?:(-?\d+(?:\.\d+)?)|(["'])((?:(?!\2)[^\\]|\\.)*?)\2)\]|(?=(?:\.|\[\])(?:\.|\[\]|$))/g;
+                var reEscapeChar = /\\(\\)?/g;
+                var stringToPath = memoizeCapped(function(string) {
+                  var result = [];
+                  if (string.charCodeAt(0) === 46) {
+                    result.push("");
+                  }
+                  string.replace(rePropName, function(match, number, quote, subString) {
+                    result.push(quote ? subString.replace(reEscapeChar, "$1") : number || match);
+                  });
+                  return result;
+                });
+                module2.exports = stringToPath;
+              }
+            ),
+            /***/
+            327: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var isSymbol = __webpack_require__2(3448);
+                var INFINITY = 1 / 0;
+                function toKey(value) {
+                  if (typeof value == "string" || isSymbol(value)) {
+                    return value;
+                  }
+                  var result = value + "";
+                  return result == "0" && 1 / value == -INFINITY ? "-0" : result;
+                }
+                module2.exports = toKey;
+              }
+            ),
+            /***/
+            346: (
+              /***/
+              (module2) => {
+                var funcProto = Function.prototype;
+                var funcToString = funcProto.toString;
+                function toSource(func) {
+                  if (func != null) {
+                    try {
+                      return funcToString.call(func);
+                    } catch (e) {
+                    }
+                    try {
+                      return func + "";
+                    } catch (e) {
+                    }
+                  }
+                  return "";
+                }
+                module2.exports = toSource;
+              }
+            ),
+            /***/
+            7990: (
+              /***/
+              (module2) => {
+                var reWhitespace = /\s/;
+                function trimmedEndIndex(string) {
+                  var index = string.length;
+                  while (index-- && reWhitespace.test(string.charAt(index))) {
+                  }
+                  return index;
+                }
+                module2.exports = trimmedEndIndex;
+              }
+            ),
+            /***/
+            6678: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var baseClone = __webpack_require__2(5990);
+                var CLONE_SYMBOLS_FLAG = 4;
+                function clone(value) {
+                  return baseClone(value, CLONE_SYMBOLS_FLAG);
+                }
+                module2.exports = clone;
+              }
+            ),
+            /***/
+            361: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var baseClone = __webpack_require__2(5990);
+                var CLONE_DEEP_FLAG = 1, CLONE_SYMBOLS_FLAG = 4;
+                function cloneDeep(value) {
+                  return baseClone(value, CLONE_DEEP_FLAG | CLONE_SYMBOLS_FLAG);
+                }
+                module2.exports = cloneDeep;
+              }
+            ),
+            /***/
+            5703: (
+              /***/
+              (module2) => {
+                function constant(value) {
+                  return function() {
+                    return value;
+                  };
+                }
+                module2.exports = constant;
+              }
+            ),
+            /***/
+            1966: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var baseDifference = __webpack_require__2(731), baseFlatten = __webpack_require__2(1078), baseRest = __webpack_require__2(5976), isArrayLikeObject = __webpack_require__2(9246);
+                var difference = baseRest(function(array, values) {
+                  return isArrayLikeObject(array) ? baseDifference(array, baseFlatten(values, 1, isArrayLikeObject, true)) : [];
+                });
+                module2.exports = difference;
+              }
+            ),
+            /***/
+            7813: (
+              /***/
+              (module2) => {
+                function eq(value, other) {
+                  return value === other || value !== value && other !== other;
+                }
+                module2.exports = eq;
+              }
+            ),
+            /***/
+            3311: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var createFind = __webpack_require__2(7740), findIndex = __webpack_require__2(998);
+                var find = createFind(findIndex);
+                module2.exports = find;
+              }
+            ),
+            /***/
+            998: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var baseFindIndex = __webpack_require__2(1848), baseIteratee = __webpack_require__2(7206), toInteger = __webpack_require__2(554);
+                var nativeMax = Math.max;
+                function findIndex(array, predicate, fromIndex) {
+                  var length = array == null ? 0 : array.length;
+                  if (!length) {
+                    return -1;
+                  }
+                  var index = fromIndex == null ? 0 : toInteger(fromIndex);
+                  if (index < 0) {
+                    index = nativeMax(length + index, 0);
+                  }
+                  return baseFindIndex(array, baseIteratee(predicate, 3), index);
+                }
+                module2.exports = findIndex;
+              }
+            ),
+            /***/
+            7361: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var baseGet = __webpack_require__2(7786);
+                function get(object, path, defaultValue) {
+                  var result = object == null ? void 0 : baseGet(object, path);
+                  return result === void 0 ? defaultValue : result;
+                }
+                module2.exports = get;
+              }
+            ),
+            /***/
+            9095: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var baseHasIn = __webpack_require__2(13), hasPath = __webpack_require__2(222);
+                function hasIn(object, path) {
+                  return object != null && hasPath(object, path, baseHasIn);
+                }
+                module2.exports = hasIn;
+              }
+            ),
+            /***/
+            6557: (
+              /***/
+              (module2) => {
+                function identity(value) {
+                  return value;
+                }
+                module2.exports = identity;
+              }
+            ),
+            /***/
+            3137: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var constant = __webpack_require__2(5703), createInverter = __webpack_require__2(7779), identity = __webpack_require__2(6557);
+                var objectProto = Object.prototype;
+                var nativeObjectToString = objectProto.toString;
+                var invert = createInverter(function(result, value, key) {
+                  if (value != null && typeof value.toString != "function") {
+                    value = nativeObjectToString.call(value);
+                  }
+                  result[value] = key;
+                }, constant(identity));
+                module2.exports = invert;
+              }
+            ),
+            /***/
+            5694: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var baseIsArguments = __webpack_require__2(9454), isObjectLike = __webpack_require__2(7005);
+                var objectProto = Object.prototype;
+                var hasOwnProperty = objectProto.hasOwnProperty;
+                var propertyIsEnumerable = objectProto.propertyIsEnumerable;
+                var isArguments = baseIsArguments(/* @__PURE__ */ function() {
+                  return arguments;
+                }()) ? baseIsArguments : function(value) {
+                  return isObjectLike(value) && hasOwnProperty.call(value, "callee") && !propertyIsEnumerable.call(value, "callee");
+                };
+                module2.exports = isArguments;
+              }
+            ),
+            /***/
+            1469: (
+              /***/
+              (module2) => {
+                var isArray = Array.isArray;
+                module2.exports = isArray;
+              }
+            ),
+            /***/
+            8612: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var isFunction = __webpack_require__2(3560), isLength = __webpack_require__2(1780);
+                function isArrayLike(value) {
+                  return value != null && isLength(value.length) && !isFunction(value);
+                }
+                module2.exports = isArrayLike;
+              }
+            ),
+            /***/
+            9246: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var isArrayLike = __webpack_require__2(8612), isObjectLike = __webpack_require__2(7005);
+                function isArrayLikeObject(value) {
+                  return isObjectLike(value) && isArrayLike(value);
+                }
+                module2.exports = isArrayLikeObject;
+              }
+            ),
+            /***/
+            4144: (
+              /***/
+              (module2, exports2, __webpack_require__2) => {
+                module2 = __webpack_require__2.nmd(module2);
+                var root = __webpack_require__2(5639), stubFalse = __webpack_require__2(5062);
+                var freeExports = exports2 && !exports2.nodeType && exports2;
+                var freeModule = freeExports && true && module2 && !module2.nodeType && module2;
+                var moduleExports = freeModule && freeModule.exports === freeExports;
+                var Buffer2 = moduleExports ? root.Buffer : void 0;
+                var nativeIsBuffer = Buffer2 ? Buffer2.isBuffer : void 0;
+                var isBuffer = nativeIsBuffer || stubFalse;
+                module2.exports = isBuffer;
+              }
+            ),
+            /***/
+            8446: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var baseIsEqual = __webpack_require__2(939);
+                function isEqual(value, other) {
+                  return baseIsEqual(value, other);
+                }
+                module2.exports = isEqual;
+              }
+            ),
+            /***/
+            3560: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var baseGetTag = __webpack_require__2(4239), isObject = __webpack_require__2(3218);
+                var asyncTag = "[object AsyncFunction]", funcTag = "[object Function]", genTag = "[object GeneratorFunction]", proxyTag = "[object Proxy]";
+                function isFunction(value) {
+                  if (!isObject(value)) {
+                    return false;
+                  }
+                  var tag = baseGetTag(value);
+                  return tag == funcTag || tag == genTag || tag == asyncTag || tag == proxyTag;
+                }
+                module2.exports = isFunction;
+              }
+            ),
+            /***/
+            1780: (
+              /***/
+              (module2) => {
+                var MAX_SAFE_INTEGER = 9007199254740991;
+                function isLength(value) {
+                  return typeof value == "number" && value > -1 && value % 1 == 0 && value <= MAX_SAFE_INTEGER;
+                }
+                module2.exports = isLength;
+              }
+            ),
+            /***/
+            6688: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var baseIsMap = __webpack_require__2(5588), baseUnary = __webpack_require__2(1717), nodeUtil = __webpack_require__2(1167);
+                var nodeIsMap = nodeUtil && nodeUtil.isMap;
+                var isMap = nodeIsMap ? baseUnary(nodeIsMap) : baseIsMap;
+                module2.exports = isMap;
+              }
+            ),
+            /***/
+            3218: (
+              /***/
+              (module2) => {
+                function isObject(value) {
+                  var type = typeof value;
+                  return value != null && (type == "object" || type == "function");
+                }
+                module2.exports = isObject;
+              }
+            ),
+            /***/
+            7005: (
+              /***/
+              (module2) => {
+                function isObjectLike(value) {
+                  return value != null && typeof value == "object";
+                }
+                module2.exports = isObjectLike;
+              }
+            ),
+            /***/
+            2928: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var baseIsSet = __webpack_require__2(9221), baseUnary = __webpack_require__2(1717), nodeUtil = __webpack_require__2(1167);
+                var nodeIsSet = nodeUtil && nodeUtil.isSet;
+                var isSet = nodeIsSet ? baseUnary(nodeIsSet) : baseIsSet;
+                module2.exports = isSet;
+              }
+            ),
+            /***/
+            3448: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var baseGetTag = __webpack_require__2(4239), isObjectLike = __webpack_require__2(7005);
+                var symbolTag = "[object Symbol]";
+                function isSymbol(value) {
+                  return typeof value == "symbol" || isObjectLike(value) && baseGetTag(value) == symbolTag;
+                }
+                module2.exports = isSymbol;
+              }
+            ),
+            /***/
+            6719: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var baseIsTypedArray = __webpack_require__2(8749), baseUnary = __webpack_require__2(1717), nodeUtil = __webpack_require__2(1167);
+                var nodeIsTypedArray = nodeUtil && nodeUtil.isTypedArray;
+                var isTypedArray = nodeIsTypedArray ? baseUnary(nodeIsTypedArray) : baseIsTypedArray;
+                module2.exports = isTypedArray;
+              }
+            ),
+            /***/
+            3674: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var arrayLikeKeys = __webpack_require__2(4636), baseKeys = __webpack_require__2(280), isArrayLike = __webpack_require__2(8612);
+                function keys(object) {
+                  return isArrayLike(object) ? arrayLikeKeys(object) : baseKeys(object);
+                }
+                module2.exports = keys;
+              }
+            ),
+            /***/
+            1704: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var arrayLikeKeys = __webpack_require__2(4636), baseKeysIn = __webpack_require__2(313), isArrayLike = __webpack_require__2(8612);
+                function keysIn(object) {
+                  return isArrayLike(object) ? arrayLikeKeys(object, true) : baseKeysIn(object);
+                }
+                module2.exports = keysIn;
+              }
+            ),
+            /***/
+            8306: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var MapCache = __webpack_require__2(3369);
+                var FUNC_ERROR_TEXT = "Expected a function";
+                function memoize(func, resolver) {
+                  if (typeof func != "function" || resolver != null && typeof resolver != "function") {
+                    throw new TypeError(FUNC_ERROR_TEXT);
+                  }
+                  var memoized = function() {
+                    var args = arguments, key = resolver ? resolver.apply(this, args) : args[0], cache = memoized.cache;
+                    if (cache.has(key)) {
+                      return cache.get(key);
+                    }
+                    var result = func.apply(this, args);
+                    memoized.cache = cache.set(key, result) || cache;
+                    return result;
+                  };
+                  memoized.cache = new (memoize.Cache || MapCache)();
+                  return memoized;
+                }
+                memoize.Cache = MapCache;
+                module2.exports = memoize;
+              }
+            ),
+            /***/
+            308: (
+              /***/
+              (module2) => {
+                function noop() {
+                }
+                module2.exports = noop;
+              }
+            ),
+            /***/
+            9601: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var baseProperty = __webpack_require__2(371), basePropertyDeep = __webpack_require__2(9152), isKey = __webpack_require__2(5403), toKey = __webpack_require__2(327);
+                function property(path) {
+                  return isKey(path) ? baseProperty(toKey(path)) : basePropertyDeep(path);
+                }
+                module2.exports = property;
+              }
+            ),
+            /***/
+            479: (
+              /***/
+              (module2) => {
+                function stubArray() {
+                  return [];
+                }
+                module2.exports = stubArray;
+              }
+            ),
+            /***/
+            5062: (
+              /***/
+              (module2) => {
+                function stubFalse() {
+                  return false;
+                }
+                module2.exports = stubFalse;
+              }
+            ),
+            /***/
+            8601: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var toNumber = __webpack_require__2(4841);
+                var INFINITY = 1 / 0, MAX_INTEGER = 17976931348623157e292;
+                function toFinite(value) {
+                  if (!value) {
+                    return value === 0 ? value : 0;
+                  }
+                  value = toNumber(value);
+                  if (value === INFINITY || value === -INFINITY) {
+                    var sign = value < 0 ? -1 : 1;
+                    return sign * MAX_INTEGER;
+                  }
+                  return value === value ? value : 0;
+                }
+                module2.exports = toFinite;
+              }
+            ),
+            /***/
+            554: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var toFinite = __webpack_require__2(8601);
+                function toInteger(value) {
+                  var result = toFinite(value), remainder = result % 1;
+                  return result === result ? remainder ? result - remainder : result : 0;
+                }
+                module2.exports = toInteger;
+              }
+            ),
+            /***/
+            4841: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var baseTrim = __webpack_require__2(7561), isObject = __webpack_require__2(3218), isSymbol = __webpack_require__2(3448);
+                var NAN = 0 / 0;
+                var reIsBadHex = /^[-+]0x[0-9a-f]+$/i;
+                var reIsBinary = /^0b[01]+$/i;
+                var reIsOctal = /^0o[0-7]+$/i;
+                var freeParseInt = parseInt;
+                function toNumber(value) {
+                  if (typeof value == "number") {
+                    return value;
+                  }
+                  if (isSymbol(value)) {
+                    return NAN;
+                  }
+                  if (isObject(value)) {
+                    var other = typeof value.valueOf == "function" ? value.valueOf() : value;
+                    value = isObject(other) ? other + "" : other;
+                  }
+                  if (typeof value != "string") {
+                    return value === 0 ? value : +value;
+                  }
+                  value = baseTrim(value);
+                  var isBinary = reIsBinary.test(value);
+                  return isBinary || reIsOctal.test(value) ? freeParseInt(value.slice(2), isBinary ? 2 : 8) : reIsBadHex.test(value) ? NAN : +value;
+                }
+                module2.exports = toNumber;
+              }
+            ),
+            /***/
+            9833: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var baseToString = __webpack_require__2(531);
+                function toString(value) {
+                  return value == null ? "" : baseToString(value);
+                }
+                module2.exports = toString;
+              }
+            ),
+            /***/
+            4908: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var baseUniq = __webpack_require__2(5652);
+                function uniq(array) {
+                  return array && array.length ? baseUniq(array) : [];
+                }
+                module2.exports = uniq;
+              }
+            ),
+            /***/
+            2569: (
+              /***/
+              (module2, __unused_webpack_exports, __webpack_require__2) => {
+                var baseDifference = __webpack_require__2(731), baseRest = __webpack_require__2(5976), isArrayLikeObject = __webpack_require__2(9246);
+                var without = baseRest(function(array, values) {
+                  return isArrayLikeObject(array) ? baseDifference(array, values) : [];
+                });
+                module2.exports = without;
+              }
+            )
+            /******/
+          };
+          var __webpack_module_cache__ = {};
+          function __webpack_require__(moduleId) {
+            var cachedModule = __webpack_module_cache__[moduleId];
+            if (cachedModule !== void 0) {
+              return cachedModule.exports;
+            }
+            var module2 = __webpack_module_cache__[moduleId] = {
+              /******/
+              id: moduleId,
+              /******/
+              loaded: false,
+              /******/
+              exports: {}
+              /******/
+            };
+            __webpack_modules__[moduleId](module2, module2.exports, __webpack_require__);
+            module2.loaded = true;
+            return module2.exports;
+          }
+          (() => {
+            __webpack_require__.n = (module2) => {
+              var getter = module2 && module2.__esModule ? (
+                /******/
+                () => module2["default"]
+              ) : (
+                /******/
+                () => module2
+              );
+              __webpack_require__.d(getter, { a: getter });
+              return getter;
+            };
+          })();
+          (() => {
+            __webpack_require__.d = (exports2, definition) => {
+              for (var key in definition) {
+                if (__webpack_require__.o(definition, key) && !__webpack_require__.o(exports2, key)) {
+                  Object.defineProperty(exports2, key, { enumerable: true, get: definition[key] });
+                }
+              }
+            };
+          })();
+          (() => {
+            __webpack_require__.g = function() {
+              if (typeof globalThis === "object") return globalThis;
+              try {
+                return this || new Function("return this")();
+              } catch (e) {
+                if (typeof window === "object") return window;
+              }
+            }();
+          })();
+          (() => {
+            __webpack_require__.o = (obj, prop) => Object.prototype.hasOwnProperty.call(obj, prop);
+          })();
+          (() => {
+            __webpack_require__.r = (exports2) => {
+              if (typeof Symbol !== "undefined" && Symbol.toStringTag) {
+                Object.defineProperty(exports2, Symbol.toStringTag, { value: "Module" });
+              }
+              Object.defineProperty(exports2, "__esModule", { value: true });
+            };
+          })();
+          (() => {
+            __webpack_require__.nmd = (module2) => {
+              module2.paths = [];
+              if (!module2.children) module2.children = [];
+              return module2;
+            };
+          })();
+          var __webpack_exports__ = {};
+          (() => {
+            "use strict";
+            __webpack_require__.r(__webpack_exports__);
+            __webpack_require__.d(__webpack_exports__, {
+              "chordParserFactory": () => (
+                /* reexport */
+                parser_chordParserFactory
+              ),
+              "chordRendererFactory": () => (
+                /* reexport */
+                renderer_chordRendererFactory
+              )
+            });
+            ;
+            function chain(allFunctions, input) {
+              return allFunctions.reduce(function(value, fn) {
+                return value ? fn(value) : null;
+              }, input);
+            }
+            var cloneDeep = __webpack_require__(361);
+            var cloneDeep_default = /* @__PURE__ */ __webpack_require__.n(cloneDeep);
+            ;
+            var checkCustomFilters = function checkCustomFilters2(customFilters) {
+              if (!Array.isArray(customFilters)) {
+                throw new TypeError("customFilters should be given as an array");
+              }
+              if (customFilters.some(function(filter) {
+                return typeof filter !== "function";
+              })) {
+                throw new TypeError("The given filter is not a function");
+              }
+              return true;
+            };
+            const helpers_checkCustomFilters = checkCustomFilters;
+            ;
+            function ownKeys(object, enumerableOnly) {
+              var keys = Object.keys(object);
+              if (Object.getOwnPropertySymbols) {
+                var symbols = Object.getOwnPropertySymbols(object);
+                enumerableOnly && (symbols = symbols.filter(function(sym) {
+                  return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+                })), keys.push.apply(keys, symbols);
+              }
+              return keys;
+            }
+            function _objectSpread(target) {
+              for (var i = 1; i < arguments.length; i++) {
+                var source = null != arguments[i] ? arguments[i] : {};
+                i % 2 ? ownKeys(Object(source), true).forEach(function(key) {
+                  _defineProperty(target, key, source[key]);
+                }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function(key) {
+                  Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
+                });
+              }
+              return target;
+            }
+            function _defineProperty(obj, key, value) {
+              if (key in obj) {
+                Object.defineProperty(obj, key, { value, enumerable: true, configurable: true, writable: true });
+              } else {
+                obj[key] = value;
+              }
+              return obj;
+            }
+            var notes = {
+              AFlat: "Ab",
+              A: "A",
+              ASharp: "A#",
+              BFlat: "Bb",
+              B: "B",
+              C: "C",
+              CSharp: "C#",
+              DFlat: "Db",
+              D: "D",
+              DSharp: "D#",
+              EFlat: "Eb",
+              E: "E",
+              F: "F",
+              FSharp: "F#",
+              GFlat: "Gb",
+              G: "G",
+              GSharp: "G#"
+            };
+            var english = {
+              Ab: notes.AFlat,
+              A: notes.A,
+              "A#": notes.ASharp,
+              Bb: notes.BFlat,
+              B: notes.B,
+              "B#": notes.C,
+              Cb: notes.B,
+              C: notes.C,
+              "C#": notes.CSharp,
+              Db: notes.DFlat,
+              D: notes.D,
+              "D#": notes.DSharp,
+              Eb: notes.EFlat,
+              E: notes.E,
+              "E#": notes.F,
+              Fb: notes.E,
+              F: notes.F,
+              "F#": notes.FSharp,
+              Gb: notes.GFlat,
+              G: notes.G,
+              "G#": notes.GSharp
+            };
+            var latin = {
+              Lab: notes.AFlat,
+              La: notes.A,
+              "La#": notes.ASharp,
+              Sib: notes.BFlat,
+              Si: notes.B,
+              "Si#": notes.C,
+              Dob: notes.B,
+              Do: notes.C,
+              "Do#": notes.CSharp,
+              Reb: notes.DFlat,
+              R\u00E9b: notes.DFlat,
+              Re: notes.D,
+              R\u00E9: notes.D,
+              "Re#": notes.DSharp,
+              "R\xE9#": notes.DSharp,
+              Mib: notes.EFlat,
+              Mi: notes.E,
+              "Mi#": notes.F,
+              Fab: notes.E,
+              Fa: notes.F,
+              "Fa#": notes.FSharp,
+              Solb: notes.GFlat,
+              Sol: notes.G,
+              "Sol#": notes.GSharp
+            };
+            var german = {
+              As: notes.AFlat,
+              A: notes.A,
+              Ais: notes.ASharp,
+              Hes: notes.BFlat,
+              H: notes.B,
+              His: notes.C,
+              Ces: notes.B,
+              C: notes.C,
+              Cis: notes.CSharp,
+              Des: notes.DFlat,
+              D: notes.D,
+              Dis: notes.DSharp,
+              Es: notes.EFlat,
+              E: notes.E,
+              Eis: notes.F,
+              Fes: notes.E,
+              F: notes.F,
+              Fis: notes.FSharp,
+              Ges: notes.GFlat,
+              G: notes.G,
+              Gis: notes.GSharp
+            };
+            function getAccidentalsVariation(source) {
+              var variant;
+              return Object.keys(source).reduce(function(acc, curr) {
+                if (curr.match(/.[b|#]$/)) {
+                  variant = curr.replace("#", "\u266F").replace("b", "\u266D");
+                  acc[variant] = source[curr];
+                }
+                return acc;
+              }, {});
+            }
+            var englishVariantsToNotes = _objectSpread(_objectSpread({}, english), getAccidentalsVariation(english));
+            var latinVariantsToNotes = _objectSpread(_objectSpread({}, latin), getAccidentalsVariation(latin));
+            var germanVariantsToNotes = _objectSpread({}, german);
+            var allVariantsToNotes = _objectSpread(_objectSpread(_objectSpread({}, englishVariantsToNotes), latinVariantsToNotes), germanVariantsToNotes);
+            var allVariants = Object.keys(allVariantsToNotes).sort(function(a, b) {
+              return b.length - a.length;
+            });
+            var englishVariants = Object.keys(englishVariantsToNotes).sort(function(a, b) {
+              return b.length - a.length;
+            });
+            var latinVariants = Object.keys(latinVariantsToNotes).sort(function(a, b) {
+              return b.length - a.length;
+            });
+            var germanVariants = Object.keys(germanVariantsToNotes).sort(function(a, b) {
+              return b.length - a.length;
+            });
+            var allVariantsPerGroup = [{
+              name: "english",
+              notes: englishVariants
+            }, {
+              name: "german",
+              notes: germanVariants
+            }, {
+              name: "latin",
+              notes: latinVariants
+            }];
+            ;
+            function _typeof(obj) {
+              "@babel/helpers - typeof";
+              return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(obj2) {
+                return typeof obj2;
+              } : function(obj2) {
+                return obj2 && "function" == typeof Symbol && obj2.constructor === Symbol && obj2 !== Symbol.prototype ? "symbol" : typeof obj2;
+              }, _typeof(obj);
+            }
+            function _defineProperties(target, props) {
+              for (var i = 0; i < props.length; i++) {
+                var descriptor = props[i];
+                descriptor.enumerable = descriptor.enumerable || false;
+                descriptor.configurable = true;
+                if ("value" in descriptor) descriptor.writable = true;
+                Object.defineProperty(target, descriptor.key, descriptor);
+              }
+            }
+            function _createClass(Constructor, protoProps, staticProps) {
+              if (protoProps) _defineProperties(Constructor.prototype, protoProps);
+              if (staticProps) _defineProperties(Constructor, staticProps);
+              Object.defineProperty(Constructor, "prototype", { writable: false });
+              return Constructor;
+            }
+            function _classCallCheck(instance, Constructor) {
+              if (!(instance instanceof Constructor)) {
+                throw new TypeError("Cannot call a class as a function");
+              }
+            }
+            function _inherits(subClass, superClass) {
+              if (typeof superClass !== "function" && superClass !== null) {
+                throw new TypeError("Super expression must either be null or a function");
+              }
+              subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } });
+              Object.defineProperty(subClass, "prototype", { writable: false });
+              if (superClass) _setPrototypeOf(subClass, superClass);
+            }
+            function _createSuper(Derived) {
+              var hasNativeReflectConstruct = _isNativeReflectConstruct();
+              return function _createSuperInternal() {
+                var Super = _getPrototypeOf(Derived), result;
+                if (hasNativeReflectConstruct) {
+                  var NewTarget = _getPrototypeOf(this).constructor;
+                  result = Reflect.construct(Super, arguments, NewTarget);
+                } else {
+                  result = Super.apply(this, arguments);
+                }
+                return _possibleConstructorReturn(this, result);
+              };
+            }
+            function _possibleConstructorReturn(self2, call) {
+              if (call && (_typeof(call) === "object" || typeof call === "function")) {
+                return call;
+              } else if (call !== void 0) {
+                throw new TypeError("Derived constructors may only return object or undefined");
+              }
+              return _assertThisInitialized(self2);
+            }
+            function _assertThisInitialized(self2) {
+              if (self2 === void 0) {
+                throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+              }
+              return self2;
+            }
+            function _wrapNativeSuper(Class) {
+              var _cache = typeof Map === "function" ? /* @__PURE__ */ new Map() : void 0;
+              _wrapNativeSuper = function _wrapNativeSuper2(Class2) {
+                if (Class2 === null || !_isNativeFunction(Class2)) return Class2;
+                if (typeof Class2 !== "function") {
+                  throw new TypeError("Super expression must either be null or a function");
+                }
+                if (typeof _cache !== "undefined") {
+                  if (_cache.has(Class2)) return _cache.get(Class2);
+                  _cache.set(Class2, Wrapper);
+                }
+                function Wrapper() {
+                  return _construct(Class2, arguments, _getPrototypeOf(this).constructor);
+                }
+                Wrapper.prototype = Object.create(Class2.prototype, { constructor: { value: Wrapper, enumerable: false, writable: true, configurable: true } });
+                return _setPrototypeOf(Wrapper, Class2);
+              };
+              return _wrapNativeSuper(Class);
+            }
+            function _construct(Parent, args, Class) {
+              if (_isNativeReflectConstruct()) {
+                _construct = Reflect.construct;
+              } else {
+                _construct = function _construct2(Parent2, args2, Class2) {
+                  var a = [null];
+                  a.push.apply(a, args2);
+                  var Constructor = Function.bind.apply(Parent2, a);
+                  var instance = new Constructor();
+                  if (Class2) _setPrototypeOf(instance, Class2.prototype);
+                  return instance;
+                };
+              }
+              return _construct.apply(null, arguments);
+            }
+            function _isNativeReflectConstruct() {
+              if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+              if (Reflect.construct.sham) return false;
+              if (typeof Proxy === "function") return true;
+              try {
+                Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function() {
+                }));
+                return true;
+              } catch (e) {
+                return false;
+              }
+            }
+            function _isNativeFunction(fn) {
+              return Function.toString.call(fn).indexOf("[native code]") !== -1;
+            }
+            function _setPrototypeOf(o, p) {
+              _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf2(o2, p2) {
+                o2.__proto__ = p2;
+                return o2;
+              };
+              return _setPrototypeOf(o, p);
+            }
+            function _getPrototypeOf(o) {
+              _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf2(o2) {
+                return o2.__proto__ || Object.getPrototypeOf(o2);
+              };
+              return _getPrototypeOf(o);
+            }
+            var InvalidInputError = /* @__PURE__ */ function(_Error) {
+              _inherits(InvalidInputError2, _Error);
+              var _super = _createSuper(InvalidInputError2);
+              function InvalidInputError2() {
+                var _this;
+                _classCallCheck(this, InvalidInputError2);
+                _this = _super.call(this, "The given symbol is not a valid string");
+                _this.name = "InvalidInput";
+                return _this;
+              }
+              return _createClass(InvalidInputError2);
+            }(/* @__PURE__ */ _wrapNativeSuper(Error));
+            var UnexpectedError = /* @__PURE__ */ function(_Error2) {
+              _inherits(UnexpectedError2, _Error2);
+              var _super2 = _createSuper(UnexpectedError2);
+              function UnexpectedError2() {
+                var _this2;
+                _classCallCheck(this, UnexpectedError2);
+                var message = "An unexpected error happened. Maybe a custom filter returned null instead of throwing an exception?";
+                _this2 = _super2.call(this, message);
+                _this2.name = "UnexpectedError";
+                return _this2;
+              }
+              return _createClass(UnexpectedError2);
+            }(/* @__PURE__ */ _wrapNativeSuper(Error));
+            var ChordSymbolError = /* @__PURE__ */ function(_Error3) {
+              _inherits(ChordSymbolError2, _Error3);
+              var _super3 = _createSuper(ChordSymbolError2);
+              function ChordSymbolError2(message, chord, errorName) {
+                var _this3;
+                _classCallCheck(this, ChordSymbolError2);
+                _this3 = _super3.call(this, message);
+                _this3.name = errorName;
+                _this3.chord = chord;
+                return _this3;
+              }
+              return _createClass(ChordSymbolError2);
+            }(/* @__PURE__ */ _wrapNativeSuper(Error));
+            var NoSymbolFoundError = /* @__PURE__ */ function(_ChordSymbolError) {
+              _inherits(NoSymbolFoundError2, _ChordSymbolError);
+              var _super4 = _createSuper(NoSymbolFoundError2);
+              function NoSymbolFoundError2(chord) {
+                _classCallCheck(this, NoSymbolFoundError2);
+                var message = '"'.concat(chord.input.symbol, '" does not seems to be a chord');
+                return _super4.call(this, message, chord, "NoSymbolFound");
+              }
+              return _createClass(NoSymbolFoundError2);
+            }(ChordSymbolError);
+            var InvalidModifierError = /* @__PURE__ */ function(_ChordSymbolError2) {
+              _inherits(InvalidModifierError2, _ChordSymbolError2);
+              var _super5 = _createSuper(InvalidModifierError2);
+              function InvalidModifierError2(chord, invalidChars) {
+                _classCallCheck(this, InvalidModifierError2);
+                var message = 'The chord descriptor "'.concat(chord.input.descriptor, '" contains unknown or duplicated modifiers: "').concat(invalidChars, '"');
+                return _super5.call(this, message, chord, "InvalidModifier");
+              }
+              return _createClass(InvalidModifierError2);
+            }(ChordSymbolError);
+            var InvalidIntervalsError = /* @__PURE__ */ function(_ChordSymbolError3) {
+              _inherits(InvalidIntervalsError2, _ChordSymbolError3);
+              var _super6 = _createSuper(InvalidIntervalsError2);
+              function InvalidIntervalsError2(chord, forbiddenCombo) {
+                _classCallCheck(this, InvalidIntervalsError2);
+                var message = '"'.concat(chord.input.symbol, '" describes a chord with an invalid intervals combo: ') + forbiddenCombo.join(" and ");
+                return _super6.call(this, message, chord, "InvalidIntervals");
+              }
+              return _createClass(InvalidIntervalsError2);
+            }(ChordSymbolError);
+            var isArray = __webpack_require__(1469);
+            var isArray_default = /* @__PURE__ */ __webpack_require__.n(isArray);
+            var isEqual = __webpack_require__(8446);
+            var isEqual_default = /* @__PURE__ */ __webpack_require__.n(isEqual);
+            ;
+            function hasExactly(allIntervals, search) {
+              var arraySearch = isArray_default()(search) ? search : [search];
+              return isEqual_default()(allIntervals, arraySearch);
+            }
+            function hasOneOf(allIntervals, search) {
+              return has(allIntervals, search, "oneOf");
+            }
+            function hasAll(allIntervals, search) {
+              return has(allIntervals, search, "all");
+            }
+            function hasNoneOf(allIntervals, search) {
+              return has(allIntervals, search, "none");
+            }
+            function has(allIntervals, search, require2) {
+              var arraySearch = isArray_default()(search) ? search : [search];
+              var lookupMethod = require2 === "oneOf" ? "some" : "every";
+              return arraySearch[lookupMethod](function(interval) {
+                return require2 === "none" ? !allIntervals.includes(interval) : allIntervals.includes(interval);
+              });
+            }
+            ;
+            var allForbiddenCombos = [
+              ["2", "3"],
+              ["2", "9"],
+              ["3", "b3"],
+              //['3',  '4'], // valid in the Real Book: F#7SUS(add 3)
+              ["4", "11"],
+              ["5", "b5"],
+              ["5", "#5"],
+              ["b6", "#5"],
+              ["b6", "6"],
+              ["b6", "13"],
+              ["6", "13"],
+              ["b7", "bb7"],
+              ["7", "b7"],
+              ["9", "b9"],
+              ["9", "#9"],
+              ["11", "#11"],
+              ["13", "b13"]
+            ];
+            function checkIntervalsConsistency(chord) {
+              var intervals = chord.normalized.intervals;
+              var forbiddenCombo = allForbiddenCombos.find(function(combo) {
+                return hasAll(intervals, combo);
+              });
+              if (forbiddenCombo) {
+                throw new InvalidIntervalsError(chord, forbiddenCombo);
+              }
+              return chord;
+            }
+            ;
+            function formatSymbol(chord) {
+              var _chord$formatted = chord.formatted, rootNote = _chord$formatted.rootNote, bassNote = _chord$formatted.bassNote, descriptor = _chord$formatted.descriptor, chordChanges = _chord$formatted.chordChanges;
+              var symbol = rootNote;
+              if (descriptor) {
+                symbol += descriptor;
+              }
+              if (chordChanges && chordChanges.length) {
+                symbol += "(" + chordChanges.join(",") + ")";
+              }
+              if (bassNote) {
+                symbol += "/" + bassNote;
+              }
+              chord.formatted.symbol = symbol;
+              return chord;
+            }
+            ;
+            var qualities = {
+              ma: "major",
+              ma6: "major6",
+              ma7: "major7",
+              dom7: "dominant7",
+              mi: "minor",
+              mi6: "minor6",
+              mi7: "minor7",
+              miMa7: "minorMajor7",
+              aug: "augmented",
+              dim: "diminished",
+              dim7: "diminished7",
+              power: "power",
+              bass: "bass"
+            };
+            var majorQualities = [qualities.ma, qualities.ma6, qualities.ma7, qualities.dom7, qualities.aug];
+            var minorQualities = [qualities.mi, qualities.mi6, qualities.mi7, qualities.miMa7, qualities.dim, qualities.dim7];
+            ;
+            var _qualityToDescriptor;
+            function _toConsumableArray(arr) {
+              return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread();
+            }
+            function _nonIterableSpread() {
+              throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+            }
+            function _unsupportedIterableToArray(o, minLen) {
+              if (!o) return;
+              if (typeof o === "string") return _arrayLikeToArray(o, minLen);
+              var n = Object.prototype.toString.call(o).slice(8, -1);
+              if (n === "Object" && o.constructor) n = o.constructor.name;
+              if (n === "Map" || n === "Set") return Array.from(o);
+              if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
+            }
+            function _iterableToArray(iter) {
+              if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter);
+            }
+            function _arrayWithoutHoles(arr) {
+              if (Array.isArray(arr)) return _arrayLikeToArray(arr);
+            }
+            function _arrayLikeToArray(arr, len) {
+              if (len == null || len > arr.length) len = arr.length;
+              for (var i = 0, arr2 = new Array(len); i < len; i++) {
+                arr2[i] = arr[i];
+              }
+              return arr2;
+            }
+            function formatSymbolParts_defineProperty(obj, key, value) {
+              if (key in obj) {
+                Object.defineProperty(obj, key, { value, enumerable: true, configurable: true, writable: true });
+              } else {
+                obj[key] = value;
+              }
+              return obj;
+            }
+            var qualityToDescriptor = (_qualityToDescriptor = {}, formatSymbolParts_defineProperty(_qualityToDescriptor, qualities.ma, function() {
+              return "";
+            }), formatSymbolParts_defineProperty(_qualityToDescriptor, qualities.ma6, function(chord) {
+              return chord.normalized.intervals.includes("9") ? "69" : "6";
+            }), formatSymbolParts_defineProperty(_qualityToDescriptor, qualities.ma7, function(chord) {
+              return "ma" + getHighestExtension(chord);
+            }), formatSymbolParts_defineProperty(_qualityToDescriptor, qualities.dom7, function(chord) {
+              return chord.normalized.intents.alt ? "7alt" : getHighestExtension(chord);
+            }), formatSymbolParts_defineProperty(_qualityToDescriptor, qualities.mi, function() {
+              return "mi";
+            }), formatSymbolParts_defineProperty(_qualityToDescriptor, qualities.mi6, function(chord) {
+              return chord.normalized.intervals.includes("9") ? "mi69" : "mi6";
+            }), formatSymbolParts_defineProperty(_qualityToDescriptor, qualities.mi7, function(chord) {
+              return "mi" + getHighestExtension(chord);
+            }), formatSymbolParts_defineProperty(_qualityToDescriptor, qualities.miMa7, function(chord) {
+              return "miMa" + getHighestExtension(chord);
+            }), formatSymbolParts_defineProperty(_qualityToDescriptor, qualities.aug, function() {
+              return "+";
+            }), formatSymbolParts_defineProperty(_qualityToDescriptor, qualities.dim, function() {
+              return "dim";
+            }), formatSymbolParts_defineProperty(_qualityToDescriptor, qualities.dim7, function() {
+              return "dim7";
+            }), formatSymbolParts_defineProperty(_qualityToDescriptor, qualities.power, function() {
+              return "5";
+            }), formatSymbolParts_defineProperty(_qualityToDescriptor, qualities.bass, function() {
+              return " bass";
+            }), _qualityToDescriptor);
+            var chordChangesDescriptors = {
+              add: "add",
+              add7: "Ma7",
+              omit: "omit",
+              sus: "sus"
+            };
+            function formatSymbolParts(chord) {
+              chord.formatted = {
+                rootNote: chord.normalized.rootNote,
+                bassNote: chord.normalized.bassNote,
+                descriptor: getDescriptor(chord),
+                chordChanges: getChordChanges(chord)
+              };
+              return chord;
+            }
+            function getDescriptor(chord) {
+              var descriptor = qualityToDescriptor[chord.normalized.quality](chord);
+              if (chord.normalized.isSuspended) {
+                descriptor += chordChangesDescriptors.sus;
+              }
+              return descriptor;
+            }
+            function getHighestExtension(chord) {
+              var extensions = chord.normalized.extensions;
+              var highestExtension = extensions[extensions.length - 1];
+              if (highestExtension === "11" && chord.normalized.intents.major) {
+                highestExtension = hasNoneOf(chord.normalized.alterations, ["b9", "#9"]) ? "9" : "7";
+              }
+              return highestExtension || "7";
+            }
+            function getChordChanges(chord) {
+              var formattedOmits = formatOmits(chord.normalized.omits);
+              if (isAltered(chord)) {
+                return formattedOmits;
+              }
+              var formattedAdds = formatAdds(chord.normalized.quality, chord.normalized.adds);
+              return [].concat(_toConsumableArray(chord.normalized.alterations), _toConsumableArray(formattedAdds), _toConsumableArray(formattedOmits));
+            }
+            function isAltered(chord) {
+              return chord.normalized.intents.alt && chord.normalized.quality === qualities.dom7;
+            }
+            function formatAdds(quality, adds) {
+              return adds.filter(function(add) {
+                return !([qualities.ma6, qualities.mi6].includes(quality) && add === "9");
+              }).map(function(add, index) {
+                var formatted = "";
+                if (index === 0) {
+                  formatted += chordChangesDescriptors.add;
+                  if (["b", "#"].includes(add[0])) {
+                    formatted += " ";
+                  }
+                }
+                formatted += add === "7" ? chordChangesDescriptors.add7 : add;
+                return formatted;
+              });
+            }
+            function formatOmits(omits) {
+              return omits.map(function(omitted, index) {
+                var formatted = "";
+                if (index === 0) {
+                  formatted += chordChangesDescriptors.omit;
+                }
+                formatted += omitted === "b3" ? "3" : omitted;
+                return formatted;
+              });
+            }
+            ;
+            function getParsableDescriptor(chord) {
+              var allFilters = [toLowerCaseExceptMajorM, removeSpaces, addDisambiguators, addMissingVerbs];
+              if (chord.input.descriptor) {
+                chord.input.parsableDescriptor = chain(allFilters, chord.input.descriptor);
+              }
+              return chord;
+            }
+            function toLowerCaseExceptMajorM(descriptor) {
+              return descriptor.replace(/[A-LN-Za-z]+/g, function(match) {
+                return match.toLowerCase();
+              }).replace("oMit", "omit").replace("diM", "dim").replace("augMented", "augmented");
+            }
+            function removeSpaces(descriptor) {
+              return descriptor.replace(/ /g, "");
+            }
+            function addDisambiguators(descriptor) {
+              return descriptor.replace(/(7?dim)(alt|add)/g, "$1 $2").replace(/([m|M])(alt|add)/g, "$1 $2").replace(/i(no[35])/g, "i $1").replace(/([b♭#♯]9)6/g, "$1 6").replace(/(9\/?6)/g, " $1");
+            }
+            function addMissingVerbs(descriptor) {
+              var allTokensWithVerbs;
+              var currentVerb;
+              var hasVerb;
+              return descriptor.replace(/\((.*?)\)/g, function(match, parenthesis) {
+                allTokensWithVerbs = [];
+                currentVerb = "";
+                parenthesis.split(",").forEach(function(token) {
+                  hasVerb = true;
+                  if (token.startsWith("add")) {
+                    currentVerb = "add";
+                  } else if (token.startsWith("omit")) {
+                    currentVerb = "omit";
+                  } else if (token.startsWith("no")) {
+                    currentVerb = "no";
+                  } else {
+                    hasVerb = false;
+                  }
+                  if (hasVerb) {
+                    allTokensWithVerbs.push(token);
+                  } else {
+                    allTokensWithVerbs.push(currentVerb + token);
+                  }
+                });
+                return " " + allTokensWithVerbs.join(" ") + " ";
+              });
+            }
+            ;
+            function initChord() {
+              var parserConfiguration = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : {};
+              var symbol = arguments.length > 1 ? arguments[1] : void 0;
+              return {
+                input: {
+                  symbol
+                },
+                normalized: {},
+                formatted: {},
+                parserConfiguration: cloneDeep_default()(parserConfiguration)
+              };
+            }
+            ;
+            var _rootNoteToScaleAccid;
+            function nameIndividualChordNotes_toConsumableArray(arr) {
+              return nameIndividualChordNotes_arrayWithoutHoles(arr) || nameIndividualChordNotes_iterableToArray(arr) || nameIndividualChordNotes_unsupportedIterableToArray(arr) || nameIndividualChordNotes_nonIterableSpread();
+            }
+            function nameIndividualChordNotes_nonIterableSpread() {
+              throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+            }
+            function nameIndividualChordNotes_unsupportedIterableToArray(o, minLen) {
+              if (!o) return;
+              if (typeof o === "string") return nameIndividualChordNotes_arrayLikeToArray(o, minLen);
+              var n = Object.prototype.toString.call(o).slice(8, -1);
+              if (n === "Object" && o.constructor) n = o.constructor.name;
+              if (n === "Map" || n === "Set") return Array.from(o);
+              if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return nameIndividualChordNotes_arrayLikeToArray(o, minLen);
+            }
+            function nameIndividualChordNotes_iterableToArray(iter) {
+              if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter);
+            }
+            function nameIndividualChordNotes_arrayWithoutHoles(arr) {
+              if (Array.isArray(arr)) return nameIndividualChordNotes_arrayLikeToArray(arr);
+            }
+            function nameIndividualChordNotes_arrayLikeToArray(arr, len) {
+              if (len == null || len > arr.length) len = arr.length;
+              for (var i = 0, arr2 = new Array(len); i < len; i++) {
+                arr2[i] = arr[i];
+              }
+              return arr2;
+            }
+            function nameIndividualChordNotes_defineProperty(obj, key, value) {
+              if (key in obj) {
+                Object.defineProperty(obj, key, { value, enumerable: true, configurable: true, writable: true });
+              } else {
+                obj[key] = value;
+              }
+              return obj;
+            }
+            var notesSharp = [notes.A, notes.ASharp, notes.B, notes.C, notes.CSharp, notes.D, notes.DSharp, notes.E, notes.F, notes.FSharp, notes.G, notes.GSharp];
+            var notesFlat = [notes.A, notes.BFlat, notes.B, notes.C, notes.DFlat, notes.D, notes.EFlat, notes.E, notes.F, notes.GFlat, notes.G, notes.AFlat];
+            var rootNoteToScaleAccidentals = (_rootNoteToScaleAccid = {}, nameIndividualChordNotes_defineProperty(_rootNoteToScaleAccid, notes.C, {
+              maj: "flat",
+              min: "flat"
+            }), nameIndividualChordNotes_defineProperty(_rootNoteToScaleAccid, notes.CSharp, {
+              maj: "sharp",
+              min: "sharp"
+            }), nameIndividualChordNotes_defineProperty(_rootNoteToScaleAccid, notes.DFlat, {
+              maj: "flat",
+              min: "flat"
+            }), nameIndividualChordNotes_defineProperty(_rootNoteToScaleAccid, notes.D, {
+              maj: "sharp",
+              min: "flat"
+            }), nameIndividualChordNotes_defineProperty(_rootNoteToScaleAccid, notes.DSharp, {
+              maj: "sharp",
+              min: "sharp"
+            }), nameIndividualChordNotes_defineProperty(_rootNoteToScaleAccid, notes.EFlat, {
+              maj: "flat",
+              min: "flat"
+            }), nameIndividualChordNotes_defineProperty(_rootNoteToScaleAccid, notes.E, {
+              maj: "sharp",
+              min: "sharp"
+            }), nameIndividualChordNotes_defineProperty(_rootNoteToScaleAccid, notes.F, {
+              maj: "flat",
+              min: "flat"
+            }), nameIndividualChordNotes_defineProperty(_rootNoteToScaleAccid, notes.FSharp, {
+              maj: "sharp",
+              min: "sharp"
+            }), nameIndividualChordNotes_defineProperty(_rootNoteToScaleAccid, notes.GFlat, {
+              maj: "flat",
+              min: "flat"
+            }), nameIndividualChordNotes_defineProperty(_rootNoteToScaleAccid, notes.G, {
+              maj: "sharp",
+              min: "flat"
+            }), nameIndividualChordNotes_defineProperty(_rootNoteToScaleAccid, notes.GSharp, {
+              maj: "sharp",
+              min: "sharp"
+            }), nameIndividualChordNotes_defineProperty(_rootNoteToScaleAccid, notes.AFlat, {
+              maj: "flat",
+              min: "flat"
+            }), nameIndividualChordNotes_defineProperty(_rootNoteToScaleAccid, notes.A, {
+              maj: "sharp",
+              min: "flat"
+            }), nameIndividualChordNotes_defineProperty(_rootNoteToScaleAccid, notes.ASharp, {
+              maj: "sharp",
+              min: "sharp"
+            }), nameIndividualChordNotes_defineProperty(_rootNoteToScaleAccid, notes.BFlat, {
+              maj: "flat",
+              min: "flat"
+            }), nameIndividualChordNotes_defineProperty(_rootNoteToScaleAccid, notes.B, {
+              maj: "sharp",
+              min: "sharp"
+            }), _rootNoteToScaleAccid);
+            function nameIndividualChordNotes(chord) {
+              var rootNote = chord.normalized.rootNote;
+              var semitones = chord.normalized.semitones;
+              var quality = chord.normalized.quality;
+              var minMaj = majorQualities.includes(quality) ? "maj" : "min";
+              var refNotes = rootNoteToScaleAccidentals[rootNote][minMaj] === "sharp" ? notesSharp : notesFlat;
+              var rootNoteIndex = refNotes.indexOf(rootNote);
+              var indexedNotes = [].concat(nameIndividualChordNotes_toConsumableArray(refNotes.slice(rootNoteIndex)), nameIndividualChordNotes_toConsumableArray(refNotes.slice(0, rootNoteIndex)), nameIndividualChordNotes_toConsumableArray(refNotes.slice(rootNoteIndex)), nameIndividualChordNotes_toConsumableArray(refNotes.slice(0, rootNoteIndex)));
+              var chordNotes = semitones.map(function(i) {
+                return indexedNotes[i];
+              });
+              chord.normalized.notes = chordNotes;
+              return chord;
+            }
+            ;
+            function normalizeNotes(chord) {
+              chord.normalized.rootNote = allVariantsToNotes[chord.input.rootNote];
+              if (chord.input.bassNote) {
+                chord.normalized.bassNote = allVariantsToNotes[chord.input.bassNote];
+              }
+              return chord;
+            }
+            var clone = __webpack_require__(6678);
+            var clone_default = /* @__PURE__ */ __webpack_require__.n(clone);
+            var find = __webpack_require__(3311);
+            var find_default = /* @__PURE__ */ __webpack_require__.n(find);
+            var uniq = __webpack_require__(4908);
+            var uniq_default = /* @__PURE__ */ __webpack_require__.n(uniq);
+            var without = __webpack_require__(2569);
+            var without_default = /* @__PURE__ */ __webpack_require__.n(without);
+            ;
+            function normalizeDescriptor_ownKeys(object, enumerableOnly) {
+              var keys = Object.keys(object);
+              if (Object.getOwnPropertySymbols) {
+                var symbols = Object.getOwnPropertySymbols(object);
+                enumerableOnly && (symbols = symbols.filter(function(sym) {
+                  return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+                })), keys.push.apply(keys, symbols);
+              }
+              return keys;
+            }
+            function normalizeDescriptor_objectSpread(target) {
+              for (var i = 1; i < arguments.length; i++) {
+                var source = null != arguments[i] ? arguments[i] : {};
+                i % 2 ? normalizeDescriptor_ownKeys(Object(source), true).forEach(function(key) {
+                  normalizeDescriptor_defineProperty(target, key, source[key]);
+                }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : normalizeDescriptor_ownKeys(Object(source)).forEach(function(key) {
+                  Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
+                });
+              }
+              return target;
+            }
+            function normalizeDescriptor_defineProperty(obj, key, value) {
+              if (key in obj) {
+                Object.defineProperty(obj, key, { value, enumerable: true, configurable: true, writable: true });
+              } else {
+                obj[key] = value;
+              }
+              return obj;
+            }
+            function normalizeDescriptor_toConsumableArray(arr) {
+              return normalizeDescriptor_arrayWithoutHoles(arr) || normalizeDescriptor_iterableToArray(arr) || normalizeDescriptor_unsupportedIterableToArray(arr) || normalizeDescriptor_nonIterableSpread();
+            }
+            function normalizeDescriptor_nonIterableSpread() {
+              throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+            }
+            function normalizeDescriptor_unsupportedIterableToArray(o, minLen) {
+              if (!o) return;
+              if (typeof o === "string") return normalizeDescriptor_arrayLikeToArray(o, minLen);
+              var n = Object.prototype.toString.call(o).slice(8, -1);
+              if (n === "Object" && o.constructor) n = o.constructor.name;
+              if (n === "Map" || n === "Set") return Array.from(o);
+              if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return normalizeDescriptor_arrayLikeToArray(o, minLen);
+            }
+            function normalizeDescriptor_iterableToArray(iter) {
+              if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter);
+            }
+            function normalizeDescriptor_arrayWithoutHoles(arr) {
+              if (Array.isArray(arr)) return normalizeDescriptor_arrayLikeToArray(arr);
+            }
+            function normalizeDescriptor_arrayLikeToArray(arr, len) {
+              if (len == null || len > arr.length) len = arr.length;
+              for (var i = 0, arr2 = new Array(len); i < len; i++) {
+                arr2[i] = arr[i];
+              }
+              return arr2;
+            }
+            function normalizeDescriptor(chord) {
+              var chordIntervals = clone_default()(chord.normalized.intervals);
+              var normalized = {
+                quality: "",
+                isSuspended: false,
+                extensions: [],
+                alterations: [],
+                adds: [],
+                omits: []
+              };
+              if (isPowerChord(chordIntervals)) {
+                normalized.quality = qualities.power;
+              } else if (isBass(chordIntervals)) {
+                normalized.quality = qualities.bass;
+              } else {
+                var omits = getOmits(chordIntervals, chord.normalized.intents.major);
+                var isSuspended = getIsSuspended(chordIntervals, chord.normalized.intents.major);
+                var _getChordQuality = getChordQuality(chordIntervals, chord, isSuspended, omits), qualityIntervals = _getChordQuality.qualityIntervals, quality = _getChordQuality.quality;
+                var extensions = getExtensions(chordIntervals, quality);
+                var baseIntervals = ["1"].concat(normalizeDescriptor_toConsumableArray(qualityIntervals), normalizeDescriptor_toConsumableArray(extensions));
+                var _getAddsAndAlteration = getAddsAndAlterations(chordIntervals, baseIntervals, quality), adds = _getAddsAndAlteration.adds, alterations = _getAddsAndAlteration.alterations;
+                normalized = normalizeDescriptor_objectSpread(normalizeDescriptor_objectSpread({}, normalized), {}, {
+                  quality,
+                  isSuspended,
+                  extensions,
+                  alterations,
+                  adds,
+                  omits
+                });
+              }
+              return normalizeDescriptor_objectSpread(normalizeDescriptor_objectSpread({}, chord), {}, {
+                normalized: normalizeDescriptor_objectSpread(normalizeDescriptor_objectSpread({}, chord.normalized), normalized)
+              });
+            }
+            function isPowerChord(intervals) {
+              return hasExactly(intervals, ["1", "5"]);
+            }
+            function isBass(intervals) {
+              return hasExactly(intervals, ["1"]);
+            }
+            function getIsSuspended(intervals, hasMajorIntent2) {
+              return intervals.includes("4") || intervals.includes("11") && hasMajorIntent2 && !intervals.includes("3");
+            }
+            function getOmits(intervals, hasMajorIntent2) {
+              var omits = [];
+              if (hasNoneOf(intervals, ["b3", "3", "4", "11"]) || !hasMajorIntent2 && hasNoneOf(intervals, ["b3", "4"])) {
+                omits.push(hasMajorIntent2 ? "3" : "b3");
+              }
+              if (hasNoneOf(intervals, ["b5", "5", "#5", "b13"])) {
+                omits.push("5");
+              }
+              return omits;
+            }
+            function getChordQuality(allIntervals, chord, isSuspended, omits) {
+              var intervalsForQualityDetection = getIntervalsForQualityDetection(allIntervals, chord, isSuspended, omits);
+              var intervalsToQualities = [
+                // !!! do not change order without a good reason
+                {
+                  qualityIntervals: ["b3"],
+                  quality: qualities.mi
+                },
+                {
+                  qualityIntervals: ["b3", "6"],
+                  quality: qualities.mi6
+                },
+                {
+                  qualityIntervals: ["b3", "7"],
+                  quality: qualities.miMa7
+                },
+                {
+                  qualityIntervals: ["b3", "b7"],
+                  quality: qualities.mi7
+                },
+                {
+                  qualityIntervals: ["3"],
+                  quality: qualities.ma
+                },
+                {
+                  qualityIntervals: ["3", "6"],
+                  quality: qualities.ma6
+                },
+                {
+                  qualityIntervals: ["3", "7"],
+                  quality: qualities.ma7
+                },
+                {
+                  qualityIntervals: ["3", "b7"],
+                  quality: qualities.dom7
+                },
+                {
+                  qualityIntervals: ["3", "#5"],
+                  quality: qualities.aug
+                },
+                {
+                  qualityIntervals: ["b3", "b5"],
+                  quality: qualities.dim
+                },
+                {
+                  qualityIntervals: ["b3", "b5", "bb7"],
+                  quality: qualities.dim7
+                }
+              ].sort(function(a, b) {
+                return b.qualityIntervals.length - a.qualityIntervals.length;
+              });
+              return find_default()(intervalsToQualities, function(o) {
+                return hasAll(intervalsForQualityDetection, o.qualityIntervals);
+              });
+            }
+            function getIntervalsForQualityDetection(allIntervals, chord, isSuspended, omits) {
+              var allFilters = [undoOmit3.bind(null, omits), undoSuspension.bind(null, isSuspended, chord.normalized.intents.major), undoAlt5.bind(null, chord.normalized.intents.alt), uniq_default()];
+              return chain(allFilters, clone_default()(allIntervals));
+            }
+            function undoOmit3(omits, allIntervals) {
+              var with3rd = clone_default()(allIntervals);
+              if (omits.includes("3")) {
+                with3rd.push("3");
+              } else if (omits.includes("b3")) {
+                with3rd.push("b3");
+              }
+              return with3rd;
+            }
+            function undoSuspension(isSuspended, hasMajorIntent2, allIntervals) {
+              if (isSuspended) {
+                var unSuspended = without_default()(allIntervals, "4");
+                unSuspended.push(hasMajorIntent2 ? "3" : "b3");
+                return unSuspended;
+              }
+              return allIntervals;
+            }
+            function undoAlt5(isAlt, allIntervals) {
+              if (isAlt) {
+                var unaltered = without_default()(allIntervals, "b5", "#5");
+                unaltered.push("5");
+                return unaltered;
+              }
+              return allIntervals;
+            }
+            function getExtensions(allIntervals, quality) {
+              var extensions = [];
+              if (canBeExtended(quality)) {
+                if (isMinorExtended13th(allIntervals, quality)) {
+                  extensions.push("9", "11", "13");
+                } else if (isMajorExtended13th(allIntervals, quality)) {
+                  extensions.push("9", "13");
+                } else if (isExtended11th(allIntervals)) {
+                  extensions.push("9", "11");
+                } else if (isExtended9th(allIntervals)) {
+                  extensions.push("9");
+                }
+              }
+              return extensions;
+            }
+            function canBeExtended(quality) {
+              return [qualities.ma7, qualities.dom7, qualities.mi7, qualities.miMa7].includes(quality);
+            }
+            function canHave11th(quality) {
+              return [qualities.mi7, qualities.miMa7].includes(quality);
+            }
+            function isMinorExtended13th(allIntervals, quality) {
+              return canHave11th(quality) && hasOneOf(allIntervals, "13") && hasOneOf(allIntervals, ["11", "#11"]) && hasOneOf(allIntervals, ["b9", "9", "#9"]);
+            }
+            function isMajorExtended13th(allIntervals, quality) {
+              return !canHave11th(quality) && hasOneOf(allIntervals, "13") && hasOneOf(allIntervals, ["b9", "9", "#9"]);
+            }
+            function isExtended11th(allIntervals) {
+              return hasOneOf(allIntervals, "11") && hasOneOf(allIntervals, ["b9", "9", "#9"]);
+            }
+            function isExtended9th(allIntervals) {
+              return allIntervals.includes("9");
+            }
+            function getAddsAndAlterations(chordIntervals, baseIntervals, quality) {
+              var adds = [];
+              var alterations = [];
+              chordIntervals.filter(function(interval) {
+                return interval !== "5" && interval !== "4";
+              }).forEach(function(interval) {
+                if (!baseIntervals.includes(interval)) {
+                  if (isAlteration(quality, interval)) {
+                    alterations.push(interval);
+                  } else {
+                    adds.push(interval);
+                  }
+                }
+              });
+              if (hasAdd3(chordIntervals)) {
+                adds.push("3");
+              }
+              return {
+                adds: sortIntervals(adds),
+                alterations: sortIntervals(alterations)
+              };
+            }
+            function isAlteration(quality, interval) {
+              var _qualityAlterations;
+              var qualityAlterations = (_qualityAlterations = {}, normalizeDescriptor_defineProperty(_qualityAlterations, qualities.ma, ["b5", "#5", "#11", "b13"]), normalizeDescriptor_defineProperty(_qualityAlterations, qualities.ma6, ["b5", "#5", "#11", "b13"]), normalizeDescriptor_defineProperty(_qualityAlterations, qualities.ma7, ["b5", "#5", "#11", "b13"]), normalizeDescriptor_defineProperty(_qualityAlterations, qualities.dom7, ["b5", "#5", "b9", "#9", "#11", "b13"]), normalizeDescriptor_defineProperty(_qualityAlterations, qualities.mi, ["b5", "#5", "#11", "b13"]), normalizeDescriptor_defineProperty(_qualityAlterations, qualities.mi6, ["b5", "#5", "#11", "b13"]), normalizeDescriptor_defineProperty(_qualityAlterations, qualities.mi7, ["b5", "#5", "#11", "b13"]), normalizeDescriptor_defineProperty(_qualityAlterations, qualities.miMa7, ["b5", "#5", "#11", "b13"]), normalizeDescriptor_defineProperty(_qualityAlterations, qualities.aug, []), normalizeDescriptor_defineProperty(_qualityAlterations, qualities.dim, []), normalizeDescriptor_defineProperty(_qualityAlterations, qualities.dim7, []), _qualityAlterations);
+              return qualityAlterations[quality].includes(interval);
+            }
+            function hasAdd3(allIntervals) {
+              return hasAll(allIntervals, ["3", "4"]);
+            }
+            function sortIntervals(intervals) {
+              return intervals.sort(function(a, b) {
+                var sortableA = Number.parseInt(a.replace(/[b#]/, ""));
+                var sortableB = Number.parseInt(b.replace(/[b#]/, ""));
+                return sortableA - sortableB;
+              });
+            }
+            ;
+            function parseBase(noteVariants, chord) {
+              var symbol = chord.input.symbol;
+              var notesRegex = noteVariants.join("|");
+              var notesAndDescriptorRegex = new RegExp("^(" + notesRegex + ")(.*?)(/(" + notesRegex + "))?$");
+              var result = symbol.match(notesAndDescriptorRegex);
+              if (result && result[1]) {
+                chord.input.rootNote = result[1];
+                if (result[2]) {
+                  chord.input.descriptor = result[2];
+                }
+                if (result[4]) {
+                  chord.input.bassNote = result[4];
+                }
+                return chord;
+              } else {
+                throw new NoSymbolFoundError(chord);
+              }
+            }
+            ;
+            function modifiers_ownKeys(object, enumerableOnly) {
+              var keys = Object.keys(object);
+              if (Object.getOwnPropertySymbols) {
+                var symbols = Object.getOwnPropertySymbols(object);
+                enumerableOnly && (symbols = symbols.filter(function(sym) {
+                  return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+                })), keys.push.apply(keys, symbols);
+              }
+              return keys;
+            }
+            function modifiers_objectSpread(target) {
+              for (var i = 1; i < arguments.length; i++) {
+                var source = null != arguments[i] ? arguments[i] : {};
+                i % 2 ? modifiers_ownKeys(Object(source), true).forEach(function(key) {
+                  modifiers_defineProperty(target, key, source[key]);
+                }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : modifiers_ownKeys(Object(source)).forEach(function(key) {
+                  Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
+                });
+              }
+              return target;
+            }
+            function modifiers_defineProperty(obj, key, value) {
+              if (key in obj) {
+                Object.defineProperty(obj, key, { value, enumerable: true, configurable: true, writable: true });
+              } else {
+                obj[key] = value;
+              }
+              return obj;
+            }
+            var allModifiers = {
+              // base
+              ma: "ma",
+              mi: "mi",
+              dim: "dim",
+              halfDim: "halfDim",
+              aug: "aug",
+              seventh: "seventh",
+              // suspended
+              sus: "sus",
+              sus2: "sus2",
+              // extensions
+              ninth: "ninth",
+              eleventh: "eleventh",
+              thirteenth: "thirteenth",
+              // alterations
+              fifthFlat: "b5",
+              fifthSharp: "#5",
+              ninthFlat: "b9",
+              ninthSharp: "#9",
+              eleventhSharp: "#11",
+              thirteenthFlat: "b13",
+              // added
+              add3: "add3",
+              add4: "add4",
+              addb6: "addb6",
+              add6: "add6",
+              add69: "add69",
+              add7: "add7",
+              add9: "add9",
+              add11: "add11",
+              add13: "add13",
+              // special
+              bass: "bass",
+              omit3: "omit3",
+              omit5: "omit5",
+              power: "power",
+              alt: "alt"
+            };
+            var major = {
+              "^": [allModifiers.ma, allModifiers.add7],
+              \u0394: [allModifiers.ma, allModifiers.add7],
+              M: allModifiers.ma,
+              Ma: allModifiers.ma,
+              Maj: allModifiers.ma,
+              Major: allModifiers.ma,
+              ma: allModifiers.ma,
+              maj: allModifiers.ma,
+              major: allModifiers.ma
+            };
+            var major7th = getDerivedModifiers(major, allModifiers.add7, function(symbol) {
+              return symbol + "7";
+            });
+            var add7 = getDerivedModifiers(major, allModifiers.add7, function(symbol) {
+              return "add" + symbol + "7";
+            });
+            var allSymbols = modifiers_objectSpread(modifiers_objectSpread(modifiers_objectSpread(modifiers_objectSpread({}, major), major7th), {}, {
+              // minor
+              "-": allModifiers.mi,
+              m: allModifiers.mi,
+              Mi: allModifiers.mi,
+              Min: allModifiers.mi,
+              Minor: allModifiers.mi,
+              mi: allModifiers.mi,
+              min: allModifiers.mi,
+              minor: allModifiers.mi,
+              // diminished / augmented
+              "\xB0": allModifiers.dim,
+              o: allModifiers.dim,
+              0: allModifiers.dim,
+              dim: allModifiers.dim,
+              "dim.": allModifiers.dim,
+              diminished: allModifiers.dim,
+              \u00D8: allModifiers.halfDim,
+              \u00F8: allModifiers.halfDim,
+              h: allModifiers.halfDim,
+              "+": allModifiers.aug,
+              aug: allModifiers.aug,
+              augmented: allModifiers.aug,
+              // seventh
+              7: allModifiers.seventh,
+              // suspended
+              4: allModifiers.sus,
+              sus: allModifiers.sus,
+              sus4: allModifiers.sus,
+              suspended: allModifiers.sus,
+              suspended4: allModifiers.sus,
+              sus2: allModifiers.sus2,
+              suspended2: allModifiers.sus2,
+              // extensions
+              9: allModifiers.ninth,
+              11: allModifiers.eleventh,
+              13: allModifiers.thirteenth,
+              // alterations
+              b3: allModifiers.mi,
+              b5: allModifiers.fifthFlat,
+              "\u266D5": allModifiers.fifthFlat,
+              "#5": allModifiers.fifthSharp,
+              "\u266F5": allModifiers.fifthSharp,
+              b9: allModifiers.ninthFlat,
+              "\u266D9": allModifiers.ninthFlat,
+              addb9: allModifiers.ninthFlat,
+              "add\u266D9": allModifiers.ninthFlat,
+              "#9": allModifiers.ninthSharp,
+              "\u266F9": allModifiers.ninthSharp,
+              "add#9": allModifiers.ninthSharp,
+              "add\u266F9": allModifiers.ninthSharp,
+              "#11": allModifiers.eleventhSharp,
+              "\u266F11": allModifiers.eleventhSharp,
+              "add#11": allModifiers.eleventhSharp,
+              b13: allModifiers.thirteenthFlat,
+              "\u266D13": allModifiers.thirteenthFlat,
+              addb13: allModifiers.thirteenthFlat,
+              "add\u266D13": allModifiers.thirteenthFlat
+            }, add7), {}, {
+              2: allModifiers.add9,
+              add2: allModifiers.add9,
+              add3: allModifiers.add3,
+              add4: allModifiers.add4,
+              addb6: allModifiers.addb6,
+              b6: allModifiers.addb6,
+              6: allModifiers.add6,
+              add6: allModifiers.add6,
+              "6/9": allModifiers.add69,
+              69: allModifiers.add69,
+              96: allModifiers.add69,
+              "9/6": allModifiers.add69,
+              add9: allModifiers.add9,
+              add11: allModifiers.add11,
+              add13: allModifiers.add13,
+              // special
+              bass: allModifiers.bass,
+              omit3: allModifiers.omit3,
+              no3: allModifiers.omit3,
+              omit5: allModifiers.omit5,
+              no5: allModifiers.omit5,
+              5: allModifiers.power,
+              alt: allModifiers.alt,
+              "alt.": allModifiers.alt,
+              altered: allModifiers.alt
+            });
+            function getDerivedModifiers(source, modifierId, derivedFn) {
+              return Object.keys(source).map(derivedFn).reduce(function(acc, curr) {
+                acc[curr] = modifierId;
+                return acc;
+              }, {});
+            }
+            var modifiers_allVariants = Object.keys(allSymbols).sort(function(a, b) {
+              return b.length - a.length;
+            });
+            const modifiers = allModifiers;
+            ;
+            const intervalsToSemitones = {
+              1: 0,
+              2: 2,
+              b3: 3,
+              3: 4,
+              4: 5,
+              b5: 6,
+              5: 7,
+              "#5": 8,
+              b6: 8,
+              6: 9,
+              bb7: 9,
+              b7: 10,
+              7: 11,
+              b9: 13,
+              9: 14,
+              "#9": 15,
+              11: 17,
+              "#11": 18,
+              b13: 20,
+              13: 21
+            };
+            ;
+            function parseDescriptor_toConsumableArray(arr) {
+              return parseDescriptor_arrayWithoutHoles(arr) || parseDescriptor_iterableToArray(arr) || parseDescriptor_unsupportedIterableToArray(arr) || parseDescriptor_nonIterableSpread();
+            }
+            function parseDescriptor_nonIterableSpread() {
+              throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+            }
+            function parseDescriptor_unsupportedIterableToArray(o, minLen) {
+              if (!o) return;
+              if (typeof o === "string") return parseDescriptor_arrayLikeToArray(o, minLen);
+              var n = Object.prototype.toString.call(o).slice(8, -1);
+              if (n === "Object" && o.constructor) n = o.constructor.name;
+              if (n === "Map" || n === "Set") return Array.from(o);
+              if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return parseDescriptor_arrayLikeToArray(o, minLen);
+            }
+            function parseDescriptor_iterableToArray(iter) {
+              if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter);
+            }
+            function parseDescriptor_arrayWithoutHoles(arr) {
+              if (Array.isArray(arr)) return parseDescriptor_arrayLikeToArray(arr);
+            }
+            function parseDescriptor_arrayLikeToArray(arr, len) {
+              if (len == null || len > arr.length) len = arr.length;
+              for (var i = 0, arr2 = new Array(len); i < len; i++) {
+                arr2[i] = arr[i];
+              }
+              return arr2;
+            }
+            function parseDescriptor(altIntervals, chord) {
+              var allModifiers2 = [];
+              if (chord.input.parsableDescriptor) {
+                allModifiers2 = getModifiers(chord);
+              }
+              chord.input.modifiers = allModifiers2;
+              chord.normalized.intervals = getIntervals(allModifiers2, altIntervals);
+              chord.normalized.semitones = getSemitones(chord.normalized.intervals);
+              chord.normalized.intents = getIntents(allModifiers2);
+              return chord;
+            }
+            function getModifiers(chord) {
+              var parsableDescriptor = chord.input.parsableDescriptor;
+              var modifiers2 = [];
+              var descriptorRegex = new RegExp(modifiers_allVariants.map(escapeRegex).join("|"), "g");
+              var descriptorMatches = parsableDescriptor.match(descriptorRegex);
+              var remainingChars = parsableDescriptor;
+              var allModifiersId;
+              if (descriptorMatches) {
+                descriptorMatches.forEach(function(match) {
+                  allModifiersId = allSymbols[match];
+                  if (!Array.isArray(allModifiersId)) {
+                    allModifiersId = [allModifiersId];
+                  }
+                  allModifiersId.forEach(function(modifierId) {
+                    if (modifiers2.includes(modifierId)) {
+                      return;
+                    }
+                    modifiers2.push(modifierId);
+                    remainingChars = remainingChars.replace(match, "");
+                  });
+                });
+              }
+              if (modifiers2.length === 0) {
+                throw new NoSymbolFoundError(chord);
+              }
+              if (remainingChars.trim().length > 0) {
+                throw new InvalidModifierError(chord, remainingChars);
+              }
+              return modifiers2;
+            }
+            function getIntervals(allModifiers2, altIntervals) {
+              if (allModifiers2.includes(modifiers.power)) {
+                return ["1", "5"];
+              } else if (allModifiers2.includes(modifiers.bass)) {
+                return ["1"];
+              }
+              return uniq_default()(["1"].concat(parseDescriptor_toConsumableArray(getThird(allModifiers2)), parseDescriptor_toConsumableArray(getFourth(allModifiers2)), parseDescriptor_toConsumableArray(getFifths(allModifiers2, altIntervals)), parseDescriptor_toConsumableArray(getSixth(allModifiers2)), parseDescriptor_toConsumableArray(getSevenths(allModifiers2)), parseDescriptor_toConsumableArray(getNinths(allModifiers2, altIntervals)), parseDescriptor_toConsumableArray(getElevenths(allModifiers2, altIntervals)), parseDescriptor_toConsumableArray(getThirteenths(allModifiers2, altIntervals)))).sort(function(a, b) {
+                return intervalsToSemitones[a] - intervalsToSemitones[b];
+              });
+            }
+            function getThird(allModifiers2) {
+              var third = [];
+              if (allModifiers2.includes(modifiers.omit3)) {
+                return [];
+              }
+              if (!hasOneOf(allModifiers2, [modifiers.sus, modifiers.sus2])) {
+                if (!hasMajorIntent(allModifiers2)) {
+                  third.push("b3");
+                } else if (!allModifiers2.includes(modifiers.eleventh)) {
+                  third.push("3");
+                }
+              }
+              if (allModifiers2.includes(modifiers.add3)) {
+                third.push("3");
+              }
+              return third;
+            }
+            function getFourth(allModifiers2) {
+              var fourth = [];
+              if (hasOneOf(allModifiers2, [modifiers.sus, modifiers.add4])) {
+                fourth.push("4");
+              }
+              return fourth;
+            }
+            function getFifths(allModifiers2, altIntervals) {
+              var fifths = [];
+              if (allModifiers2.includes(modifiers.omit5)) {
+                return [];
+              }
+              if (hasOneOf(allModifiers2, [modifiers.dim, modifiers.halfDim, modifiers.fifthFlat]) || shouldAlter(allModifiers2, altIntervals, "b5")) {
+                fifths.push("b5");
+              }
+              if (hasOneOf(allModifiers2, [modifiers.aug, modifiers.fifthSharp]) || shouldAlter(allModifiers2, altIntervals, "#5")) {
+                fifths.push("#5");
+              }
+              if (!fifths.length && !allModifiers2.includes(modifiers.thirteenthFlat)) {
+                fifths.push("5");
+              }
+              return fifths;
+            }
+            function getSixth(allModifiers2) {
+              var sixth = [];
+              if (hasOneOf(allModifiers2, [modifiers.addb6])) {
+                sixth.push("b6");
+              }
+              if (hasOneOf(allModifiers2, [modifiers.add6, modifiers.add69]) && !isExtended(allModifiers2) && !hasOneOf(allModifiers2, [modifiers.halfDim])) {
+                sixth.push("6");
+              }
+              return sixth;
+            }
+            function getSevenths(allModifiers2) {
+              var sevenths = [];
+              if (hasOneOf(allModifiers2, [modifiers.alt])) {
+                sevenths.push("b7");
+              }
+              if (hasOneOf(allModifiers2, [modifiers.seventh, modifiers.halfDim])) {
+                if (allModifiers2.includes(modifiers.dim)) {
+                  sevenths.push("bb7");
+                } else if (allModifiers2.includes(modifiers.halfDim)) {
+                  sevenths.push("b7");
+                } else {
+                  sevenths.push(getMinorOrMajorSeventh(allModifiers2));
+                }
+              } else if (hasOneOf(allModifiers2, [modifiers.ninth, modifiers.eleventh, modifiers.thirteenth])) {
+                sevenths.push(getMinorOrMajorSeventh(allModifiers2));
+              }
+              if (allModifiers2.includes(modifiers.add7)) {
+                sevenths.push("7");
+              }
+              return sevenths;
+            }
+            function getMinorOrMajorSeventh(allModifiers2) {
+              return allModifiers2.includes(modifiers.ma) ? "7" : "b7";
+            }
+            function getNinths(allModifiers2, altIntervals) {
+              var ninth = [];
+              if (hasOneOf(allModifiers2, [modifiers.add69, modifiers.ninth, modifiers.eleventh, modifiers.thirteenth]) && hasNoneOf(allModifiers2, [modifiers.ninthFlat, modifiers.ninthSharp])) {
+                ninth.push("9");
+              }
+              if (hasOneOf(allModifiers2, [modifiers.sus2, modifiers.add9])) {
+                ninth.push("9");
+              }
+              if (hasOneOf(allModifiers2, [modifiers.ninthFlat]) || shouldAlter(allModifiers2, altIntervals, "b9")) {
+                ninth.push("b9");
+              }
+              if (hasOneOf(allModifiers2, [modifiers.ninthSharp]) || shouldAlter(allModifiers2, altIntervals, "#9")) {
+                ninth.push("#9");
+              }
+              return ninth;
+            }
+            function getElevenths(allModifiers2, altIntervals) {
+              var elevenths = [];
+              if (hasOneOf(allModifiers2, [modifiers.thirteenth]) && !hasMajorIntent(allModifiers2)) {
+                elevenths.push("11");
+              } else if (hasOneOf(allModifiers2, [modifiers.eleventh, modifiers.add11])) {
+                elevenths.push("11");
+              }
+              if (hasOneOf(allModifiers2, [modifiers.eleventhSharp]) || shouldAlter(allModifiers2, altIntervals, "#11")) {
+                elevenths.push("#11");
+              }
+              return elevenths;
+            }
+            function getThirteenths(allModifiers2, altIntervals) {
+              var thirteenths = [];
+              if (hasOneOf(allModifiers2, [modifiers.add13, modifiers.thirteenth]) || hasOneOf(allModifiers2, [modifiers.add6, modifiers.add69]) && isExtended(allModifiers2) || hasOneOf(allModifiers2, [modifiers.add6, modifiers.add69]) && hasOneOf(allModifiers2, [modifiers.halfDim])) {
+                thirteenths.push("13");
+              }
+              if (hasOneOf(allModifiers2, [modifiers.thirteenthFlat]) || shouldAlter(allModifiers2, altIntervals, "b13")) {
+                thirteenths.push("b13");
+              }
+              return thirteenths;
+            }
+            function shouldAlter(allModifiers2, altIntervals, interval) {
+              return allModifiers2.includes(modifiers.alt) && altIntervals.includes(interval);
+            }
+            function hasMajorIntent(allModifiers2) {
+              return hasNoneOf(allModifiers2, [modifiers.mi, modifiers.dim, modifiers.dim7, modifiers.halfDim]);
+            }
+            function isExtended(allModifiers2) {
+              return hasOneOf(allModifiers2, [modifiers.seventh, modifiers.ninth, modifiers.eleventh, modifiers.thirteenth]);
+            }
+            function escapeRegex(string) {
+              return string.replace(/[.\-*+?^${}()|[\]\\]/g, "\\$&");
+            }
+            function getSemitones(allIntervals) {
+              return allIntervals.map(function(interval) {
+                return intervalsToSemitones[interval];
+              }).sort(function(a, b) {
+                return a - b;
+              });
+            }
+            function getIntents(allModifiers2) {
+              return {
+                major: hasMajorIntent(allModifiers2),
+                eleventh: allModifiers2.includes(modifiers.eleventh),
+                alt: allModifiers2.includes(modifiers.alt)
+              };
+            }
+            ;
+            function chordParserFactory_toConsumableArray(arr) {
+              return chordParserFactory_arrayWithoutHoles(arr) || chordParserFactory_iterableToArray(arr) || chordParserFactory_unsupportedIterableToArray(arr) || chordParserFactory_nonIterableSpread();
+            }
+            function chordParserFactory_nonIterableSpread() {
+              throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+            }
+            function chordParserFactory_unsupportedIterableToArray(o, minLen) {
+              if (!o) return;
+              if (typeof o === "string") return chordParserFactory_arrayLikeToArray(o, minLen);
+              var n = Object.prototype.toString.call(o).slice(8, -1);
+              if (n === "Object" && o.constructor) n = o.constructor.name;
+              if (n === "Map" || n === "Set") return Array.from(o);
+              if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return chordParserFactory_arrayLikeToArray(o, minLen);
+            }
+            function chordParserFactory_iterableToArray(iter) {
+              if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter);
+            }
+            function chordParserFactory_arrayWithoutHoles(arr) {
+              if (Array.isArray(arr)) return chordParserFactory_arrayLikeToArray(arr);
+            }
+            function chordParserFactory_arrayLikeToArray(arr, len) {
+              if (len == null || len > arr.length) len = arr.length;
+              for (var i = 0, arr2 = new Array(len); i < len; i++) {
+                arr2[i] = arr[i];
+              }
+              return arr2;
+            }
+            function chordParserFactory2() {
+              var parserConfiguration = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : {};
+              var allAltIntervals = ["b5", "#5", "b9", "#9", "#11", "b13"];
+              var allNotationSystems2 = ["english", "german", "latin"];
+              var _parserConfiguration$ = parserConfiguration.notationSystems, notationSystems = _parserConfiguration$ === void 0 ? cloneDeep_default()(allNotationSystems2) : _parserConfiguration$, _parserConfiguration$2 = parserConfiguration.altIntervals, altIntervals = _parserConfiguration$2 === void 0 ? cloneDeep_default()(allAltIntervals) : _parserConfiguration$2, _parserConfiguration$3 = parserConfiguration.customFilters, customFilters = _parserConfiguration$3 === void 0 ? [] : _parserConfiguration$3;
+              checkAltIntervals(altIntervals, allAltIntervals);
+              checkNotationSystems(notationSystems, allNotationSystems2);
+              helpers_checkCustomFilters(customFilters);
+              return parseChord;
+              function parseChord(symbol) {
+                var allErrors = [];
+                if (!isInputValid(symbol)) {
+                  var e = new InvalidInputError();
+                  allErrors.push(formatError(e));
+                }
+                var allVariantsPerGroupCopy = cloneDeep_default()(allVariantsPerGroup).filter(function(variantsGroup) {
+                  return notationSystems.includes(variantsGroup.name);
+                });
+                var chord;
+                var allFilters;
+                var variants;
+                if (!allErrors.length) {
+                  while (allVariantsPerGroupCopy.length && !chord) {
+                    variants = allVariantsPerGroupCopy.shift();
+                    allFilters = [initChord.bind(null, parserConfiguration), parseBase.bind(null, variants.notes), getParsableDescriptor, parseDescriptor.bind(null, altIntervals), checkIntervalsConsistency, normalizeNotes, normalizeDescriptor, formatSymbolParts, formatSymbol, nameIndividualChordNotes].concat(chordParserFactory_toConsumableArray(customFilters));
+                    try {
+                      chord = chain(allFilters, symbol);
+                      if (chord) {
+                        chord.input.notationSystem = variants.name;
+                      } else {
+                        allErrors.push(getUnexpectedError(variants.name));
+                      }
+                    } catch (e2) {
+                      allErrors.push(formatError(e2, variants.name));
+                    }
+                  }
+                }
+                return chord ? chord : {
+                  error: allErrors
+                };
+              }
+            }
+            function checkAltIntervals(altIntervals, allAltIntervals) {
+              checkArray("altIntervals", altIntervals, allAltIntervals, true);
+            }
+            function checkNotationSystems(notationSystems, allNotationSystems2) {
+              checkArray("notationSystems", notationSystems, allNotationSystems2);
+            }
+            function checkArray(arrayName, arrayToTest, allowedValues, allowEmpty) {
+              if (!Array.isArray(arrayToTest)) {
+                throw new TypeError("'".concat(arrayName, "' should be an array"));
+              }
+              if (!allowEmpty && arrayToTest.length === 0) {
+                throw new TypeError("'".concat(arrayName, "' cannot be empty"));
+              }
+              arrayToTest.forEach(function(system) {
+                if (!allowedValues.includes(system)) {
+                  throw new TypeError("'".concat(system, "' is not a valid value for ").concat(arrayName));
+                }
+              });
+            }
+            function isInputValid(input) {
+              return typeof input === "string" && input.length > 0;
+            }
+            function getUnexpectedError(notationSystem) {
+              var error = new UnexpectedError();
+              return formatError(error, notationSystem);
+            }
+            function formatError(exceptionError, notationSystem) {
+              return {
+                type: exceptionError.name,
+                chord: exceptionError.chord,
+                message: exceptionError.message,
+                notationSystem
+              };
+            }
+            const parser_chordParserFactory = chordParserFactory2;
+            ;
+            function shortenNormalized_ownKeys(object, enumerableOnly) {
+              var keys = Object.keys(object);
+              if (Object.getOwnPropertySymbols) {
+                var symbols = Object.getOwnPropertySymbols(object);
+                enumerableOnly && (symbols = symbols.filter(function(sym) {
+                  return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+                })), keys.push.apply(keys, symbols);
+              }
+              return keys;
+            }
+            function shortenNormalized_objectSpread(target) {
+              for (var i = 1; i < arguments.length; i++) {
+                var source = null != arguments[i] ? arguments[i] : {};
+                i % 2 ? shortenNormalized_ownKeys(Object(source), true).forEach(function(key) {
+                  shortenNormalized_defineProperty(target, key, source[key]);
+                }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : shortenNormalized_ownKeys(Object(source)).forEach(function(key) {
+                  Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
+                });
+              }
+              return target;
+            }
+            function shortenNormalized_defineProperty(obj, key, value) {
+              if (key in obj) {
+                Object.defineProperty(obj, key, { value, enumerable: true, configurable: true, writable: true });
+              } else {
+                obj[key] = value;
+              }
+              return obj;
+            }
+            var shortDescriptors = {
+              sus2: "sus2",
+              add2: "2",
+              omit: "no",
+              ma: "M",
+              mi: "m",
+              dim: "\xB0",
+              aug7: "7+",
+              eleventh: "11"
+            };
+            function shortenNormalized(chord) {
+              var descriptor;
+              var chordChanges = chord.formatted.chordChanges;
+              if (isSus2(chord)) {
+                descriptor = shortDescriptors.sus2;
+                chordChanges = [];
+              } else if (isAdd2(chord)) {
+                descriptor = shortDescriptors.add2;
+                chordChanges = [];
+              } else if (isAug7(chord)) {
+                descriptor = shortDescriptors.aug7;
+                chordChanges = [];
+              } else {
+                descriptor = chord.formatted.descriptor.replace("mi", shortDescriptors.mi).replace(/[m|M]a/, shortDescriptors.ma).replace("dim", shortDescriptors.dim);
+                if (isEleventh(chord)) {
+                  descriptor = descriptor.replace(/7sus|9sus/, shortDescriptors.eleventh);
+                }
+              }
+              chordChanges = chordChanges.map(function(change) {
+                return change.replace(/[m|M]a/, shortDescriptors.ma).replace("omit", shortDescriptors.omit);
+              });
+              return shortenNormalized_objectSpread(shortenNormalized_objectSpread({}, chord), {}, {
+                formatted: shortenNormalized_objectSpread(shortenNormalized_objectSpread({}, chord.formatted), {}, {
+                  descriptor,
+                  chordChanges
+                })
+              });
+            }
+            function isSus2(chord) {
+              return hasExactly(chord.normalized.intervals, ["1", "5", "9"]);
+            }
+            function isAdd2(chord) {
+              return hasExactly(chord.normalized.intervals, ["1", "3", "5", "9"]);
+            }
+            function isAug7(chord) {
+              return hasExactly(chord.normalized.intervals, ["1", "3", "#5", "b7"]);
+            }
+            function isEleventh(chord) {
+              return chord.normalized.intents.eleventh;
+            }
+            var difference = __webpack_require__(1966);
+            var difference_default = /* @__PURE__ */ __webpack_require__.n(difference);
+            ;
+            function simplify_simplify() {
+              var level = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : "none";
+              var chord = arguments.length > 1 ? arguments[1] : void 0;
+              if (level === "none") {
+                return chord;
+              }
+              var intervalsToRemove = {
+                max: ["4", "b5", "#5", "6", "bb7", "b7", "7", "b9", "9", "#9", "11", "#11", "b13", "13"],
+                core: ["4", "b9", "9", "#9", "11", "#11", "b13", "13"]
+              };
+              var intervals = difference_default()(chord.normalized.intervals, intervalsToRemove[level]);
+              if (hasNoneOf(intervals, ["b3", "3"])) {
+                intervals.push(chord.normalized.intents.major ? "3" : "b3");
+              }
+              if (hasNoneOf(intervals, ["b5", "5", "#5"])) {
+                intervals.push("5");
+              }
+              chord.normalized.intervals = intervals;
+              chord.normalized.semitones = intervals.map(function(interval) {
+                return intervalsToSemitones[interval];
+              });
+              chord.normalized.intents.eleventh = false;
+              chord.normalized.intents.alt = false;
+              if (level === "max") {
+                delete chord.normalized.bassNote;
+              }
+              var allFilters = [normalizeDescriptor, formatSymbolParts, nameIndividualChordNotes];
+              return chain(allFilters, chord);
+            }
+            var invert = __webpack_require__(3137);
+            var invert_default = /* @__PURE__ */ __webpack_require__.n(invert);
+            ;
+            var transpose_notes = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+            var sharpsToFlats = {
+              "C#": "Db",
+              "D#": "Eb",
+              "F#": "Gb",
+              "G#": "Ab",
+              "A#": "Bb"
+            };
+            var flatsToSharps = invert_default()(sharpsToFlats);
+            function transpose(transposeValue, useFlats, chord) {
+              var _chord$normalized = chord.normalized, rootNote = _chord$normalized.rootNote, bassNote = _chord$normalized.bassNote;
+              var rootSharp = convertToSharp(rootNote);
+              chord.normalized.rootNote = transposeNote(rootSharp, transposeValue, useFlats);
+              chord.formatted.rootNote = chord.normalized.rootNote;
+              if (bassNote) {
+                var bassSharp = convertToSharp(bassNote);
+                chord.normalized.bassNote = transposeNote(bassSharp, transposeValue, useFlats);
+                chord.formatted.bassNote = chord.normalized.bassNote;
+              }
+              return nameIndividualChordNotes(chord);
+            }
+            function transposeNote(note, value, useFlats) {
+              var noteIndex = transpose_notes.indexOf(note);
+              var transposedIndex = noteIndex + value;
+              var octaves = Math.floor(transposedIndex / 12);
+              var correctedTransposedIndex = transposedIndex - octaves * 12;
+              var transposed = transpose_notes[correctedTransposedIndex];
+              return useFlats ? sharpsToFlats[transposed] || transposed : transposed;
+            }
+            function convertToSharp(note) {
+              return flatsToSharps[note] || note;
+            }
+            ;
+            var translationTables = {
+              german: {
+                Ab: "As",
+                A: "A",
+                "A#": "Ais",
+                Bb: "Hes",
+                B: "H",
+                C: "C",
+                "C#": "Cis",
+                Db: "Des",
+                D: "D",
+                "D#": "Dis",
+                Eb: "Es",
+                E: "E",
+                F: "F",
+                "F#": "Fis",
+                Gb: "Ges",
+                G: "G",
+                "G#": "Gis"
+              },
+              latin: {
+                Ab: "Lab",
+                A: "La",
+                "A#": "La#",
+                Bb: "Sib",
+                B: "Si",
+                C: "Do",
+                "C#": "Do#",
+                Db: "Reb",
+                D: "Re",
+                "D#": "Re#",
+                Eb: "Mib",
+                E: "Mi",
+                F: "Fa",
+                "F#": "Fa#",
+                Gb: "Solb",
+                G: "Sol",
+                "G#": "Sol#"
+              }
+            };
+            var allNotationSystems = Object.keys(translationTables);
+            function convertNotationSystem() {
+              var notationSystem = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : "english";
+              var chord = arguments.length > 1 ? arguments[1] : void 0;
+              var finalNotationSystem = notationSystem === "auto" ? chord.input.notationSystem : notationSystem;
+              if (finalNotationSystem === "english") return chord;
+              if (!allNotationSystems.includes(finalNotationSystem)) return null;
+              chord.formatted.rootNote = translationTables[finalNotationSystem][chord.formatted.rootNote];
+              if (chord.formatted.bassNote) {
+                chord.formatted.bassNote = translationTables[finalNotationSystem][chord.formatted.bassNote];
+              }
+              return chord;
+            }
+            ;
+            function textPrinter(chord) {
+              return chord && chord.formatted && chord.formatted.symbol ? chord.formatted.symbol : null;
+            }
+            ;
+            function rawPrinter(chord) {
+              delete chord.parserConfiguration.notationSystems;
+              var cloned = cloneDeep_default()(chord);
+              var textPrinted = textPrinter(chord);
+              var parseChord = parser_chordParserFactory(chord.parserConfiguration);
+              var reParsed = parseChord(textPrinted);
+              cloned.input = reParsed.input;
+              return cloned;
+            }
+            ;
+            function chordRendererFactory_typeof(obj) {
+              "@babel/helpers - typeof";
+              return chordRendererFactory_typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(obj2) {
+                return typeof obj2;
+              } : function(obj2) {
+                return obj2 && "function" == typeof Symbol && obj2.constructor === Symbol && obj2 !== Symbol.prototype ? "symbol" : typeof obj2;
+              }, chordRendererFactory_typeof(obj);
+            }
+            function chordRendererFactory_toConsumableArray(arr) {
+              return chordRendererFactory_arrayWithoutHoles(arr) || chordRendererFactory_iterableToArray(arr) || chordRendererFactory_unsupportedIterableToArray(arr) || chordRendererFactory_nonIterableSpread();
+            }
+            function chordRendererFactory_nonIterableSpread() {
+              throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+            }
+            function chordRendererFactory_unsupportedIterableToArray(o, minLen) {
+              if (!o) return;
+              if (typeof o === "string") return chordRendererFactory_arrayLikeToArray(o, minLen);
+              var n = Object.prototype.toString.call(o).slice(8, -1);
+              if (n === "Object" && o.constructor) n = o.constructor.name;
+              if (n === "Map" || n === "Set") return Array.from(o);
+              if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return chordRendererFactory_arrayLikeToArray(o, minLen);
+            }
+            function chordRendererFactory_iterableToArray(iter) {
+              if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter);
+            }
+            function chordRendererFactory_arrayWithoutHoles(arr) {
+              if (Array.isArray(arr)) return chordRendererFactory_arrayLikeToArray(arr);
+            }
+            function chordRendererFactory_arrayLikeToArray(arr, len) {
+              if (len == null || len > arr.length) len = arr.length;
+              for (var i = 0, arr2 = new Array(len); i < len; i++) {
+                arr2[i] = arr[i];
+              }
+              return arr2;
+            }
+            function chordRendererFactory2() {
+              var _ref = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : {}, _ref$useShortNamings = _ref.useShortNamings, useShortNamings = _ref$useShortNamings === void 0 ? false : _ref$useShortNamings, _ref$simplify = _ref.simplify, simplify = _ref$simplify === void 0 ? "none" : _ref$simplify, _ref$transposeValue = _ref.transposeValue, transposeValue = _ref$transposeValue === void 0 ? 0 : _ref$transposeValue, _ref$harmonizeAcciden = _ref.harmonizeAccidentals, harmonizeAccidentals = _ref$harmonizeAcciden === void 0 ? false : _ref$harmonizeAcciden, _ref$useFlats = _ref.useFlats, useFlats = _ref$useFlats === void 0 ? false : _ref$useFlats, _ref$printer = _ref.printer, printer = _ref$printer === void 0 ? "text" : _ref$printer, _ref$notationSystem = _ref.notationSystem, notationSystem = _ref$notationSystem === void 0 ? "english" : _ref$notationSystem, _ref$customFilters = _ref.customFilters, customFilters = _ref$customFilters === void 0 ? [] : _ref$customFilters;
+              helpers_checkCustomFilters(customFilters);
+              var allFilters = [];
+              if (["max", "core"].includes(simplify)) {
+                allFilters.push(simplify_simplify.bind(null, simplify));
+              }
+              if (harmonizeAccidentals || transposeValue !== 0) {
+                allFilters.push(transpose.bind(null, transposeValue, useFlats));
+              }
+              if (useShortNamings) {
+                allFilters.push(shortenNormalized);
+              }
+              allFilters.push.apply(allFilters, [convertNotationSystem.bind(null, notationSystem), formatSymbol].concat(chordRendererFactory_toConsumableArray(customFilters)));
+              return renderChord;
+              function renderChord(chord) {
+                if (!isValidChord(chord)) {
+                  return null;
+                }
+                var filteredChord = chain(allFilters, cloneDeep_default()(chord));
+                return printer === "raw" ? rawPrinter(filteredChord) : textPrinter(filteredChord);
+              }
+            }
+            var isValidChord = function isValidChord2(chord) {
+              return chord && chordRendererFactory_typeof(chord) === "object" && !chord.error && chord.input;
+            };
+            const renderer_chordRendererFactory = chordRendererFactory2;
+            ;
+          })();
+          return __webpack_exports__;
+        })()
+      );
+    });
+  }
+});
+
+// src/lib/index.js
+var import_promise = __toESM(require_promise(), 1);
+
+// src/lib/parser.js
+var import_fast_diff = __toESM(require_diff(), 1);
+var Playlist = class {
+  constructor(ireal) {
+    const playlistEncoded = /.*?(irealb(?:ook)?):\/\/([^"]*)/.exec(ireal);
+    const playlist = decodeURIComponent(playlistEncoded[2]);
+    const parts = playlist.split("===");
+    if (parts.length > 1) this.name = parts.pop();
+    this.songs = parts.map((part) => {
+      try {
+        return new Song(part, playlistEncoded[1] === "irealbook");
+      } catch (error) {
+        const parts2 = part.split("=");
+        const title = Song.parseTitle(parts2[0].trim());
+        console.error(`[ireal-musicxml] [${title}] ${error}`);
+        return null;
+      }
+    }).filter((song) => song !== null).reduce((songs, song) => {
+      if (songs.length > 0) {
+        const diffs = (0, import_fast_diff.default)(songs[songs.length - 1].title, song.title);
+        if (diffs[0][0] === 0 && diffs.every((d) => d[0] === 0 || d[1].match(/^\d+$/))) {
+          songs[songs.length - 1].cells = songs[songs.length - 1].cells.concat(song.cells);
+          return songs;
+        }
+      }
+      songs.push(song);
+      return songs;
+    }, []);
+  }
+};
+var Cell = class {
+  constructor() {
+    this.annots = [];
+    this.comments = [];
+    this.bars = "";
+    this.spacer = 0;
+    this.chord = null;
+  }
+};
+var Chord = class {
+  constructor(note, modifiers = "", over = null, alternate = null) {
+    this.note = note;
+    this.modifiers = modifiers;
+    this.over = over;
+    this.alternate = alternate;
+  }
+};
+var Song = class _Song {
+  constructor(ireal, oldFormat = false) {
+    this.cells = [];
+    this.musicXml = "";
+    if (!ireal) {
+      this.title = "";
+      this.composer = "";
+      this.style = "";
+      this.key = "";
+      this.transpose = 0;
+      this.groove = "";
+      this.bpm = 0;
+      this.repeats = 0;
+      return;
+    }
+    const parts = ireal.split("=");
+    if (oldFormat) {
+      this.title = _Song.parseTitle(parts[0].trim());
+      this.composer = _Song.parseComposer(parts[1].trim());
+      this.style = parts[2].trim();
+      this.key = parts[3];
+      this.cells = this.parse(parts[5]);
+    } else {
+      this.title = _Song.parseTitle(parts[0].trim());
+      this.composer = _Song.parseComposer(parts[1].trim());
+      this.style = parts[3].trim();
+      this.key = parts[4];
+      this.transpose = +parts[5] || 0;
+      this.groove = parts[7];
+      this.bpm = +parts[8];
+      this.repeats = +parts[9] || 3;
+      const music = parts[6].split("1r34LbKcu7");
+      this.cells = this.parse(unscramble(music[1]));
+    }
+  }
+  /**
+   * The RegExp for a complete chord. The match array contains:
+   * 1 - the base note
+   * 2 - the modifiers (+-ohd0123456789 and su for sus)
+   * 3 - any comments (may be e.g. add, sub, or private stuff)
+   * 4 - the "over" part starting with a slash
+   * 5 - the top chord as (chord)
+   * @type RegExp
+   */
+  static chordRegex = /^([A-G][b#]?)((?:sus|alt|add|[+\-^\dhob#])*)(\*.+?\*)*(\/[A-G][#b]?)?(\(.*?\))?/;
+  static chordRegex2 = /^([ Wp])()()(\/[A-G][#b]?)?(\(.*?\))?/;
+  // need the empty captures to match chordRegex
+  static regExps = [
+    /^\*[a-zA-Z]/,
+    // section
+    /^T\d\d/,
+    // time measurement
+    /^N./,
+    // repeat marker
+    /^<.*?>/,
+    // comments
+    _Song.chordRegex,
+    // chords
+    _Song.chordRegex2
+    // space, W and p (with optional alt chord)
+  ];
+  /**
+   * The parser cracks up the raw music string into several objects,
+   * one for each cell. iReal Pro works with rows of 16 cell each. The result
+   * is stored at song.cells.
+   *
+   * Each object has the following properties:
+   *
+   * chord: if non-null, a chord object with these properties:
+   *   note      - the base note (also blank, W = invisible root, p/x/r - pause/bar repeat/double-bar repeat, n - no chord)
+   *   modifiers - the modifiers, like 7, + o etc (string)
+   *   over      - if non-null, another chord object for the under-note
+   *   alternate - if non-null another chord object for the alternate chord
+   * annots: annotations, a string of:
+   *  *x  - section, like *v, *I, *A, *B etc
+   *  Nx  - repeat bots (N1, N2 etc)
+   *  Q   - coda
+   *  S   - segno
+   *  Txx - measure (T44 = 4/4 etc, but T12 = 12/8)
+   *  U   - END
+   *  f   - fermata
+   *  l   - (letter l) normal notes
+   *  s   - small notes
+   * comments: an array of comment strings
+   * bars: bar specifiers, a string of:
+   *  | - single vertical bar, left
+   *  [ - double bar, left
+   *  ] - double bar, right
+   *  { - repeat bar, left
+   *  } - repeat bar, right
+   *  Z - end bar, right
+   * spacer - a number indicating the number of vertical spacers above this cell
+   *
+   * @returns [Cell]
+   */
+  parse(ireal) {
+    let text = ireal.trim();
+    const arr = [];
+    while (text) {
+      let found = false;
+      for (let i = 0; i < _Song.regExps.length; i++) {
+        const match = _Song.regExps[i].exec(text);
+        if (match) {
+          found = true;
+          if (match.length <= 2) {
+            arr.push(match[0]);
+            text = text.substr(match[0].length);
+          } else {
+            arr.push(match);
+            text = text.substr(match[0].length);
+          }
+          break;
+        }
+      }
+      if (!found) {
+        if (text[0] !== ",")
+          arr.push(text[0]);
+        text = text.substr(1);
+      }
+    }
+    const cells = [];
+    let obj = this.newCell(cells);
+    let prevobj = null;
+    for (let i = 0; i < arr.length; i++) {
+      let cell = arr[i];
+      if (cell instanceof Array) {
+        obj.chord = this.parseChord(cell);
+        cell = " ";
+      }
+      switch (cell[0]) {
+        case "{":
+        // open repeat
+        case "[":
+          if (prevobj) {
+            prevobj.bars += ")";
+            prevobj = null;
+          }
+          obj.bars = cell;
+          cell = null;
+          break;
+        case "|":
+          if (prevobj) {
+            prevobj.bars += ")";
+            prevobj = null;
+          }
+          obj.bars = "(";
+          cell = null;
+          break;
+        case "]":
+        // close double bar
+        case "}":
+        // close repeat
+        case "Z":
+          if (prevobj) {
+            prevobj.bars += cell;
+            prevobj = null;
+          }
+          cell = null;
+          break;
+        case "n":
+          obj.chord = new Chord(cell[0]);
+          break;
+        case ",":
+          cell = null;
+          break;
+        // separator
+        case "S":
+        // segno
+        case "T":
+        // time measurement
+        case "Q":
+        // coda
+        case "N":
+        // repeat
+        case "U":
+        // END
+        case "s":
+        // small
+        case "l":
+        // normal
+        case "f":
+        // fermata
+        case "*":
+          obj.annots.push(cell);
+          cell = null;
+          break;
+        case "Y":
+          obj.spacer++;
+          cell = null;
+          prevobj = null;
+          break;
+        case "r":
+        case "x":
+        case "W":
+          obj.chord = new Chord(cell);
+          break;
+        case "<":
+          cell = cell.substr(1, cell.length - 2);
+          obj.comments.push(cell);
+          cell = null;
+          break;
+        default:
+      }
+      if (cell && i < arr.length - 1) {
+        prevobj = obj;
+        obj = this.newCell(cells);
+      }
+    }
+    return cells;
+  }
+  /**
+   * The title had "A" and "The" at the back (e.g. "Gentle Rain, The")
+   */
+  static parseTitle(title) {
+    return title.replace(/(.*)(, )(A|The)$/g, "$3 $1");
+  }
+  /**
+   * The composer is reversed (last first) if it only has 2 names :shrug:
+   */
+  static parseComposer(composer) {
+    const parts = composer.split(/(\s+)/);
+    if (parts.length == 3) {
+      return parts[2] + parts[1] + parts[0];
+    }
+    return composer;
+  }
+  parseChord(chord) {
+    var note = chord[1] || " ";
+    var modifiers = chord[2] || "";
+    var comment = chord[3] || "";
+    if (comment)
+      modifiers += comment.substr(1, comment.length - 2);
+    var over = chord[4] || "";
+    if (over[0] === "/")
+      over = over.substr(1);
+    var alternate = chord[5] || null;
+    if (alternate) {
+      chord = _Song.chordRegex.exec(alternate.substr(1, alternate.length - 2));
+      if (!chord)
+        alternate = null;
+      else
+        alternate = this.parseChord(chord);
+    }
+    if (note === " " && !alternate && !over)
+      return null;
+    if (over) {
+      var offset = over[1] === "#" || over[1] === "b" ? 2 : 1;
+      over = new Chord(over.substr(0, offset), over.substr(offset), null, null);
+    } else
+      over = null;
+    return new Chord(note, modifiers, over, alternate);
+  }
+  newCell(cells) {
+    var obj = new Cell();
+    cells.push(obj);
+    return obj;
+  }
+};
+function unscramble(s) {
+  let r = "", p;
+  while (s.length > 51) {
+    p = s.substring(0, 50);
+    s = s.substring(50);
+    r = r + obfusc50(p);
+  }
+  r = r + s;
+  r = r.replace(/Kcl/g, "| x").replace(/LZ/g, " |").replace(/XyQ/g, "   ");
+  return r;
+}
+function obfusc50(s) {
+  const newString = s.split("");
+  for (let i = 0; i < 5; i++) {
+    newString[49 - i] = s[i];
+    newString[i] = s[49 - i];
+  }
+  for (let i = 10; i < 24; i++) {
+    newString[49 - i] = s[i];
+    newString[i] = s[49 - i];
+  }
+  return newString.join("");
+}
+
+// src/lib/converter.js
+var import_jstoxml = __toESM(require_jstoxml(), 1);
+var import_chord_symbol = __toESM(require_chord_symbol(), 1);
+
+// package.json
+var package_default = {
+  name: "ireal-musicxml",
+  version: "2.0.0",
+  description: "iReal Pro to MusicXML converter.",
+  author: "Karim Ratib <karim.ratib@gmail.com> (https://github.com/infojunkie)",
+  license: "GPL-3.0-only",
+  repository: {
+    type: "git",
+    url: "https://github.com/infojunkie/ireal-musicxml"
+  },
+  homepage: "https://github.com/infojunkie/ireal-musicxml",
+  type: "module",
+  types: "./src/types/ireal-musicxml.d.ts",
+  files: [
+    "LICENSE.txt",
+    "build/*",
+    "src/*"
+  ],
+  bin: {
+    "ireal-musicxml": "./src/cli/cli.js"
+  },
+  exports: {
+    import: "./build/ireal-musicxml.js",
+    require: "./build/ireal-musicxml.cjs"
+  },
+  scripts: {
+    build: "npm run build:esm && npm run build:cjs",
+    "build:esm": "esbuild src/lib/index.js --bundle --format=esm --sourcemap --outfile=build/ireal-musicxml.js",
+    "build:cjs": "esbuild src/lib/index.js --bundle --platform=node --packages=external --outfile=build/ireal-musicxml.cjs",
+    test: "npm run test:lint && npm run test:spec && npm run test:ts",
+    "test:spec": "node --test",
+    "test:ts": "npm run build && node --test --loader=ts-node/esm --require ts-node/register test/**/*.spec.ts",
+    "test:lint": "eslint src --fix"
+  },
+  devDependencies: {
+    "@types/node": "^22.7.7",
+    "@xmldom/xmldom": "^0.8.0",
+    esbuild: "0.24.0",
+    eslint: "^9.13.0",
+    resolve: "^1.22.8",
+    "sanitize-filename": "^1.6.3",
+    "ts-node": "^10.9.2",
+    typescript: "^4.9.5",
+    "validate-with-xmllint": "^1.2.0",
+    "xpath.js": "^1.1.0"
+  },
+  dependencies: {
+    "chord-symbol": "^3.0.0",
+    "fast-diff": "^1.2.0",
+    jstoxml: "^2.0.6",
+    promise: "^8.1.0"
+  }
+};
+
+// src/lib/version.js
+var Version = class {
+  static name = package_default.name;
+  static version = package_default.version;
+  static author = package_default.author;
+  static description = package_default.description;
+};
+
+// src/lib/converter.js
+var { chordParserFactory, chordRendererFactory } = import_chord_symbol.default;
+var LogLevel = class {
+  static Debug = 0;
+  static Info = 1;
+  static Warn = 2;
+  static Error = 3;
+  static None = 4;
+};
+var MUSICXML_VERSION = "4.0";
+var SCALING_MM = 7;
+var SCALING_TENTHS = 40;
+var Converter = class _Converter {
+  static defaultOptions = {
+    "divisions": 768,
+    // same as used by iReal
+    "notation": "rhythmic",
+    // 'rhythmic' for rhythmic notation, 'slash' for slash notation
+    "step": "B",
+    // chord note
+    "octave": 4,
+    // chord note octave
+    "notehead": "slash",
+    // chord note head
+    "noteheadSize": "large",
+    // size of chord note head
+    "date": true,
+    // include encoding date
+    "clef": false,
+    // hide clef by default
+    "keySignature": false,
+    // hide key signature by default
+    "pageWidth": 210,
+    // mm (A4)
+    "pageHeight": 297,
+    // mm (A4)
+    "pageMargin": 15,
+    // mm
+    "logLevel": LogLevel.Warn
+  };
+  static sequenceAttributes = [
+    // Expected order of attribute elements.
+    // https://www.w3.org/2021/06/musicxml40/musicxml-reference/elements/attributes/
+    "divisions",
+    "key",
+    "time",
+    "staves",
+    "part-symbol",
+    "instruments",
+    "clef",
+    "staff-details",
+    "transpose",
+    "directive",
+    "measure-style"
+  ];
+  static sequenceNote = [
+    // Expected order of note elements.
+    // https://www.w3.org/2021/06/musicxml40/musicxml-reference/elements/note/
+    "cue",
+    "pitch",
+    "rest",
+    "unpitched",
+    "duration",
+    "tie",
+    "voice",
+    "type",
+    "dot",
+    "accidental",
+    "time-modification",
+    "stem",
+    "notehead",
+    "notehead-text",
+    "staff",
+    "beam",
+    "notations",
+    "lyric",
+    "play"
+  ];
+  static sequenceNotations = [
+    // Expected order of notations elements.
+    // https://www.w3.org/2021/06/musicxml40/musicxml-reference/elements/notations/
+    "accidental-mark",
+    "arpeggiate",
+    "articulations",
+    "dynamics",
+    "fermata",
+    "glissando",
+    "non-arpeggiate",
+    "ornaments",
+    "other-notation",
+    "slide",
+    "slur",
+    "technical",
+    "tied",
+    "tuplet"
+  ];
+  static sequenceBarline = [
+    // Expected order of barline elements.
+    // https://www.w3.org/2021/06/musicxml40/musicxml-reference/elements/barline/
+    "bar-style",
+    "footnote",
+    "level",
+    "wavy-line",
+    "segno",
+    "coda",
+    "fermata",
+    "ending",
+    "repeat"
+  ];
+  static mapAlter = {
+    "#": 1,
+    "b": -1
+  };
+  static mapFifthsToAlters = {
+    "sharp": ["F", "C", "G", "D", "A", "E", "B"],
+    "flat": ["B", "E", "A", "D", "G", "C", "F"]
+  };
+  static mapRepeats = {
+    "D.C. al Coda": _Converter.prototype.convertDaCapo,
+    "D.C. al Fine": _Converter.prototype.convertDaCapo,
+    "D.C. al 1st End.": _Converter.prototype.convertDaCapo,
+    "D.C. al 2nd End.": _Converter.prototype.convertDaCapo,
+    "D.C. al 3rd End.": _Converter.prototype.convertDaCapo,
+    "D.S. al Coda": _Converter.prototype.convertDalSegno,
+    "D.S. al Fine": _Converter.prototype.convertDalSegno,
+    "D.S. al 1st End.": _Converter.prototype.convertDalSegno,
+    "D.S. al 2nd End.": _Converter.prototype.convertDalSegno,
+    "D.S. al 3rd End.": _Converter.prototype.convertDalSegno,
+    "Fine": _Converter.prototype.convertFine,
+    "3x": _Converter.prototype.convertRepeatNx,
+    "4x": _Converter.prototype.convertRepeatNx,
+    "5x": _Converter.prototype.convertRepeatNx,
+    "6x": _Converter.prototype.convertRepeatNx,
+    "7x": _Converter.prototype.convertRepeatNx,
+    "8x": _Converter.prototype.convertRepeatNx
+  };
+  static convert(song, options = {}) {
+    const realOptions = Object.assign({}, this.defaultOptions, options);
+    return new _Converter(song, realOptions).convert();
+  }
+  constructor(song, options) {
+    this.song = song;
+    this.options = options;
+    this.time = { beats: 4, beatType: 4 };
+    this.fifths = null;
+    this.measure = null;
+    this.barRepeat = 0;
+    this.codas = [];
+    this.repeats = 0;
+    this.emptyCells = 0;
+    this.emptyCellNewSystem = false;
+    this.cellWidth = (this.options.pageWidth - 2 * this.options.pageMargin) / 16;
+    this.parseChord = chordParserFactory({ "altIntervals": [
+      "b5",
+      "b9"
+    ] });
+    this.renderChord = chordRendererFactory({
+      useShortNamings: true,
+      printer: "raw"
+    });
+  }
+  convert() {
+    return import_jstoxml.default.toXML(this.convertSong(), {
+      header: `
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE score-partwise PUBLIC "-//Recordare//DTD MusicXML ${In} Partwise//EN" "http://www.musicxml.org/dtds/partwise.dtd">
-      `.trim(),indent:"  "})}convertSong(){return{_name:"score-partwise",_attrs:{version:In},_content:[{work:{"work-title":this.song.title}},{identification:[{_name:"creator",_attrs:{type:"composer"},_content:this.song.composer},{encoding:[{software:`@infojunkie/ireal-musicxml ${we.version}`},{...this.options.date&&{"encoding-date":s.convertDate(new Date)}},{_name:"supports",_attrs:{element:"accidental",type:"no"}},{_name:"supports",_attrs:{element:"transpose",type:"no"}},{_name:"supports",_attrs:{attribute:"new-page",element:"print",type:"yes",value:"yes"}},{_name:"supports",_attrs:{attribute:"new-system",element:"print",type:"yes",value:"yes"}}]}]},{defaults:{scaling:{millimeters:Dn,tenths:Pn},"page-layout":{"page-height":s._mmToTenths(this.options.pageHeight),"page-width":s._mmToTenths(this.options.pageWidth),"page-margins":{"left-margin":s._mmToTenths(this.options.pageMargin,4),"right-margin":s._mmToTenths(this.options.pageMargin,4),"top-margin":s._mmToTenths(this.options.pageMargin,4),"bottom-margin":s._mmToTenths(this.options.pageMargin,4)}}}},{"part-list":{_name:"score-part",_attrs:{id:"P1"},_content:{_name:"part-name",_attrs:{"print-object":"no"},_content:"Lead Sheet"}}},{_name:"part",_attrs:{id:"P1"},_content:this.convertMeasures()}]}}static convertDate(p){return new Date(p.getTime()-p.getTimezoneOffset()*6e4).toISOString().split("T")[0]}static Measure=class{constructor(p){this.body={_name:"measure",_attrs:{number:p},_content:[]},this.attributes=[],this.chords=[],this.barlines=[],this.barEnding=null}number(){return this.body._attrs.number}assemble(){return this.attributes.length&&this.body._content.push({attributes:s.reorderSequence(this,this.attributes,s.sequenceAttributes)}),this.chords.forEach(p=>{this.body._content.push({harmony:p.harmony},...p.notes.map(u=>({note:u})))}),this.barlines[0]._content=s.reorderSequence(this,this.barlines[0]._content,s.sequenceBarline),this.body._content.splice(1,0,this.barlines[0]),this.barlines[1]._content=s.reorderSequence(this,this.barlines[1]._content,s.sequenceBarline),this.body._content.push(this.barlines[1]),this.body}};static Chord=class{constructor(p,u,g){this.harmony=p,this.notes=u,this.ireal=g,this.spaces=0,this.fermata=!1}};convertMeasures(){let p=e=>e>0&&e%16===0,u=this.song.cells.reduce((e,i,t)=>{if((i.bars.match(/\(|\{|\[/)||!this.measure&&(i.chord||i.annots.length||i.comments.length))&&(this.measure&&(this._log(tt.Warn,"Starting a new measure over existing measure. Closing current measure first."),this.measure.barlines.push(this.convertBarline("","right")),this.adjustChordsDuration(this.measure)&&e.push(this.measure)),this.measure=new s.Measure(e.length+1,this.options),e.length||(this.measure.attributes.push({divisions:this.options.divisions},{_name:"clef",_attrs:[{"print-object":this.options.clef?"yes":"no"}],_content:[{sign:"G"},{line:2}]},{"staff-details":{"staff-lines":0}},{"measure-style":[{_name:"slash",_attrs:{type:"start","use-stems":this.options.notation==="rhythmic"?"yes":"no"}}]},this.convertKey()),this.song.bpm&&this.measure.body._content.push(this.convertTempo(this.song.bpm)),this.measure.body._content.push(this.convertStyleAndGroove(this.song.style,this.song.groove))),this.measure.barlines.push(this.convertBarline(i.bars,"left")),this.barRepeat&&(this.measure.chords=[...e[e.length-this.barRepeat-1].chords])),!this.measure)return(i.chord||i.annots.length||i.comments.length||i.bars&&i.bars!==")")&&this._log(tt.Warn,`Found non-empty orphan cell ${JSON.stringify(i)}`,e[e.length-1]),this.emptyCells++,p(t)&&(this.emptyCellNewSystem=!0),e;if((p(t)||this.emptyCellNewSystem)&&this.measure.body._content.splice(0,0,{_name:"print",_attrs:{"new-system":"yes"},_content:{...this.emptyCellNewSystem&&{"system-layout":{"system-margins":[{"left-margin":s._mmToTenths(this.cellWidth*this.emptyCells)},{"right-margin":"0.00"}]}}}}),!this.emptyCellNewSystem&&this.emptyCells>0&&(this.measure.body._content[0]?._name==="print"&&this.measure.body._content[0]._attrs?.["new-system"]==="yes"?e[e.length-1].body._content.splice(0,0,{_name:"print",_content:{"system-layout":{"system-margins":[{"left-margin":"0.00"},{"right-margin":s._mmToTenths(this.cellWidth*this.emptyCells)}]}}}):this.measure.body._content.splice(0,0,{_name:"print",_content:{"measure-layout":{"measure-distance":s._mmToTenths(this.cellWidth*this.emptyCells)}}})),this.emptyCellNewSystem=!1,this.emptyCells=0,i.chord)switch(i.chord.note){case"x":{this.barRepeat=1,this.measure.chords=[...e[e.length-this.barRepeat].chords];break}case"r":{this.barRepeat=2,this.measure.chords=[...e[e.length-this.barRepeat].chords];break}case"p":if(this.measure.chords.length){this.measure.chords[this.measure.chords.length-1].spaces++;break}case"W":{let a=this.measure;if(a.chords.length||(a=e.slice().reverse().find(n=>n.chords.length),a||this._log(tt.Error,`Cannot find any measure with chords prior to ${JSON.stringify(i.chord)}`)),a){let n=a.chords[a.chords.length-1].ireal;n.over=i.chord.over,n.alternate=i.chord.alternate,this.measure.chords.push(this.convertChord(n))}break}case" ":{this._log(tt.Warn,`Unhandled empty/alternate chord ${JSON.stringify(i.chord)}`);break}default:this.measure.chords.push(this.convertChord(i.chord))}else this.barRepeat||this.measure.chords.length&&this.measure.chords[this.measure.chords.length-1].spaces++;return i.annots.forEach(a=>{switch(a[0]){case"*":{let n=a.slice(1);this.measure.body._content.push(this.convertSection(n));break}case"T":{let n=a.slice(1);this.measure.attributes.push(this.convertTime(n));break}case"S":{this.measure.body._content.push(this.convertSegno());break}case"N":{let n=parseInt(a.slice(1));if(n<1&&(n=e.slice().reverse().find(l=>!!l.barEnding)?.barEnding??1),this.measure.barlines[0]._content.push(this.convertEnding(n,"start")),n>1){e[e.length-1].barlines[1]._content.push(this.convertEnding(n-1,"stop"));let o=e.slice().reverse().find(l=>l.barEnding===n-1);if(!o)this._log(tt.Error,`Cannot find ending ${n-1} in right barline of any measure`);else{let l=o.barlines[1]._content.findIndex(h=>!!h&&h._name==="ending");l===-1&&this._log(tt.Error,`Cannot find ending ${n-1} in right barline`,o),delete o.barlines[1]._content[l]}}this.measure.barEnding=n;break}case"Q":{this.measure.body._content.push(this.convertToCoda()),this.codas.push(this.measure);break}case"l":case"s":break;case"f":{this.measure.chords[this.measure.chords.length-1].fermata=!0;break}case"U":{this.measure.body._content.push(this.convertFine("END"));break}default:this._log(tt.Warn,`Unhandled annotation "${a}"`)}}),i.comments.map(a=>a.trim()).forEach(a=>{let n=this._map(s.mapRepeats,a);n?this.measure.body._content.push(n.call(this,a)):this.measure.body._content.push(this.convertComment(a))}),i.bars.match(/\)|\}|\]|Z/)&&this.measure.chords.length&&(this.measure.barlines.push(this.convertBarline(i.bars,"right")),this.measure.barEnding&&this.measure.barlines[1]._content.push(this.convertEnding(this.measure.barEnding,"discontinue")),this.adjustChordsDuration(this.measure)&&e.push(this.measure),this.measure=null,this.barRepeat&&this.barRepeat--),e},[]),g=this.song.cells.length%16-this.emptyCells;if(g>0&&u.length>0&&u[u.length-1].body._content.splice(0,0,{_name:"print",_content:{"system-layout":{"system-margins":[{"left-margin":"0.00"},{"right-margin":s._mmToTenths(this.cellWidth*g)}]}}}),this.codas.length){let e=this.codas[this.codas.length-1],i=e.body._content.findIndex(t=>t._name==="direction"&&Array.isArray(t._content)&&t._content.some(a=>a._name==="sound"&&Object.keys(a._attrs).includes("tocoda")));i===-1&&this._log(tt.Warn,"Cannot find sound direction",e),e.body._content[i]=this.convertCoda()}return u.map(e=>e.assemble())}static reorderSequence(p,u,g){return u.filter(e=>Object.keys(e).length).sort((e,i)=>{let t=Object.keys(e)[0];t==="_name"&&(t=e[t]);let a=Object.keys(i)[0];a==="_name"&&(a=i[a]);let n=g.indexOf(t),o=g.indexOf(a);return n===-1&&this._log(tt.Warn,`Unrecognized element "${t}"`,p),o===-1&&this._log(tt.Warn,`Unrecognized element "${a}"`,p),n-o})}convertRepeatNx(p){let u=null;(u=p.match(/(\d+)x/))!==null&&(this.repeats=u[1])}convertFine(p){return{_name:"direction",_attrs:{placement:"below"},_content:[{"direction-type":{words:p}},{_name:"sound",_attrs:{fine:"yes"}}]}}convertDaCapo(p){return{_name:"direction",_attrs:{placement:"below"},_content:[{"direction-type":{words:p}},{_name:"sound",_attrs:{dacapo:"yes"}}]}}convertDalSegno(p){return{_name:"direction",_attrs:{placement:"below"},_content:[{"direction-type":{words:p}},{_name:"sound",_attrs:{dalsegno:"yes"}}]}}convertComment(p){return{_name:"direction",_attrs:{placement:p[0]==="*"?"above":"below"},_content:{"direction-type":{words:p[0]==="*"?p.slice(3):p}}}}convertEnding(p,u){return{_name:"ending",_attrs:{number:p,type:u},_content:`${p}.`}}convertBarline(p,u){let g="regular",e=null;return p.match(/\[|\]/)?g="light-light":p.match(/Z/)?g="light-heavy":p.match(/\{|\}/)&&(g=u==="left"?"heavy-light":"light-heavy",e=u==="left"?"forward":"backward"),e==="forward"&&(this.repeats=2),{_name:"barline",_attrs:{location:u},_content:[{"bar-style":g},{...e&&{_name:"repeat",_attrs:{direction:e,...e==="backward"&&{times:this.repeats}}}}]}}convertSection(p){return p==="i"&&(p="Intro"),{_name:"direction",_attrs:{placement:"above"},_content:{"direction-type":{rehearsal:p}}}}convertSegno(){return{_name:"direction",_attrs:{placement:"above"},_content:[{"direction-type":{_name:"segno"}},{_name:"sound",_attrs:{segno:"segno"}}]}}convertCoda(){return{_name:"direction",_attrs:{placement:"above"},_content:[{"direction-type":{_name:"coda"}},{_name:"sound",_attrs:{coda:"coda"}}]}}convertToCoda(){return{_name:"direction",_attrs:{placement:"above"},_content:[{"direction-type":{words:"To Coda"}},{_name:"sound",_attrs:{tocoda:"coda"}}]}}convertTempo(p){return{_name:"direction",_attrs:{placement:"above"},_content:[{"direction-type":[{_name:"metronome",_attrs:{parentheses:"no"},_content:[{"beat-unit":this.calculateChordDuration(1)[0].type},{"per-minute":p}]}]},{_name:"sound",_attrs:{tempo:p}}]}}convertTime(p){let u=parseInt(p[0]),g=parseInt(p[1]);return p==="12"&&(u=12,g=8),this.time={beats:u,beatType:g},{time:[{beats:u},{"beat-type":g}]}}adjustChordsDuration(p){if(p.chords.length>this.time.beats)return this._log(tt.Error,`Too many chords (${p.chords.length} out of ${this.time.beats})`,p),!0;let u=p.chords.reduce((g,e)=>g+1+e.spaces,0);if(!u)return this._log(tt.Warn,"No chord found. Skipping current measure.",p),!1;if(u>this.time.beats){let g=0;for(;u>this.time.beats;)p.chords[g].spaces>0&&(p.chords[g].spaces--,u--),g=(g+1)%p.chords.length}else{let g=0;for(;u<this.time.beats;)p.chords[g].spaces++,u++,g=(g+1)%p.chords.length}return p.chords=p.chords.map(g=>(g.notes=this.calculateChordDuration(1+g.spaces).map((e,i,t)=>this.convertChordNote(e,i===t.length-1?g.fermata:!1,this.options.notation==="rhythmic"&&t.length>1?i>0?"stop":"start":null)),g)),!0}calculateChordDuration(p){let u={1:[{t:"eighth",d:0,b:1}],2:[{t:"quarter",d:0,b:2}],3:[{t:"quarter",d:1,b:3}],4:[{t:"half",d:0,b:4}],5:[{t:"quarter",d:1,b:3},{t:"quarter",d:0,b:2}],6:[{t:"half",d:1,b:6}],7:[{t:"half",d:2,b:7}],8:[{t:"whole",d:0,b:8}],9:[{t:"half",d:1,b:6},{t:"quarter",d:1,b:3}],10:[{t:"half",d:1,b:6},{t:"half",d:0,b:4}],11:[{t:"half",d:2,b:7},{t:"half",d:0,b:4}],12:[{t:"whole",d:1,b:12}],13:[{t:"half",d:2,b:7},{t:"half",d:1,b:6}],14:[{t:"whole",d:2,b:14}],15:[{t:"whole",d:0,b:8},{t:"half",d:2,b:7}]};if(this.options.notation==="slash"){let g=8/this.time.beatType;return Array(p).fill(this._map(u,g,[],`Unexpected beat count 1 for time signature ${this.time.beats}/${this.time.beatType}`).map(e=>({duration:e.b*this.options.divisions/2,type:e.t,dots:e.d}))[0])}else{let g=p*8/this.time.beatType;return this._map(u,g,[],`Unexpected beat count ${p} for time signature ${this.time.beats}/${this.time.beatType}`).map(e=>({duration:e.b*this.options.divisions/2,type:e.t,dots:e.d}))}}convertChordNote(p,u=!1,g=null){let e=s.mapFifthsToAlters[this.fifths>=0?"sharp":"flat"].slice(0,Math.abs(this.fifths)),i={_name:"pitch",_content:[{step:this.options.step},{alter:e.includes(this.options.step)?this.fifths>0?1:-1:0},{octave:this.options.octave}]},t=[];return u&&t.push({_name:"fermata"}),g&&t.push({_name:"tied",_attrs:{type:g}}),s.reorderSequence(this.measure,[i,{_name:"cue"},{_name:"notehead",_content:this.options.notehead,_attrs:[{"font-size":this.options.noteheadSize}]},{duration:p.duration},{voice:1},{_name:"type",_attrs:{size:"full"},_content:p.type},{...t.length&&{notations:s.reorderSequence(this.measure,t,s.sequenceNotations)}}].concat(Array(p.dots).fill({_name:"dot"})),s.sequenceNote)}convertChordDegree(p,u,g){return{_name:"degree",_attrs:{"print-object":"no"},_content:[{"degree-value":p},{"degree-alter":g},{"degree-type":u}]}}convertChordSymbol(p){let u=this.renderChord(this.parseChord(`${p.note}${p.modifiers}`));if(!u)return this._log(tt.Warn,`Unrecognized chord "${p.note}${p.modifiers}"`),{rootStep:null,rootAlter:null,chordKind:null,chordDegrees:[],chordText:null};let g=u.input.rootNote[0],e=this._map(s.mapAlter,u.input.rootNote[1]||null,null,`Unrecognized accidental in chord "${u.input.rootNote}"`),i=u.formatted.descriptor+u.formatted.chordChanges.join(""),t={major:"major",major6:"major-sixth",major7:"major-seventh",dominant7:"dominant",minor:"minor",minor6:"minor-sixth",minor7:"minor-seventh",minorMajor7:"major-minor",augmented:"augmented",diminished:"diminished",diminished7:"diminished-seventh",power:"power"},a=this._map(t,u.normalized.quality,"",`Unrecognized chord quality "${u.normalized.quality}"`);if(u.normalized.extensions.length){let o=Math.max(...u.normalized.extensions.map(h=>parseInt(h))).toString(),l={9:"-ninth",11:"-11th",13:"-13th"};a=a.split("-")[0]+this._map(l,o,"",`Unhandled extension ${o}`),a==="dominant-11th"&&(u.normalized.isSuspended=!1)}[{intervals:["1","4","5"],kind:"suspended-fourth",strict:!0},{intervals:["1","5","9"],kind:"suspended-second",strict:!0},{intervals:["1","b3","b5","b7"],kind:"half-diminished",strict:!0},{intervals:["1","3","#5","b7"],kind:"augmented-seventh",strict:!1}].some(o=>{if((!o.strict||u.normalized.intervals.length===o.intervals.length)&&o.intervals.every((l,h)=>l===u.normalized.intervals[h]))return a=o.kind,o.intervals.forEach(l=>{u.normalized.alterations=u.normalized.alterations.filter(h=>h===l),u.normalized.adds=u.normalized.adds.filter(h=>h===l),u.normalized.omits=u.normalized.omits.filter(h=>h===l)}),u.normalized.intervals.forEach(l=>{o.intervals.includes(l)||u.normalized.adds.push(l)}),!0});let n=[];return u.normalized.isSuspended&&!a.includes("suspended")&&(u.normalized.adds.push("4"),u.normalized.adds.includes("3")||u.normalized.omits.push("3")),u.normalized.alterations.forEach(o=>{let l=o.slice(1);n.push(this.convertChordDegree(l,l==="5"||u.normalized.extensions.includes(l)?"alter":"add",this._map(s.mapAlter,o[0],0,`Unrecognized alter symbol in "${o}"`)))}),u.normalized.adds.forEach(o=>{let l=Object.keys(s.mapAlter).includes(o[0])?o[0]:null,h=l?o.slice(1):o;n.push(this.convertChordDegree(h,"add",this._map(s.mapAlter,l,0,`Unrecognized alter symbol in "${o}"`)))}),u.normalized.omits.forEach(o=>{let l=Object.keys(s.mapAlter).includes(o[0])?o[0]:null,h=l?o.slice(1):o;n.push(this.convertChordDegree(h,"subtract",this._map(s.mapAlter,l,0,`Unrecognized alter symbol in "${o}"`)))}),{rootStep:g,rootAlter:e,chordKind:a,chordDegrees:n,chordText:i}}convertChord(p){let u=null;if(p.note==="n")u=[{root:[{_name:"root-step",_attrs:{text:""},_content:this.options.step}]},{_name:"kind",_attrs:{text:"N.C."},_content:"none"}];else{let{rootStep:g,rootAlter:e,chordKind:i,chordDegrees:t,chordText:a}=this.convertChordSymbol(p),n=p.over?[{"bass-step":p.over.note[0]},{...p.over.note[1]&&{"bass-alter":this._map(s.mapAlter,p.over.note[1],null,`Unrecognized accidental in bass note "${p.over.note}"`)}}]:null;u=[{root:[{"root-step":g},{...e&&{"root-alter":e}}]},{_name:"kind",_attrs:{text:a,"use-symbols":"no"},_content:i},{...n&&{bass:n}}].concat(t)}return p.alternate&&this._log(tt.Warn,`Unhandled alternate chord ${JSON.stringify(p.alternate)}`),new s.Chord(u,this.calculateChordDuration(1).map(g=>this.convertChordNote(g)),p)}convertKey(){let p={C:0,G:1,D:2,A:3,E:4,B:5,"F#":6,"C#":7,F:-1,Bb:-2,Eb:-3,Ab:-4,Db:-5,Gb:-6,Cb:-7,"A-":0,"E-":1,"B-":2,"F#-":3,"C#-":4,"G#-":5,"D#-":6,"A#-":7,"D-":-1,"G-":-2,"C-":-3,"F-":-4,"Bb-":-5,"Eb-":-6,"Ab-":-7};return this.fifths=this._map(p,this.song.key,0,`Unrecognized key signature "${this.song.key}"`),{_name:"key",_attrs:[{"print-object":this.options.keySignature?"yes":"no"}],_content:[{fifths:this.fifths},{mode:this.song.key.slice(-1)==="-"?"minor":"major"}]}}convertStyleAndGroove(p,u){return{_name:"direction",_attrs:{placement:"above"},_content:[{"direction-type":[{words:p}]},{sound:[{play:[{_name:"other-play",_attrs:{type:"groove"},_content:u||p}]}]}]}}_log(p,u,g=this.measure){if(p<this.options.logLevel)return;let e=`[ireal-musicxml] [${this.song.title}${g?"#"+g.number():""}] ${u}`,i="warn";switch(p){case tt.Debug:i="debug";break;case tt.Info:i="info";break;case tt.Warn:i="warn";break;case tt.Error:i="error";break}console[i](e)}_map(p,u,g,e,i=tt.Warn,t=this.measure){return u?u in p?p[u]:(e&&this._log(i,e,t),g||null):g}static _mmToTenths(p,u=2){let g=p*Pn/Dn,e=Math.pow(10,u);return Math.round(g*e)/e}};function ns(s,p={}){let u=new Le(s);return u.songs.forEach(g=>{g.musicXml=$e.convert(g,p)}),u}async function Es(s,p={}){return new _n.default(u=>u(ns(s,p)))}})();
+<!DOCTYPE score-partwise PUBLIC "-//Recordare//DTD MusicXML ${MUSICXML_VERSION} Partwise//EN" "http://www.musicxml.org/dtds/partwise.dtd">
+      `.trim(),
+      indent: "  "
+    });
+  }
+  convertSong() {
+    return {
+      _name: "score-partwise",
+      _attrs: { "version": MUSICXML_VERSION },
+      _content: [{
+        "work": {
+          "work-title": this.song.title
+        }
+      }, {
+        "identification": [{
+          _name: "creator",
+          _attrs: { "type": "composer" },
+          _content: this.song.composer
+        }, {
+          "encoding": [{
+            "software": `@infojunkie/ireal-musicxml ${Version.version}`
+          }, { ...this.options.date && {
+            "encoding-date": _Converter.convertDate(/* @__PURE__ */ new Date())
+          } }, {
+            _name: "supports",
+            _attrs: { "element": "accidental", "type": "no" }
+          }, {
+            _name: "supports",
+            _attrs: { "element": "transpose", "type": "no" }
+          }, {
+            _name: "supports",
+            _attrs: { "attribute": "new-page", "element": "print", "type": "yes", "value": "yes" }
+          }, {
+            _name: "supports",
+            _attrs: { "attribute": "new-system", "element": "print", "type": "yes", "value": "yes" }
+          }]
+        }]
+      }, {
+        "defaults": {
+          "scaling": {
+            "millimeters": SCALING_MM,
+            "tenths": SCALING_TENTHS
+          },
+          "page-layout": {
+            "page-height": _Converter._mmToTenths(this.options.pageHeight),
+            "page-width": _Converter._mmToTenths(this.options.pageWidth),
+            "page-margins": {
+              "left-margin": _Converter._mmToTenths(this.options.pageMargin, 4),
+              "right-margin": _Converter._mmToTenths(this.options.pageMargin, 4),
+              "top-margin": _Converter._mmToTenths(this.options.pageMargin, 4),
+              "bottom-margin": _Converter._mmToTenths(this.options.pageMargin, 4)
+            }
+          }
+        }
+      }, {
+        "part-list": {
+          _name: "score-part",
+          _attrs: { "id": "P1" },
+          _content: {
+            _name: "part-name",
+            _attrs: { "print-object": "no" },
+            _content: "Lead Sheet"
+          }
+        }
+      }, {
+        _name: "part",
+        _attrs: { "id": "P1" },
+        _content: this.convertMeasures()
+      }]
+    };
+  }
+  // Date in yyyy-mm-dd
+  // https://stackoverflow.com/a/50130338/209184
+  static convertDate(date) {
+    return new Date(date.getTime() - date.getTimezoneOffset() * 6e4).toISOString().split("T")[0];
+  }
+  static Measure = class {
+    constructor(number) {
+      this.body = {
+        _name: "measure",
+        _attrs: { "number": number },
+        _content: []
+      };
+      this.attributes = [];
+      this.chords = [];
+      this.barlines = [];
+      this.barEnding = null;
+    }
+    number() {
+      return this.body["_attrs"]["number"];
+    }
+    assemble() {
+      if (this.attributes.length) {
+        this.body["_content"].push({
+          "attributes": _Converter.reorderSequence(this, this.attributes, _Converter.sequenceAttributes)
+        });
+      }
+      this.chords.forEach((chord) => {
+        this.body["_content"].push({
+          "harmony": chord.harmony
+        }, ...chord.notes.map((note) => {
+          return {
+            "note": note
+          };
+        }));
+      });
+      this.barlines[0]["_content"] = _Converter.reorderSequence(this, this.barlines[0]["_content"], _Converter.sequenceBarline);
+      this.body["_content"].splice(1, 0, this.barlines[0]);
+      this.barlines[1]["_content"] = _Converter.reorderSequence(this, this.barlines[1]["_content"], _Converter.sequenceBarline);
+      this.body["_content"].push(this.barlines[1]);
+      return this.body;
+    }
+  };
+  static Chord = class {
+    constructor(harmony, notes, ireal) {
+      this.harmony = harmony;
+      this.notes = notes;
+      this.ireal = ireal;
+      this.spaces = 0;
+      this.fermata = false;
+    }
+  };
+  convertMeasures() {
+    const isNewSystem = (cellIndex) => cellIndex > 0 && cellIndex % 16 === 0;
+    const measures = this.song.cells.reduce((measures2, cell, cellIndex) => {
+      if (cell.bars.match(/\(|\{|\[/) || !this.measure && (cell.chord || cell.annots.length || cell.comments.length)) {
+        if (this.measure) {
+          this._log(LogLevel.Warn, `Starting a new measure over existing measure. Closing current measure first.`);
+          this.measure.barlines.push(this.convertBarline("", "right"));
+          if (this.adjustChordsDuration(this.measure)) {
+            measures2.push(this.measure);
+          }
+        }
+        this.measure = new _Converter.Measure(measures2.length + 1, this.options);
+        if (!measures2.length) {
+          this.measure.attributes.push({
+            "divisions": this.options.divisions
+          }, {
+            _name: "clef",
+            _attrs: [{ "print-object": this.options.clef ? "yes" : "no" }],
+            _content: [{
+              "sign": "G"
+            }, {
+              "line": 2
+            }]
+          }, {
+            "staff-details": {
+              "staff-lines": 0
+            }
+          }, {
+            "measure-style": [{
+              _name: "slash",
+              _attrs: { "type": "start", "use-stems": this.options.notation === "rhythmic" ? "yes" : "no" }
+            }]
+          }, this.convertKey());
+          if (this.song.bpm) {
+            this.measure.body["_content"].push(this.convertTempo(this.song.bpm));
+          }
+          this.measure.body["_content"].push(this.convertStyleAndGroove(this.song.style, this.song.groove));
+        }
+        this.measure.barlines.push(this.convertBarline(cell.bars, "left"));
+        if (this.barRepeat) {
+          this.measure.chords = [...measures2[measures2.length - this.barRepeat - 1].chords];
+        }
+      }
+      if (!this.measure) {
+        if (cell.chord || cell.annots.length || cell.comments.length || cell.bars && cell.bars !== ")") {
+          this._log(LogLevel.Warn, `Found non-empty orphan cell ${JSON.stringify(cell)}`, measures2[measures2.length - 1]);
+        }
+        this.emptyCells++;
+        if (isNewSystem(cellIndex)) {
+          this.emptyCellNewSystem = true;
+        }
+        return measures2;
+      }
+      if (isNewSystem(cellIndex) || this.emptyCellNewSystem) {
+        this.measure.body["_content"].splice(0, 0, {
+          _name: "print",
+          _attrs: { "new-system": "yes" },
+          _content: { ...this.emptyCellNewSystem && {
+            "system-layout": {
+              "system-margins": [{
+                "left-margin": _Converter._mmToTenths(this.cellWidth * this.emptyCells)
+              }, {
+                "right-margin": "0.00"
+              }]
+            }
+          } }
+        });
+      }
+      if (!this.emptyCellNewSystem && this.emptyCells > 0) {
+        if (this.measure.body["_content"][0]?.["_name"] === "print" && this.measure.body["_content"][0]["_attrs"]?.["new-system"] === "yes") {
+          measures2[measures2.length - 1].body["_content"].splice(0, 0, {
+            _name: "print",
+            _content: {
+              "system-layout": {
+                "system-margins": [{
+                  "left-margin": "0.00"
+                }, {
+                  "right-margin": _Converter._mmToTenths(this.cellWidth * this.emptyCells)
+                }]
+              }
+            }
+          });
+        } else {
+          this.measure.body["_content"].splice(0, 0, {
+            _name: "print",
+            _content: {
+              "measure-layout": {
+                "measure-distance": _Converter._mmToTenths(this.cellWidth * this.emptyCells)
+              }
+            }
+          });
+        }
+      }
+      this.emptyCellNewSystem = false;
+      this.emptyCells = 0;
+      if (cell.chord) {
+        switch (cell.chord.note) {
+          case "x": {
+            this.barRepeat = 1;
+            this.measure.chords = [...measures2[measures2.length - this.barRepeat].chords];
+            break;
+          }
+          case "r": {
+            this.barRepeat = 2;
+            this.measure.chords = [...measures2[measures2.length - this.barRepeat].chords];
+            break;
+          }
+          case "p":
+            if (this.measure.chords.length) {
+              this.measure.chords[this.measure.chords.length - 1].spaces++;
+              break;
+            }
+          // Fall into case 'W'.
+          case "W": {
+            let target = this.measure;
+            if (!target.chords.length) {
+              target = measures2.slice().reverse().find((m) => m.chords.length);
+              if (!target) {
+                this._log(LogLevel.Error, `Cannot find any measure with chords prior to ${JSON.stringify(cell.chord)}`);
+              }
+            }
+            if (target) {
+              const chord = target.chords[target.chords.length - 1].ireal;
+              chord.over = cell.chord.over;
+              chord.alternate = cell.chord.alternate;
+              this.measure.chords.push(this.convertChord(chord));
+            }
+            break;
+          }
+          case " ": {
+            this._log(LogLevel.Warn, `Unhandled empty/alternate chord ${JSON.stringify(cell.chord)}`);
+            break;
+          }
+          default: {
+            this.measure.chords.push(this.convertChord(cell.chord));
+          }
+        }
+      } else if (!this.barRepeat) {
+        if (this.measure.chords.length) {
+          this.measure.chords[this.measure.chords.length - 1].spaces++;
+        }
+      }
+      cell.annots.forEach((annot) => {
+        switch (annot[0]) {
+          case "*": {
+            const section = annot.slice(1);
+            this.measure.body["_content"].push(this.convertSection(section));
+            break;
+          }
+          case "T": {
+            const time = annot.slice(1);
+            this.measure.attributes.push(this.convertTime(time));
+            break;
+          }
+          case "S": {
+            this.measure.body["_content"].push(this.convertSegno());
+            break;
+          }
+          case "N": {
+            let ending = parseInt(annot.slice(1));
+            if (ending < 1) {
+              const target = measures2.slice().reverse().find((m) => !!m.barEnding);
+              ending = target?.barEnding ?? 0 + 1;
+            }
+            this.measure.barlines[0]["_content"].push(this.convertEnding(ending, "start"));
+            if (ending > 1) {
+              measures2[measures2.length - 1].barlines[1]["_content"].push(this.convertEnding(ending - 1, "stop"));
+              const target = measures2.slice().reverse().find((m) => m.barEnding === ending - 1);
+              if (!target) {
+                this._log(LogLevel.Error, `Cannot find ending ${ending - 1} in right barline of any measure`);
+              } else {
+                const index = target.barlines[1]["_content"].findIndex((b) => !!b && b["_name"] === "ending");
+                if (index === -1) {
+                  this._log(LogLevel.Error, `Cannot find ending ${ending - 1} in right barline`, target);
+                }
+                delete target.barlines[1]["_content"][index];
+              }
+            }
+            this.measure.barEnding = ending;
+            break;
+          }
+          case "Q": {
+            this.measure.body["_content"].push(this.convertToCoda());
+            this.codas.push(this.measure);
+            break;
+          }
+          // Ignore small and large chord renderings.
+          case "l":
+          case "s":
+            break;
+          case "f": {
+            this.measure.chords[this.measure.chords.length - 1].fermata = true;
+            break;
+          }
+          case "U": {
+            this.measure.body["_content"].push(this.convertFine("END"));
+            break;
+          }
+          default:
+            this._log(LogLevel.Warn, `Unhandled annotation "${annot}"`);
+        }
+      });
+      cell.comments.map((c) => c.trim()).forEach((comment) => {
+        const repeatFn = this._map(_Converter.mapRepeats, comment);
+        if (repeatFn) {
+          this.measure.body["_content"].push(repeatFn.call(this, comment));
+        } else {
+          this.measure.body["_content"].push(this.convertComment(comment));
+        }
+      });
+      if (cell.bars.match(/\)|\}|\]|Z/) && this.measure.chords.length) {
+        this.measure.barlines.push(this.convertBarline(cell.bars, "right"));
+        if (this.measure.barEnding) {
+          this.measure.barlines[1]["_content"].push(this.convertEnding(this.measure.barEnding, "discontinue"));
+        }
+        if (this.adjustChordsDuration(this.measure)) {
+          measures2.push(this.measure);
+        }
+        this.measure = null;
+        if (this.barRepeat) this.barRepeat--;
+      }
+      return measures2;
+    }, []);
+    const remainingCells = this.song.cells.length % 16 - this.emptyCells;
+    if (remainingCells > 0 && measures.length > 0) {
+      measures[measures.length - 1].body["_content"].splice(0, 0, {
+        _name: "print",
+        _content: {
+          "system-layout": {
+            "system-margins": [{
+              "left-margin": "0.00"
+            }, {
+              "right-margin": _Converter._mmToTenths(this.cellWidth * remainingCells)
+            }]
+          }
+        }
+      });
+    }
+    if (this.codas.length) {
+      const target = this.codas[this.codas.length - 1];
+      const direction = target.body["_content"].findIndex(
+        (d) => d["_name"] === "direction" && Array.isArray(d["_content"]) && d["_content"].some(
+          (s) => s["_name"] === "sound" && Object.keys(s["_attrs"]).includes("tocoda")
+        )
+      );
+      if (direction === -1) {
+        this._log(LogLevel.Warn, `Cannot find sound direction`, target);
+      }
+      target.body["_content"][direction] = this.convertCoda();
+    }
+    return measures.map((measure) => measure.assemble());
+  }
+  // Fix order of elements according to sequence as specified by an xs:sequence.
+  // @param {array<element>} elements - Array of elements to sort.
+  // @param {array<string>} sequence - Array of element names in order of xs:sequence.
+  // @return {array<element>} Ordered array of elements.
+  static reorderSequence(measure, elements, sequence) {
+    return elements.filter((a) => Object.keys(a).length).sort((a1, a2) => {
+      let k1 = Object.keys(a1)[0];
+      if (k1 === "_name") k1 = a1[k1];
+      let k2 = Object.keys(a2)[0];
+      if (k2 === "_name") k2 = a2[k2];
+      const i1 = sequence.indexOf(k1);
+      const i2 = sequence.indexOf(k2);
+      if (i1 === -1) {
+        this._log(LogLevel.Warn, `Unrecognized element "${k1}"`, measure);
+      }
+      if (i2 === -1) {
+        this._log(LogLevel.Warn, `Unrecognized element "${k2}"`, measure);
+      }
+      return i1 - i2;
+    });
+  }
+  convertRepeatNx(comment) {
+    let repeats = null;
+    if (null !== (repeats = comment.match(/(\d+)x/))) {
+      this.repeats = repeats[1];
+    }
+  }
+  convertFine(comment) {
+    return {
+      _name: "direction",
+      _attrs: { "placement": "below" },
+      _content: [{
+        "direction-type": {
+          "words": comment
+        }
+      }, {
+        _name: "sound",
+        _attrs: { "fine": "yes" }
+      }]
+    };
+  }
+  convertDaCapo(comment) {
+    return {
+      _name: "direction",
+      _attrs: { "placement": "below" },
+      _content: [{
+        "direction-type": {
+          "words": comment
+        }
+      }, {
+        _name: "sound",
+        _attrs: { "dacapo": "yes" }
+      }]
+    };
+  }
+  convertDalSegno(comment) {
+    return {
+      _name: "direction",
+      _attrs: { "placement": "below" },
+      _content: [{
+        "direction-type": {
+          "words": comment
+        }
+      }, {
+        _name: "sound",
+        _attrs: { "dalsegno": "yes" }
+      }]
+    };
+  }
+  convertComment(comment) {
+    return {
+      _name: "direction",
+      _attrs: { "placement": comment[0] === "*" ? "above" : "below" },
+      _content: {
+        "direction-type": {
+          "words": comment[0] === "*" ? comment.slice(3) : comment
+        }
+      }
+    };
+  }
+  convertEnding(ending, type) {
+    return {
+      _name: "ending",
+      _attrs: { "number": ending, "type": type },
+      _content: `${ending}.`
+    };
+  }
+  convertBarline(bars, location) {
+    let style = "regular";
+    let repeat = null;
+    if (bars.match(/\[|\]/)) {
+      style = "light-light";
+    } else if (bars.match(/Z/)) {
+      style = "light-heavy";
+    } else if (bars.match(/\{|\}/)) {
+      style = location === "left" ? "heavy-light" : "light-heavy";
+      repeat = location === "left" ? "forward" : "backward";
+    }
+    if (repeat === "forward") {
+      this.repeats = 2;
+    }
+    return {
+      _name: "barline",
+      _attrs: { "location": location },
+      _content: [{
+        "bar-style": style
+      }, { ...repeat && {
+        _name: "repeat",
+        _attrs: { "direction": repeat, ...repeat === "backward" && { "times": this.repeats } }
+      } }]
+    };
+  }
+  convertSection(section) {
+    if (section === "i") section = "Intro";
+    return {
+      _name: "direction",
+      _attrs: { "placement": "above" },
+      _content: {
+        "direction-type": {
+          "rehearsal": section
+        }
+      }
+    };
+  }
+  convertSegno() {
+    return {
+      _name: "direction",
+      _attrs: { "placement": "above" },
+      _content: [{
+        "direction-type": {
+          _name: "segno"
+        }
+      }, {
+        _name: "sound",
+        _attrs: { "segno": "segno" }
+      }]
+    };
+  }
+  convertCoda() {
+    return {
+      _name: "direction",
+      _attrs: { "placement": "above" },
+      _content: [{
+        "direction-type": {
+          "_name": "coda"
+        }
+      }, {
+        _name: "sound",
+        _attrs: { "coda": "coda" }
+        // TODO: We assume a single coda
+      }]
+    };
+  }
+  convertToCoda() {
+    return {
+      _name: "direction",
+      _attrs: { "placement": "above" },
+      _content: [{
+        "direction-type": {
+          "words": "To Coda"
+        }
+      }, {
+        _name: "sound",
+        _attrs: { "tocoda": "coda" }
+        // TODO: We assume a single coda
+      }]
+    };
+  }
+  convertTempo(bpm) {
+    return {
+      _name: "direction",
+      _attrs: { "placement": "above" },
+      _content: [{
+        "direction-type": [{
+          _name: "metronome",
+          _attrs: { "parentheses": "no" },
+          _content: [{
+            "beat-unit": this.calculateChordDuration(1)[0].type
+          }, {
+            "per-minute": bpm
+          }]
+        }]
+      }, {
+        _name: "sound",
+        _attrs: { "tempo": bpm }
+      }]
+    };
+  }
+  convertTime(time) {
+    let beats = parseInt(time[0]);
+    let beatType = parseInt(time[1]);
+    if (time === "12") {
+      beats = 12;
+      beatType = 8;
+    }
+    this.time = { beats, beatType };
+    return {
+      "time": [{
+        "beats": beats
+      }, {
+        "beat-type": beatType
+      }]
+    };
+  }
+  adjustChordsDuration(measure) {
+    if (measure.chords.length > this.time.beats) {
+      this._log(LogLevel.Error, `Too many chords (${measure.chords.length} out of ${this.time.beats})`, measure);
+      return true;
+    }
+    let beats = measure.chords.reduce((beats2, chord) => beats2 + 1 + chord.spaces, 0);
+    if (!beats) {
+      this._log(LogLevel.Warn, `No chord found. Skipping current measure.`, measure);
+      return false;
+    }
+    if (beats > this.time.beats) {
+      let chordIndex = 0;
+      while (beats > this.time.beats) {
+        if (measure.chords[chordIndex].spaces > 0) {
+          measure.chords[chordIndex].spaces--;
+          beats--;
+        }
+        chordIndex = (chordIndex + 1) % measure.chords.length;
+      }
+    } else {
+      let chordIndex = 0;
+      while (beats < this.time.beats) {
+        measure.chords[chordIndex].spaces++;
+        beats++;
+        chordIndex = (chordIndex + 1) % measure.chords.length;
+      }
+    }
+    measure.chords = measure.chords.map((chord) => {
+      chord.notes = this.calculateChordDuration(1 + chord.spaces).map(
+        (duration, i, ds) => this.convertChordNote(
+          duration,
+          i === ds.length - 1 ? chord.fermata : false,
+          // Possible fermata on last chord note only
+          this.options.notation === "rhythmic" && ds.length > 1 ? i > 0 ? "stop" : "start" : null
+          // Possible tie in case of rhythmic notation
+        )
+      );
+      return chord;
+    });
+    return true;
+  }
+  calculateChordDuration(beats) {
+    const mapDuration = {
+      "1": [{ t: "eighth", d: 0, b: 1 }],
+      "2": [{ t: "quarter", d: 0, b: 2 }],
+      "3": [{ t: "quarter", d: 1, b: 3 }],
+      "4": [{ t: "half", d: 0, b: 4 }],
+      "5": [{ t: "quarter", d: 1, b: 3 }, { t: "quarter", d: 0, b: 2 }],
+      "6": [{ t: "half", d: 1, b: 6 }],
+      "7": [{ t: "half", d: 2, b: 7 }],
+      "8": [{ t: "whole", d: 0, b: 8 }],
+      "9": [{ t: "half", d: 1, b: 6 }, { t: "quarter", d: 1, b: 3 }],
+      "10": [{ t: "half", d: 1, b: 6 }, { t: "half", d: 0, b: 4 }],
+      "11": [{ t: "half", d: 2, b: 7 }, { t: "half", d: 0, b: 4 }],
+      "12": [{ t: "whole", d: 1, b: 12 }],
+      "13": [{ t: "half", d: 2, b: 7 }, { t: "half", d: 1, b: 6 }],
+      "14": [{ t: "whole", d: 2, b: 14 }],
+      "15": [{ t: "whole", d: 0, b: 8 }, { t: "half", d: 2, b: 7 }]
+    };
+    if (this.options.notation === "slash") {
+      const index = 1 * 8 / this.time.beatType;
+      return Array(beats).fill(
+        this._map(mapDuration, index, [], `Unexpected beat count 1 for time signature ${this.time.beats}/${this.time.beatType}`).map((duration) => {
+          return {
+            duration: duration.b * this.options.divisions / 2,
+            type: duration.t,
+            dots: duration.d
+          };
+        })[0]
+        // We're sure to get only one entry in this case.
+      );
+    } else {
+      const index = beats * 8 / this.time.beatType;
+      return this._map(mapDuration, index, [], `Unexpected beat count ${beats} for time signature ${this.time.beats}/${this.time.beatType}`).map((duration) => {
+        return {
+          duration: duration.b * this.options.divisions / 2,
+          type: duration.t,
+          dots: duration.d
+        };
+      });
+    }
+  }
+  convertChordNote(duration, fermata = false, tie = null) {
+    const altered = _Converter.mapFifthsToAlters[this.fifths >= 0 ? "sharp" : "flat"].slice(0, Math.abs(this.fifths));
+    const noteType = {
+      _name: "pitch",
+      _content: [{
+        "step": this.options.step
+      }, {
+        "alter": altered.includes(this.options.step) ? this.fifths > 0 ? 1 : -1 : 0
+      }, {
+        "octave": this.options.octave
+      }]
+    };
+    const notations = [];
+    if (fermata) {
+      notations.push({ _name: "fermata" });
+    }
+    if (tie) {
+      notations.push({ _name: "tied", _attrs: { "type": tie } });
+    }
+    return _Converter.reorderSequence(this.measure, [noteType, {
+      _name: "cue"
+    }, {
+      _name: "notehead",
+      _content: this.options.notehead,
+      _attrs: [{ "font-size": this.options.noteheadSize }]
+    }, {
+      "duration": duration.duration
+    }, {
+      "voice": 1
+    }, {
+      _name: "type",
+      _attrs: { "size": "full" },
+      _content: duration.type
+    }, { ...notations.length && {
+      "notations": _Converter.reorderSequence(this.measure, notations, _Converter.sequenceNotations)
+    } }].concat(Array(duration.dots).fill({ _name: "dot" })), _Converter.sequenceNote);
+  }
+  convertChordDegree(value, type, alter) {
+    return {
+      _name: "degree",
+      _attrs: { "print-object": "no" },
+      _content: [{
+        "degree-value": value
+      }, {
+        "degree-alter": alter
+      }, {
+        "degree-type": type
+      }]
+    };
+  }
+  convertChordSymbol(chord) {
+    const parsedChord = this.renderChord(this.parseChord(`${chord.note}${chord.modifiers}`));
+    if (!parsedChord) {
+      this._log(LogLevel.Warn, `Unrecognized chord "${chord.note}${chord.modifiers}"`);
+      return { rootStep: null, rootAlter: null, chordKind: null, chordDegrees: [], chordText: null };
+    }
+    const rootStep = parsedChord.input.rootNote[0];
+    const rootAlter = this._map(_Converter.mapAlter, parsedChord.input.rootNote[1] || null, null, `Unrecognized accidental in chord "${parsedChord.input.rootNote}"`);
+    const chordText = parsedChord.formatted.descriptor + parsedChord.formatted.chordChanges.join("");
+    const mapKind = {
+      "major": "major",
+      "major6": "major-sixth",
+      "major7": "major-seventh",
+      "dominant7": "dominant",
+      "minor": "minor",
+      "minor6": "minor-sixth",
+      "minor7": "minor-seventh",
+      "minorMajor7": "major-minor",
+      "augmented": "augmented",
+      "diminished": "diminished",
+      "diminished7": "diminished-seventh",
+      "power": "power"
+    };
+    let chordKind = this._map(mapKind, parsedChord.normalized.quality, "", `Unrecognized chord quality "${parsedChord.normalized.quality}"`);
+    if (parsedChord.normalized.extensions.length) {
+      const extension = Math.max(...parsedChord.normalized.extensions.map((e) => parseInt(e))).toString();
+      const mapExtensionKind = {
+        "9": "-ninth",
+        "11": "-11th",
+        "13": "-13th"
+      };
+      chordKind = chordKind.split("-")[0] + this._map(mapExtensionKind, extension, "", `Unhandled extension ${extension}`);
+      if (chordKind === "dominant-11th") {
+        parsedChord.normalized.isSuspended = false;
+      }
+    }
+    [
+      { intervals: ["1", "4", "5"], kind: "suspended-fourth", strict: true },
+      { intervals: ["1", "5", "9"], kind: "suspended-second", strict: true },
+      { intervals: ["1", "b3", "b5", "b7"], kind: "half-diminished", strict: true },
+      { intervals: ["1", "3", "#5", "b7"], kind: "augmented-seventh", strict: false }
+    ].some((chord2) => {
+      if ((!chord2.strict || parsedChord.normalized.intervals.length === chord2.intervals.length) && chord2.intervals.every((s, i) => s === parsedChord.normalized.intervals[i])) {
+        chordKind = chord2.kind;
+        chord2.intervals.forEach((i) => {
+          parsedChord.normalized.alterations = parsedChord.normalized.alterations.filter((p) => p === i);
+          parsedChord.normalized.adds = parsedChord.normalized.adds.filter((p) => p === i);
+          parsedChord.normalized.omits = parsedChord.normalized.omits.filter((p) => p === i);
+        });
+        parsedChord.normalized.intervals.forEach((i) => {
+          if (!chord2.intervals.includes(i)) {
+            parsedChord.normalized.adds.push(i);
+          }
+        });
+        return true;
+      }
+    });
+    const chordDegrees = [];
+    if (parsedChord.normalized.isSuspended && !chordKind.includes("suspended")) {
+      parsedChord.normalized.adds.push("4");
+      if (!parsedChord.normalized.adds.includes("3")) {
+        parsedChord.normalized.omits.push("3");
+      }
+    }
+    parsedChord.normalized.alterations.forEach((alteration) => {
+      const degree = alteration.slice(1);
+      chordDegrees.push(
+        this.convertChordDegree(
+          degree,
+          degree === "5" || parsedChord.normalized.extensions.includes(degree) ? "alter" : "add",
+          this._map(_Converter.mapAlter, alteration[0], 0, `Unrecognized alter symbol in "${alteration}"`)
+        )
+      );
+    });
+    parsedChord.normalized.adds.forEach((add) => {
+      const alteration = Object.keys(_Converter.mapAlter).includes(add[0]) ? add[0] : null;
+      const degree = alteration ? add.slice(1) : add;
+      chordDegrees.push(
+        this.convertChordDegree(degree, "add", this._map(_Converter.mapAlter, alteration, 0, `Unrecognized alter symbol in "${add}"`))
+      );
+    });
+    parsedChord.normalized.omits.forEach((omit) => {
+      const alteration = Object.keys(_Converter.mapAlter).includes(omit[0]) ? omit[0] : null;
+      const degree = alteration ? omit.slice(1) : omit;
+      chordDegrees.push(
+        this.convertChordDegree(degree, "subtract", this._map(_Converter.mapAlter, alteration, 0, `Unrecognized alter symbol in "${omit}"`))
+      );
+    });
+    return { rootStep, rootAlter, chordKind, chordDegrees, chordText };
+  }
+  convertChord(chord) {
+    let harmony = null;
+    if (chord.note === "n") {
+      harmony = [{
+        "root": [{
+          _name: "root-step",
+          _attrs: { "text": "" },
+          _content: this.options.step
+        }]
+      }, {
+        _name: "kind",
+        _attrs: { "text": "N.C." },
+        _content: "none"
+      }];
+    } else {
+      const { rootStep, rootAlter, chordKind, chordDegrees, chordText } = this.convertChordSymbol(chord);
+      const bass = !chord.over ? null : [{
+        "bass-step": chord.over.note[0]
+      }, { ...chord.over.note[1] && {
+        "bass-alter": this._map(_Converter.mapAlter, chord.over.note[1], null, `Unrecognized accidental in bass note "${chord.over.note}"`)
+      } }];
+      harmony = [{
+        "root": [{
+          "root-step": rootStep
+        }, { ...rootAlter && {
+          // Don't generate the root-alter entry if rootAlter is blank
+          "root-alter": rootAlter
+        } }]
+      }, {
+        _name: "kind",
+        _attrs: { "text": chordText, "use-symbols": "no" },
+        _content: chordKind
+      }, { ...bass && {
+        "bass": bass
+      } }].concat(chordDegrees);
+    }
+    if (chord.alternate) {
+      this._log(LogLevel.Warn, `Unhandled alternate chord ${JSON.stringify(chord.alternate)}`);
+    }
+    return new _Converter.Chord(
+      harmony,
+      // Initial chord duration is 1 beat
+      this.calculateChordDuration(1).map((duration) => this.convertChordNote(duration)),
+      chord
+    );
+  }
+  convertKey() {
+    const mapKeys = {
+      // Major keys
+      "C": 0,
+      "G": 1,
+      "D": 2,
+      "A": 3,
+      "E": 4,
+      "B": 5,
+      "F#": 6,
+      "C#": 7,
+      "F": -1,
+      "Bb": -2,
+      "Eb": -3,
+      "Ab": -4,
+      "Db": -5,
+      "Gb": -6,
+      "Cb": -7,
+      // Minor keys
+      "A-": 0,
+      "E-": 1,
+      "B-": 2,
+      "F#-": 3,
+      "C#-": 4,
+      "G#-": 5,
+      "D#-": 6,
+      "A#-": 7,
+      "D-": -1,
+      "G-": -2,
+      "C-": -3,
+      "F-": -4,
+      "Bb-": -5,
+      "Eb-": -6,
+      "Ab-": -7
+    };
+    this.fifths = this._map(mapKeys, this.song.key, 0, `Unrecognized key signature "${this.song.key}"`);
+    return {
+      _name: "key",
+      _attrs: [{ "print-object": this.options.keySignature ? "yes" : "no" }],
+      _content: [{
+        "fifths": this.fifths
+      }, {
+        "mode": this.song.key.slice(-1) === "-" ? "minor" : "major"
+      }]
+    };
+  }
+  convertStyleAndGroove(style, groove) {
+    return {
+      _name: "direction",
+      _attrs: { "placement": "above" },
+      _content: [{
+        "direction-type": [{
+          "words": style
+        }]
+      }, {
+        "sound": [{
+          "play": [{
+            _name: "other-play",
+            _attrs: { "type": "groove" },
+            _content: groove || style
+          }]
+        }]
+      }]
+    };
+  }
+  _log(logLevel, message, measure = this.measure) {
+    if (logLevel < this.options.logLevel) return;
+    const log = `[ireal-musicxml] [${this.song.title}${measure ? "#" + measure.number() : ""}] ${message}`;
+    let method = "warn";
+    switch (logLevel) {
+      case LogLevel.Debug:
+        method = "debug";
+        break;
+      case LogLevel.Info:
+        method = "info";
+        break;
+      case LogLevel.Warn:
+        method = "warn";
+        break;
+      case LogLevel.Error:
+        method = "error";
+        break;
+    }
+    console[method](log);
+  }
+  _map(map, key, defaultValue, message, logLevel = LogLevel.Warn, measure = this.measure) {
+    if (!key) return defaultValue;
+    if (!(key in map)) {
+      if (message) {
+        this._log(logLevel, message, measure);
+      }
+      return defaultValue || null;
+    }
+    return map[key];
+  }
+  static _mmToTenths(mm, decimals = 2) {
+    const value = mm * SCALING_TENTHS / SCALING_MM;
+    const power = Math.pow(10, decimals);
+    return Math.round(value * power) / power;
+  }
+};
+
+// src/lib/index.js
+function convertSync(ireal, options = {}) {
+  const playlist = new Playlist(ireal);
+  playlist.songs.forEach((song) => {
+    song.musicXml = Converter.convert(song, options);
+  });
+  return playlist;
+}
+async function convert(ireal, options = {}) {
+  return new import_promise.default((resolve) => resolve(convertSync(ireal, options)));
+}
+export {
+  Cell,
+  Chord,
+  Converter,
+  LogLevel,
+  Playlist,
+  Song,
+  Version,
+  convert,
+  convertSync
+};
 //# sourceMappingURL=ireal-musicxml.js.map

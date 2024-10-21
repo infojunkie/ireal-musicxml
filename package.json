@@ -10,30 +10,37 @@
   },
   "homepage": "https://github.com/infojunkie/ireal-musicxml",
   "type": "module",
-  "main": "build/ireal-musicxml.js",
-  "types": "build/ireal-musicxml.d.ts",
+  "types": "./src/types/ireal-musicxml.d.ts",
   "files": [
     "LICENSE.txt",
     "build/*",
     "src/*"
   ],
   "bin": {
-    "ireal-musicxml": "src/cli/cli.js"
+    "ireal-musicxml": "./src/cli/cli.js"
+  },
+  "exports": {
+    "import": "./build/ireal-musicxml.js",
+    "require": "./build/ireal-musicxml.cjs"
   },
   "scripts": {
-    "build": "esbuild src/lib/index.js --bundle --minify --sourcemap --outfile=build/ireal-musicxml.js && cp src/types/* build/",
-    "test": "npm run test:lint && npm run test:spec",
-    "test:spec": "node --test",
-    "test:typescript": "npm run build && ts-mocha test/**/*.spec.ts",
+    "build": "npm run build:esm && npm run build:cjs",
+    "build:esm": "esbuild src/lib/index.js --bundle --format=esm --sourcemap --outfile=build/ireal-musicxml.js",
+    "build:cjs": "esbuild src/lib/index.js --bundle --platform=node --packages=external --outfile=build/ireal-musicxml.cjs",
+    "test": "npm run test:lint && npm run test:spec && npm run test:ts",
+    "test:spec": "node --test --test-name-pattern=\"${TEST:-.*}\"",
+    "test:ts": "npm run build && node --test --loader=ts-node/esm --require ts-node/register test/**/*.spec.ts",
     "test:lint": "eslint src --fix"
   },
   "devDependencies": {
+    "@types/node": "^22.7.7",
     "@xmldom/xmldom": "^0.8.0",
     "esbuild": "0.24.0",
     "eslint": "^9.13.0",
     "resolve": "^1.22.8",
     "sanitize-filename": "^1.6.3",
-    "typescript": "^4.3.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^4.9.5",
     "validate-with-xmllint": "^1.2.0",
     "xpath.js": "^1.1.0"
   },

@@ -80,6 +80,7 @@ try {
     if (songs.length > 0 && songs.every(title => song.title.toUpperCase().indexOf(title) < 0)) continue;
 
     try {
+      console.error(`Generating ${song.title}...`)
       const musicXml = Converter.convert(song);
 
       if ('validate' in args) {
@@ -94,11 +95,11 @@ try {
       }
     }
     catch (error) {
-      console.error(`[ireal-musicxml] [${song.title}] ${error}`);
+      console.error(`[${song.title}] ${error}`);
     }
   }
 }
 catch (error) {
-  console.error(`[ireal-musicxml] [${positionals[0]}] ${error}`);
+  console.error(`[${positionals[0]}] ${error}`);
   process.exit(1);
 }

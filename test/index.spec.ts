@@ -1,38 +1,45 @@
-import assert from 'node:assert';
+import { strict as assert } from 'assert';
 import { describe, it } from 'node:test';
-import * as fs from 'fs';
-import * as iRealMusicXml from '../src/types/ireal-musicxml.js';
+import fs from 'fs';
+import {
+  Version,
+  convertSync,
+  LogLevel,
+  convert,
+  Playlist,
+  Converter
+} from '../build/ireal-musicxml.js';
 
-describe('iRealMusicXml using TypeScript', function() {
-  it('accesses the library version', function() {
-    assert.strictEqual(iRealMusicXml.Version.name, 'ireal-musicxml');
+describe('ireal-musicxml using TypeScript', () => {
+  it('accesses the library version', () => {
+    assert.strictEqual(Version.name, 'ireal-musicxml');
   });
 
-  it('converts an iReal Pro song to MusicXML synchronously', function() {
-    const result: iRealMusicXml.Playlist = iRealMusicXml.convertSync(fs.readFileSync('test/data/playlist.html', 'utf-8'), {
+  it('converts an iReal Pro song to MusicXML synchronously', () => {
+    const result: Playlist = convertSync(fs.readFileSync('test/data/playlist.html', 'utf-8'), {
       notation: "rhythmic",
-      logLevel: iRealMusicXml.LogLevel.None
+      logLevel: LogLevel.None
     });
-    assert.strictEqual(result.name, 'Jazz Combo')
+    assert.strictEqual(result.name, 'Jazz Combo');
     assert.strictEqual(result.songs.length, 6);
     assert.notStrictEqual(result.songs[0].musicXml, '');
   });
 
-  it('converts an iReal Pro song to MusicXML asynchronously', async function() {
-    const result: iRealMusicXml.Playlist = await iRealMusicXml.convert(fs.readFileSync('test/data/playlist.html', 'utf-8'), {
+  it('converts an iReal Pro song to MusicXML asynchronously', async () => {
+    const result: Playlist = await convert(fs.readFileSync('test/data/playlist.html', 'utf-8'), {
       notation: "slash",
-      logLevel: iRealMusicXml.LogLevel.Error
+      logLevel: LogLevel.Error
     });
-    assert.strictEqual(result.name, 'Jazz Combo')
+    assert.strictEqual(result.name, 'Jazz Combo');
     assert.strictEqual(result.songs.length, 6);
     assert.notStrictEqual(result.songs[0].musicXml, '');
   });
 
-  it('parses and exports a playlist manually', function() {
-    const playlist: iRealMusicXml.Playlist = new iRealMusicXml.Playlist(fs.readFileSync('test/data/playlist.html', 'utf-8'));
+  it('parses and exports a playlist manually', () => {
+    const playlist: Playlist = new Playlist(fs.readFileSync('test/data/playlist.html', 'utf-8'));
     assert.strictEqual(playlist.name, 'Jazz Combo')
     assert.strictEqual(playlist.songs.length, 6);
-    const musicXml: string = iRealMusicXml.Converter.convert(playlist.songs[0]);
+    const musicXml: string = Converter.convert(playlist.songs[0]);
     assert.notStrictEqual(musicXml, '');
   });
 });

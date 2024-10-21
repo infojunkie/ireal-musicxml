@@ -7,7 +7,7 @@ iReal Pro to MusicXML converter.
 
 # Demo
 
-[Check out the demo!](https://blog.karimratib.me/demos/musicxml/) You can upload one of the [iReal Pro main playlists](https://www.irealpro.com/main-playlists/) as a test.
+[Check out the demo!](https://blog.karimratib.me/demos/chirp/) You can upload one of the [iReal Pro main playlists](https://www.irealpro.com/main-playlists/) as a test.
 
 # Usage
 
@@ -35,18 +35,22 @@ const playlistAsync = await iRealMusicXml.convert(ireal)
 
 const playlistManual = new iRealMusicXml.Playlist(ireal)
 // => Same as above minus `musicXml` attribute
-const musicXml = iRealMusicXml.MusicXML.convert(playlistManual.songs[0])
+
+const musicXml = iRealMusicXml.Converter.convert(playlistManual.songs[0])
 // => MusicXML output
+```
+
+```bash
+$ ireal-musicxml test/data/jazz.txt --songs=Blues
 ```
 
 # Development
 
-`xmllint` is required to run tests and the demo cli tool (but NOT for the library). Tests are used to ensure that the generated MusicXML is valid.
+`xmllint` is required to run tests and the cli tool (but NOT for the library). Tests are used to ensure that the generated MusicXML is valid.
 
 ```
 npm install
 npm run test
-./demo/cli/ireal-musicxml.js test/data/jazz.txt --songs=Blues --validate
 ```
 
 # Documentation
