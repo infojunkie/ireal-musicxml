@@ -1,6 +1,7 @@
-import assert from 'assert';
+import assert from 'node:assert';
+import { describe, it } from 'node:test';
 import fs from 'fs';
-import {Playlist} from '../src/parser';
+import { Playlist } from '../src/lib/parser.js';
 
 describe('Parser', function() {
   it('should parse an iReal Pro exported playlist', function() {

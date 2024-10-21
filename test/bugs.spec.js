@@ -1,11 +1,11 @@
-import assert from 'assert';
+import assert from 'node:assert';
+import { describe, it, before } from 'node:test';
 import fs from 'fs';
-import 'regenerator-runtime/runtime';
-import {validateXMLWithXSD} from 'validate-with-xmllint';
+import { validateXMLWithXSD } from 'validate-with-xmllint';
 import select from 'xpath.js';
-import {DOMParser} from '@xmldom/xmldom';
-import {Playlist} from '../src/parser';
-import {MusicXML} from '../src/musicxml';
+import { DOMParser } from '@xmldom/xmldom';
+import { Playlist } from '../src/lib/parser.js';
+import { Converter } from '../src/lib/converter.js';
 
 let jazz = null;
 
@@ -13,7 +13,7 @@ before(() => {
   jazz = new Playlist(fs.readFileSync('test/data/jazz.txt', 'utf-8'));
 })
 
-describe('Bug Fixes', function() {
+describe('Bug Fixes', () => {
   it('checks #18 cannot read property \'spaces\' of undefined', async () => {
     for (const title of [
       "All Or Nothing At All",
@@ -43,11 +43,11 @@ describe('Bug Fixes', function() {
     ]) {
       const song = jazz.songs.find(song => song.title === title);
       assert.notStrictEqual(song, undefined);
-      const musicXml = MusicXML.convert(song);
+      const musicXml = Converter.convert(song);
       await validateXMLWithXSD(musicXml, 'test/data/musicxml.xsd');
       fs.writeFileSync(`test/output/${song.title}.musicxml`, musicXml);
     }
-  }).timeout(0);
+  });
 
   it('checks #20 missing measures', async () => {
     for (const test of [
@@ -56,7 +56,7 @@ describe('Bug Fixes', function() {
     ]) {
       const song = jazz.songs.find(song => song.title === test.title);
       assert.notStrictEqual(song, undefined);
-      const musicXml = MusicXML.convert(song);
+      const musicXml = Converter.convert(song);
       await validateXMLWithXSD(musicXml, 'test/data/musicxml.xsd');
       fs.writeFileSync(`test/output/${song.title}.musicxml`, musicXml);
       const doc = new DOMParser().parseFromString(musicXml);
@@ -72,7 +72,7 @@ describe('Bug Fixes', function() {
   it('checks #54 messy chord timings', async () => {
     const song = jazz.songs.find(song => song.title === 'Afro Blue');
     assert.notStrictEqual(song, undefined);
-    const musicXml = MusicXML.convert(song);
+    const musicXml = Converter.convert(song);
     await validateXMLWithXSD(musicXml, 'test/data/musicxml.xsd');
     fs.writeFileSync(`test/output/${song.title}.musicxml`, musicXml);
     const doc = new DOMParser().parseFromString(musicXml);
@@ -82,12 +82,12 @@ describe('Bug Fixes', function() {
     const country = new Playlist(fs.readFileSync('test/data/country.txt', 'utf-8'));
     const song = country.songs.find(song => song.title === 'Jackson');
     assert.notStrictEqual(song, undefined);
-    const musicXml = MusicXML.convert(song);
+    const musicXml = Converter.convert(song);
     fs.writeFileSync(`test/output/${song.title}.musicxml`, musicXml);
     await validateXMLWithXSD(musicXml, 'test/data/musicxml.xsd');
   });
 
-  it('succeeds for dixieland1 playlist', async() => {
+  it('succeeds for dixieland1 playlist', async () => {
     const dixieland1 = new Playlist(fs.readFileSync('test/data/dixieland1.txt', 'utf-8'));
     for (const title of [
       'All I Do Is Dream Of You',
@@ -96,7 +96,7 @@ describe('Bug Fixes', function() {
     ]) {
       const song = dixieland1.songs.find(song => song.title === title);
       assert.notStrictEqual(song, undefined);
-      const musicXml = MusicXML.convert(song);
+      const musicXml = Converter.convert(song);
       fs.writeFileSync(`test/output/${song.title}.musicxml`, musicXml);
       await validateXMLWithXSD(musicXml, 'test/data/musicxml.xsd');
     }
