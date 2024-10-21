@@ -52,7 +52,7 @@ $ ireal-musicxml test/data/jazz.txt --songs=Blues --validate
 ```
 
 # Theory of operation
-This module parses an iReal Pro URI or playlist file, and transforms each song it finds to a MusicXML lead sheet. The [iReal Pro format](doc/irealpro.md) does not feature melody lines, only chords and backing styles. The conversion tries to produce a high-fidelity replica of the source sheet by replicating the following aspects of the iReal Pro format:
+This module parses an iReal Pro URI or playlist file, and transforms each song it finds to a MusicXML lead sheet. The [iReal Pro format](doc/irealpro.md) does not feature melody lines, only chords and backing styles. The conversion tries to produce a high-fidelity replica of the source sheet by recreating the following aspects of the iReal Pro format:
 
 ## Harmonic information
 The chords found in the iReal Pro song are translated to their MusicXML representation. Because the chords supported by iReal Pro are a subset of the [harmonic expressivity of MusicXML](https://www.w3.org/2021/06/musicxml40/musicxml-reference/elements/harmony/), this translation is exact. [More information can be found in this blog post](https://blog.karimratib.me/2020/11/30/ireal-musicxml.html#emitting-correct-chord-information).
