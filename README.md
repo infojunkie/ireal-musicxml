@@ -67,6 +67,7 @@ The styling and layout of lead sheets has evolved over time to improve their acc
 - Using rhythmic notation or slash notation to display the chords
 - Enhancing the size of the noteheads and chord names
 - Removing uneeded elements from the score, such as clef and staff lines
+- Respecting the original positioning of measures to best reflect the structure of the song
 - Fitting the score on one page where at all possible
 
 The MusicXML layouting support is expressive enough to represent all these customizations. Unfortunately, existing engraving software do not support the full set of MusicXML directives, thus being only partially able to recreate the intended scores. The (heavy-handed) solution is to go one additional step to [manually convert the MusicXML output from this present converter to the native format of the desired engraving software](https://github.com/infojunkie/ireal-musicxml/issues/16).
