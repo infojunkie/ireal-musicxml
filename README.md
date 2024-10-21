@@ -8,7 +8,7 @@ iReal Pro to MusicXML converter.
 [Check out the demo!](https://blog.karimratib.me/demos/chirp/) You can upload one of the [iReal Pro main playlists](https://www.irealpro.com/main-playlists/) as a test.
 
 # Installation
-- Install `xmllint` (included in [libxml2](http://www.xmlsoft.org/) on most platforms)
+- Install `xmllint` (included in [libxml2](http://www.xmlsoft.org/) on most platforms) - only needed for validation
 - `npm install && npm run build`
 - `npm test`
 
@@ -60,21 +60,21 @@ The chords found in the iReal Pro song are translated to their MusicXML represen
 An additional detail is the handling of "alternate chords" that can be specified in iReal Pro - these also [will be handled in this converter eventually](https://github.com/infojunkie/ireal-musicxml/issues/2).
 
 ## Rhythmic information
-Because iReal Pro uses a fixed grid for each bar, rhythmic assumptions need to be made, [both in the iReal Pro app itself](https://www.irealb.com/forums/showthread.php?25161-Using-empty-cells-to-control-chord-duration) and in this converter. The [timing algorithm is described in this blog post](https://blog.karimratib.me/2020/11/30/ireal-musicxml.html#emulating-the-ireal-pro-playback-model), and some [follow-up works remains to be done](https://github.com/infojunkie/ireal-musicxml/issues/54).
+Because iReal Pro uses a fixed grid for each bar, timing assumptions need to be made about chord onsets, [both in the iReal Pro app itself](https://www.irealb.com/forums/showthread.php?25161-Using-empty-cells-to-control-chord-duration) and in this converter. The [timing algorithm is described in this blog post](https://blog.karimratib.me/2020/11/30/ireal-musicxml.html#emulating-the-ireal-pro-playback-model), and some [follow-up works remains to be done](https://github.com/infojunkie/ireal-musicxml/issues/54).
 
 ## Layout and styling information
-The styling and layout of lead sheets has evolved over time to improve their accessibility in live situations, where musical information needs to be concise and readable. This includes the following score customizations:
+iReal Pro has a distinctive visual sheet style that aims to enhance readability. This converter attempts to recreate this visual style:
 - Using rhythmic notation or slash notation to display the chords
-- Enhancing the size of the noteheads and chord names
+- Increasing the size of noteheads and chord names
 - Removing uneeded elements from the score, such as clef and staff lines
 - Respecting the original positioning of measures to best reflect the structure of the song
 - Fitting the score on one page where at all possible
 
-The MusicXML layouting support is expressive enough to represent all these customizations. Unfortunately, existing engraving software do not support the full set of MusicXML directives, thus being only partially able to recreate the intended scores. The (heavy-handed) solution is to go one additional step to [manually convert the MusicXML output from this present converter to the native format of the desired engraving software](https://github.com/infojunkie/ireal-musicxml/issues/16).
+MusicXML support for layout and style is expressive enough to represent all these customizations. Unfortunately, existing engraving software do not support the full set of MusicXML directives, thus recreating the intended style only partially. The (heavy-handed) solution is to go one additional step and [convert the MusicXML output from this present converter to the native format of the desired engraving software](https://github.com/infojunkie/ireal-musicxml/issues/16).
 
 ## Backing track information
-The backing track patterns of the iReal Pro styles are not documented. Therefore, a mapping needs to be made to support a play back of the converted MusicXML scores that replicates or approximates the original iReal Pro playback. This is achieved in 2 phases:
+The backing track patterns of the iReal Pro styles are not documented. Therefore, a mapping is done to support playing back the converted MusicXML scores that replicates or approximates the original iReal Pro playback. This is achieved in 2 phases:
 
   - First, the MusicXML `sound/play/other-play[@type = 'groove']` element is used to capture the playback style as specified in the iReal Pro song. Because MusicXML does not currently feature a dedicated element to specify the performance style, the generic `other-play` element was [selected to capture this information](https://github.com/w3c/musicxml/discussions/449).
 
-  - Next, the downstream playback component interprets the above MusicXML element to generate a backing track for the score. This is done in the [`musicxml-midi`](https://github.com/infojunkie/musicxml-midi) component that utilizes an extensive library of "grooves" to map the incoming iReal Pro style to MIDI accompaniment tracks.
+  - Next, the downstream playback component interprets the above MusicXML element to generate a backing track for the score. This is done in [`musicxml-midi`](https://github.com/infojunkie/musicxml-midi) which utilizes an extensive library of "grooves" to map the incoming iReal Pro style to MIDI accompaniment tracks.

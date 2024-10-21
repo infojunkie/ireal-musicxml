@@ -388,7 +388,7 @@ var package_default = {
   },
   homepage: "https://github.com/infojunkie/ireal-musicxml",
   type: "module",
-  types: "./src/types/ireal-musicxml.d.ts",
+  types: "./build/ireal-musicxml.d.ts",
   files: [
     "LICENSE.txt",
     "build/*",
@@ -402,12 +402,13 @@ var package_default = {
     require: "./build/ireal-musicxml.cjs"
   },
   scripts: {
-    build: "npm run build:esm && npm run build:cjs",
+    build: "npm run build:esm && npm run build:cjs && npm run build:d.ts",
+    "build:d.ts": "cp src/types/* build/",
     "build:esm": "esbuild src/lib/index.js --bundle --format=esm --sourcemap --outfile=build/ireal-musicxml.js",
     "build:cjs": "esbuild src/lib/index.js --bundle --platform=node --packages=external --outfile=build/ireal-musicxml.cjs",
-    test: "npm run test:lint && npm run test:spec && npm run test:ts",
+    test: "npm run build && npm run test:lint && npm run test:spec && npm run test:ts",
     "test:spec": 'node --test --test-name-pattern="${TEST:-.*}"',
-    "test:ts": "npm run build && node --test --loader=ts-node/esm --require ts-node/register test/*.spec.ts",
+    "test:ts": "node --test --loader=ts-node/esm --require ts-node/register test/*.spec.ts",
     "test:lint": "eslint src --fix"
   },
   devDependencies: {

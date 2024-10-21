@@ -23,7 +23,7 @@ export class Playlist {
 export class Song {
   /**
    * Song parser. Parsing occurs in this constructor.
-   * Refer to https://github.com/infojunkie/ireal-musicxml/blob/main/doc/ireal.md for structure details.
+   * Refer to https://github.com/infojunkie/ireal-musicxml/blob/main/doc/irealpro.md for structure details.
    * @param ireal iReal Pro encoding for a single song
    * @param oldFormat Flag to indicate that the encoding above corresponds to the older irealbook:// format.
    */
