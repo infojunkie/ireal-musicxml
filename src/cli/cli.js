@@ -80,7 +80,7 @@ try {
     if (songs.length > 0 && songs.every(title => song.title.toUpperCase().indexOf(title) < 0)) continue;
 
     try {
-      console.error(`Generating ${song.title}...`)
+      console.error(`Generating ${song.title}...`);
       const musicXml = Converter.convert(song);
 
       if ('validate' in args) {

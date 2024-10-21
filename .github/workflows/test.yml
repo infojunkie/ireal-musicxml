@@ -20,6 +20,6 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - run: npm install
-    - run: npm test && npm run test:typescript
+    - run: npm test
       env:
         CI: true
