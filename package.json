@@ -1,6 +1,6 @@
 {
   "name": "ireal-musicxml",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "iReal Pro to MusicXML converter.",
   "author": "Karim Ratib <karim.ratib@gmail.com> (https://github.com/infojunkie)",
   "license": "GPL-3.0-only",
@@ -26,8 +26,8 @@
   "scripts": {
     "build": "npm run build:esm && npm run build:cjs && npm run build:d.ts",
     "build:d.ts": "cp src/types/* build/",
-    "build:esm": "esbuild src/lib/index.js --bundle --format=esm --sourcemap --outfile=build/ireal-musicxml.js",
-    "build:cjs": "esbuild src/lib/index.js --bundle --platform=node --packages=external --outfile=build/ireal-musicxml.cjs",
+    "build:esm": "esbuild src/lib/index.js --bundle --format=esm --minify --sourcemap --outfile=build/ireal-musicxml.js",
+    "build:cjs": "esbuild src/lib/index.js --bundle --platform=node --packages=external --minify --sourcemap --outfile=build/ireal-musicxml.cjs",
     "test": "npm run build && npm run test:lint && npm run test:spec && npm run test:ts",
     "test:spec": "node --test --test-name-pattern=\"${TEST:-.*}\"",
     "test:ts": "node --test --loader=ts-node/esm --require ts-node/register test/*.spec.ts",
