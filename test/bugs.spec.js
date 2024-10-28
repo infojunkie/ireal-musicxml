@@ -10,7 +10,7 @@ import { Converter } from '../src/lib/converter.js';
 let jazz = null;
 
 before(() => {
-  jazz = new Playlist(fs.readFileSync('test/data/jazz.txt', 'utf-8'));
+  jazz = new Playlist(fs.readFileSync('test/data/jazz1460.txt', 'utf-8'));
 })
 
 describe('Bug Fixes', () => {

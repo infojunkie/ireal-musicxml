@@ -7,7 +7,7 @@ const exec = util.promisify(require('child_process').exec);
 
 describe('cli', () => {
   it('should run successfully', async () => {
-    const execResult = await exec('node src/cli/cli.js test/data/jazz.txt --songs=Blues');
+    const execResult = await exec('node src/cli/cli.js test/data/jazz1460.txt --songs=Blues');
     const output = execResult.stderr;
     console.log(output);
     assert.match(output, /Generating 502 Blues/g);

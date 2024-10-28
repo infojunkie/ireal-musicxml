@@ -14,7 +14,7 @@ let blues = null;
 let pop = null;
 
 before(() => {
-  jazz = new Playlist(fs.readFileSync('test/data/jazz.txt', 'utf-8'));
+  jazz = new Playlist(fs.readFileSync('test/data/jazz1460.txt', 'utf-8'));
   playlist = new Playlist(fs.readFileSync('test/data/playlist.html', 'utf-8'));
   strange = new Playlist(fs.readFileSync('test/data/strange.html', 'utf-8'));
   blues = new Playlist(fs.readFileSync('test/data/blues.txt', 'utf-8'));

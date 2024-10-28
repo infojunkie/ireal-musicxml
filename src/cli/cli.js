@@ -14,10 +14,6 @@ import { Playlist } from '../lib/parser.js';
 import { Converter } from '../lib/converter.js';
 
 const options = {
-  'ireal': {
-    type: 'string',
-    short: 'i',
-  },
   'output': {
     type: 'string',
     short: 'o',

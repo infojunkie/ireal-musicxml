@@ -359,7 +359,7 @@ export class Converter {
         }
 
         // Add starting barline.
-        this.measure.barlines.push(this.convertBarline(cell.bars, 'left'));
+        this.measure.barlines.push(this.convertBarline(cell.bars, 'left', (isNewSystem(cellIndex) || this.emptyCellNewSystem) ? 'regular' : undefined));
 
         // If we're still repeating bars, copy the previous bar now.
         if (this.barRepeat) {
@@ -754,8 +754,8 @@ export class Converter {
     };
   }
 
-  convertBarline(bars, location) {
-    let style = 'regular';
+  convertBarline(bars, location, forced = undefined) {
+    let style = location === 'left' ? 'none' : 'regular';
     let repeat = null;
     if (bars.match(/\[|\]/)) {
       style = 'light-light';
@@ -777,7 +777,7 @@ export class Converter {
       _name: 'barline',
       _attrs: { 'location': location },
       _content: [{
-        'bar-style': style
+        'bar-style': forced ?? style
       }, { ...(repeat && {
         _name: 'repeat',
         _attrs: { 'direction': repeat, ...(repeat === 'backward' && { 'times': this.repeats }) }

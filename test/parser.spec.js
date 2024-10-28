@@ -19,8 +19,8 @@ describe('Parser', function() {
   });
 
   it('should parse the iReal Pro Jazz playlist', function() {
-    const playlist = new Playlist(fs.readFileSync('test/data/jazz.txt', 'utf-8'));
-    assert.strictEqual(playlist.songs.length, 1409);
+    const playlist = new Playlist(fs.readFileSync('test/data/jazz1460.txt', 'utf-8'));
+    assert.strictEqual(playlist.songs.length, 1459);
   });
 
   it('should parse the irealbook:// format', function() {
