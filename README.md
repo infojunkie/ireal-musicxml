@@ -48,7 +48,7 @@ const musicXml = Converter.convert(playlistManual.songs[0])
 ```
 
 ```bash
-$ ireal-musicxml test/data/jazz.txt --songs=Blues --validate
+$ ireal-musicxml test/data/jazz1460.txt --songs=Blues --validate
 ```
 
 # Theory of operation
