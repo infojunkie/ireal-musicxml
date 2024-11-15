@@ -135,6 +135,23 @@ export class Converter {
     "8x": Converter.prototype.convertRepeatNx
   };
 
+  static mapTime = {
+    "24": { beats: 2, beatType: 4, beatUnit: 1 },
+    "34": { beats: 3, beatType: 4, beatUnit: 0.5 },
+    "44": { beats: 4, beatType: 4, beatUnit: 1 },
+    "54": { beats: 5, beatType: 4, beatUnit: 1 },
+    "64": { beats: 6, beatType: 4, beatUnit: 1 },
+    "74": { beats: 7, beatType: 4, beatUnit: 1 },
+    "38": { beats: 3, beatType: 8, beatUnit: 1 },
+    "58": { beats: 5, beatType: 8, beatUnit: 1 },
+    "68": { beats: 6, beatType: 8, beatUnit: 1 },
+    "78": { beats: 7, beatType: 8, beatUnit: 1 },
+    "98": { beats: 9, beatType: 8, beatUnit: 1 },
+    "12": { beats: 12, beatType: 8, beatUnit: 3 },
+    "22": { beats: 2, beatType: 2, beatUnit: 1 },
+    "32": { beats: 3, beatType: 2, beatUnit: 0.5 },
+  };
+
   static convert(song, options = {}) {
     const realOptions = Object.assign({}, this.defaultOptions, options);
     return new Converter(song, realOptions).convert();
@@ -143,12 +160,13 @@ export class Converter {
   constructor(song, options) {
     this.song = song;
     this.options = options;
-    this.time = { beats: 4, beatType: 4 };
+    this.time = { beats: 4, beatType: 4, beatUnit: 1 };
     this.fifths = null; // key signature's degree of fifths
     this.measure = null; // current measure (of class Measure) being built
     this.barRepeat = 0; // current bar number for single- and double-bar repeats
     this.codas = []; // list of measures containing codas
     this.repeats = 0; // repeat count for closing repeat barline
+    this.shortChord = false; // was 's' annotation encountered?
     this.emptyCells = 0; // consecutive empty cells
     this.emptyCellNewSystem = false; // did a new system occur in an empty cell?
 
@@ -305,6 +323,23 @@ export class Converter {
       this.ireal = ireal;
       this.spaces = 0;
       this.fermata = false;
+      this.short = false;
+    }
+
+    clone() {
+      const chord = new Converter.Chord(
+        structuredClone(this.harmony),
+        structuredClone(this.notes),
+        structuredClone(this.ireal)
+      );
+      chord.spaces = this.spaces;
+      chord.fermata = this.fermata;
+      chord.short = this.short;
+      return chord;
+    }
+
+    beats() {
+      return this.short ? 1 : 1 + this.spaces;
     }
   };
 
@@ -363,8 +398,7 @@ export class Converter {
 
         // If we're still repeating bars, copy the previous bar now.
         if (this.barRepeat) {
-          // TODO We should probably deep-copy those measures.
-          this.measure.chords = [...measures[measures.length-this.barRepeat-1].chords];
+          this.measure.chords = measures[measures.length-this.barRepeat-1].chords.map(chord => chord.clone());
         }
       }
 
@@ -445,8 +479,7 @@ export class Converter {
           case 'x': {
             // Handle single bar repeat.
             this.barRepeat = 1;
-            // TODO We should probably deep-copy those measures.
-            this.measure.chords = [...measures[measures.length-this.barRepeat].chords];
+            this.measure.chords = measures[measures.length-this.barRepeat].chords.map(chord => chord.clone());
             break;
           }
           case 'r': {
@@ -455,8 +488,7 @@ export class Converter {
             // Here, we copy the next-to-last measure and set the repeat flag.
             // The next opening measure will pick up the remaining measure.
             this.barRepeat = 2;
-            // TODO We should probably deep-copy those measures.
-            this.measure.chords = [...measures[measures.length-this.barRepeat].chords];
+            this.measure.chords = measures[measures.length-this.barRepeat].chords.map(chord => chord.clone());
             break;
           }
           case 'p':
@@ -493,6 +525,7 @@ export class Converter {
           default: {
             // Process new chord.
             this.measure.chords.push(this.convertChord(cell.chord));
+            this.measure.chords[this.measure.chords.length-1].short = this.shortChord;
           }
         }
       }
@@ -568,9 +601,23 @@ export class Converter {
             break;
           }
 
-          // Ignore small and large chord renderings.
-          case 'l':
-          case 's': break;
+          // Short and long chord settings.
+          // These will affect the calculation of chord durations.
+          // Set the current chord size setting and remember it for subsequent chords.
+          case 'l': {
+            if (this.measure.chords.length) {
+              this.measure.chords[this.measure.chords.length-1].short = false;
+            }
+            this.shortChord = false;
+            break;
+          }
+          case 's': {
+            if (this.measure.chords.length) {
+              this.measure.chords[this.measure.chords.length-1].short = true;
+            }
+            this.shortChord = true;
+            break;
+          }
 
           case 'f': { // Fermata
             this.measure.chords[this.measure.chords.length-1].fermata = true;
@@ -865,18 +912,16 @@ export class Converter {
   }
 
   convertTime(time) {
-    let beats = parseInt(time[0]);
-    let beatType = parseInt(time[1]);
-    if (time === '12') {
-      beats = 12;
-      beatType = 8;
-    }
-    this.time = { beats, beatType };
+    this.time = this._map(
+      Converter.mapTime, time, {
+        beats: parseInt(time[0]), beatType: parseInt(time[1]), beatUnit: 1
+      }, `Unexpected time signature ${time}`
+    );
     return {
       'time': [{
-        'beats': beats
+        'beats': this.time.beats
       }, {
-        'beat-type': beatType
+        'beat-type': this.time.beatType
       }]
     };
   }
@@ -888,6 +933,7 @@ export class Converter {
     // Rules:
     // - Minimum chord duration is 1 beat
     // => Each chord starts as 1 beat
+    // => Short chords always remain as 1 beat
     // => Count of chords <= beats per measure
     // - Starting empty cells are discarded (already discarded during the cell loop)
     // - Each remaining empty cell counts as 1 beat (already counted during cell loop)
@@ -899,7 +945,7 @@ export class Converter {
       this._log(LogLevel.Error, `Too many chords (${measure.chords.length} out of ${this.time.beats})`, measure);
       return true;
     }
-    let beats = measure.chords.reduce((beats, chord) => beats+1+chord.spaces, 0);
+    let beats = measure.chords.reduce((beats, chord) => beats + chord.beats() * this.time.beatUnit, 0);
     if (!beats) {
       this._log(LogLevel.Warn, `No chord found. Skipping current measure.`, measure);
       return false;
@@ -911,24 +957,33 @@ export class Converter {
       while (beats > this.time.beats) {
         if (measure.chords[chordIndex].spaces > 0) {
           measure.chords[chordIndex].spaces--;
-          beats--;
+          beats -= this.time.beatUnit;
         }
         chordIndex = (chordIndex + 1) % measure.chords.length;
       }
     }
     else {
-      // Distribute free beats among the chords.
+      // Distribute free beats among the chords, except for short chords.
       let chordIndex = 0;
+      let hasBeatsChangedInACycle = false;
       while (beats < this.time.beats) {
-        measure.chords[chordIndex].spaces++;
-        beats++;
+        if (!measure.chords[chordIndex].short) {
+          measure.chords[chordIndex].spaces++;
+          beats += this.time.beatUnit;
+          hasBeatsChangedInACycle = true;
+        }
         chordIndex = (chordIndex + 1) % measure.chords.length;
+        if (chordIndex === 0 && !hasBeatsChangedInACycle) {
+          // We've made a complete cycle and beat count has not changed - break now.
+          this._log(LogLevel.Warn, `Cannot add more beats to the current measure.`, measure);
+          break;
+        }
       }
     }
 
     // Adjust actual chord durations.
     measure.chords = measure.chords.map(chord => {
-      chord.notes = this.calculateChordDuration(1+chord.spaces).map((duration, i, ds) =>
+      chord.notes = this.calculateChordDuration(chord.beats() * this.time.beatUnit).map((duration, i, ds) =>
         this.convertChordNote(
           duration,
           i === ds.length - 1 ? chord.fermata : false, // Possible fermata on last chord note only

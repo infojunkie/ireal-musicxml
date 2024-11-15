@@ -29,7 +29,7 @@ describe('Parser', function() {
   });
 
   it('should concatenate multi-part songs', function() {
-    const playlist = new Playlist(fs.readFileSync('test/data/pop.txt', 'utf-8'));
+    const playlist = new Playlist(fs.readFileSync('test/data/pop400.txt', 'utf-8'));
     const songs = playlist.songs.filter(song => song.title.includes('She\'s Always A Woman'));
     assert.strictEqual(songs.length, 1);
   });

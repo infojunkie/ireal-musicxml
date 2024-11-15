@@ -17,8 +17,8 @@ before(() => {
   jazz = new Playlist(fs.readFileSync('test/data/jazz1460.txt', 'utf-8'));
   playlist = new Playlist(fs.readFileSync('test/data/playlist.html', 'utf-8'));
   strange = new Playlist(fs.readFileSync('test/data/strange.html', 'utf-8'));
-  blues = new Playlist(fs.readFileSync('test/data/blues.txt', 'utf-8'));
-  pop = new Playlist(fs.readFileSync('test/data/pop.txt', 'utf-8'));
+  blues = new Playlist(fs.readFileSync('test/data/blues50.txt', 'utf-8'));
+  pop = new Playlist(fs.readFileSync('test/data/pop400.txt', 'utf-8'));
 })
 
 describe('Converter', () => {
