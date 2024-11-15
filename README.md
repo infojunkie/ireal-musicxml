@@ -60,7 +60,7 @@ The chords found in the iReal Pro song are translated to their MusicXML represen
 An additional detail is the handling of "alternate chords" that can be specified in iReal Pro - these also [will be handled in this converter eventually](https://github.com/infojunkie/ireal-musicxml/issues/2).
 
 ## Rhythmic information
-Because iReal Pro uses a fixed grid for each bar, timing assumptions need to be made about chord onsets, [both in the iReal Pro app itself](https://www.irealb.com/forums/showthread.php?25161-Using-empty-cells-to-control-chord-duration) and in this converter. The [timing algorithm is described in this blog post](https://blog.karimratib.me/2020/11/30/ireal-musicxml.html#emulating-the-ireal-pro-playback-model), and some [follow-up works remains to be done](https://github.com/infojunkie/ireal-musicxml/issues/54).
+Because iReal Pro uses a fixed grid for each bar, timing assumptions need to be made about chord onsets, [both in the iReal Pro app itself](https://www.irealb.com/forums/showthread.php?25161-Using-empty-cells-to-control-chord-duration) and in this converter. The [timing algorithm is described in this blog post](https://blog.karimratib.me/2020/11/30/ireal-musicxml.html#emulating-the-ireal-pro-playback-model).
 
 ## Layout and styling information
 iReal Pro has a distinctive visual sheet style that aims to enhance readability. This converter attempts to recreate this visual style:
