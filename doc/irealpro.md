@@ -171,7 +171,7 @@ Cb, C, C#, Db, D, D#, Eb, E, F, F#, Gb, G, G#, Ab, A, A#, Bb, B
 - `^` - major
 - `-` - minor
 - `o` - diminished
-- `ø` - hald-diminished
+- `ø` - half-diminished
 - `+` - augmented
 - `b` - flat
 - `#` - sharp
