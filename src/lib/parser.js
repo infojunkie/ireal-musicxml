@@ -11,7 +11,10 @@
 import diff from 'fast-diff';
 
 export class Playlist {
-  constructor(ireal){
+  /**
+   * @param {string} ireal
+   */
+  constructor(ireal) {
     const playlistEncoded = /.*?(irealb(?:ook)?):\/\/([^"]*)/.exec(ireal);
     const playlist = decodeURIComponent(playlistEncoded[2]);
     const parts = playlist.split("===");  //songs are separated by ===
@@ -50,15 +53,26 @@ export class Playlist {
 
 export class Cell {
   constructor() {
+    /** @type {string[]} */
     this.annots = [];
+    /** @type {string[]} */
     this.comments = [];
+    /** @type {'|' | '[' | ']' | '{' | '}' | 'Z'} */
     this.bars = "";
+    /** @type {number} */
     this.spacer = 0;
+    /** @type {Chord|null} */
     this.chord = null;
   }
 }
 
 export class Chord {
+  /**
+   * @param {string} note
+   * @param {string} modifiers
+   * @param {Chord} over
+   * @param {Chord} alternate
+   */
   constructor(note, modifiers = "", over = null, alternate = null) {
     this.note = note;
     this.modifiers = modifiers;
@@ -68,6 +82,10 @@ export class Chord {
 }
 
 export class Song {
+  /**
+   * @param {string} ireal
+   * @param {boolean} oldFormat
+   */
   constructor(ireal, oldFormat = false) {
     this.cells = [];
     this.musicXml = "";
@@ -157,7 +175,8 @@ export class Song {
    *  Z - end bar, right
    * spacer - a number indicating the number of vertical spacers above this cell
    *
-   * @returns [Cell]
+   * @param {string} ireal
+   * @returns {Cell[]}
    */
   parse(ireal) {
     let text = ireal.trim();
@@ -170,12 +189,12 @@ export class Song {
           found = true;
           if (match.length <= 2) {
             arr.push(match[0]);
-            text = text.substr(match[0].length);
+            text = text.substring(match[0].length);
           }
           else {
             // a chord
             arr.push(match);
-            text = text.substr(match[0].length);
+            text = text.substring(match[0].length);
           }
           break;
         }
@@ -184,7 +203,7 @@ export class Song {
         // ignore the comma separator
         if (text[0] !== ',')
           arr.push(text[0]);
-        text = text.substr(1);
+        text = text.substring(1);
       }
     }
 
@@ -194,7 +213,7 @@ export class Song {
     let prevobj = null;
     for (let i = 0; i < arr.length; i++) {
       let cell = arr[i];
-      if (cell instanceof Array) {
+      if (Array.isArray(cell)) {
         obj.chord = this.parseChord(cell);
         cell = " ";
       }
@@ -231,7 +250,7 @@ export class Song {
           obj.chord = new Chord(cell);
           break;
         case '<':
-          cell = cell.substr(1, cell.length-2);
+          cell = cell.substring(1, cell.length-1);
           obj.comments.push(cell);
           cell = null; break;
         default:
@@ -246,6 +265,8 @@ export class Song {
 
   /**
    * The title had "A" and "The" at the back (e.g. "Gentle Rain, The")
+   * @param {string} title
+   * @returns {string}
    */
   static parseTitle(title) {
     return title.replace(/(.*)(, )(A|The)$/g, '$3 $1');
@@ -253,55 +274,67 @@ export class Song {
 
   /**
    * The composer is reversed (last first) if it only has 2 names :shrug:
+   * @param {string} composer
+   * @returns {string}
    */
   static parseComposer(composer) {
     const parts = composer.split(/(\s+)/); // match and return spaces too
-    if (parts.length == 3) { // [last, spaces, first]
+    if (parts.length === 3) { // [last, spaces, first]
       return parts[2] + parts[1] + parts[0];
     }
     return composer;
   }
 
+  /**
+   * @param {string[]} chord
+   * @returns {Chord}
+   */
   parseChord(chord) {
-    var note = chord[1] || " ";
-    var modifiers = chord[2] || "";
-    var comment = chord[3] || "";
+    const note = chord[1] || " ";
+    let modifiers = chord[2] || "";
+    const comment = chord[3] || "";
     if (comment)
-      modifiers += comment.substr(1, comment.length-2);
-    var over = chord[4] || "";
+      modifiers += comment.substring(1, comment.length-1);
+    let over = chord[4] || "";
     if (over[0] === '/')
-      over = over.substr(1);
-    var alternate = chord[5] || null;
+      over = over.substring(1);
+    let alternate = chord[5] || null;
     if (alternate) {
-      chord = Song.chordRegex.exec(alternate.substr(1, alternate.length-2));
-      if (!chord)
-        alternate = null;
-      else
-        alternate = this.parseChord(chord);
+      chord = Song.chordRegex.exec(alternate.substring(1, alternate.length-1));
+      alternate = chord ? this.parseChord(chord) : null;
     }
     // empty cell?
     if (note === " " && !alternate && !over)
       return null;
     if (over) {
-      var offset = (over[1] === '#' || over[1] === 'b') ? 2 : 1;
-      over = new Chord(over.substr(0, offset), over.substr(offset), null, null);
+      const offset = (over[1] === '#' || over[1] === 'b') ? 2 : 1;
+      over = new Chord(over.substring(0, offset), over.substring(offset), null, null);
     }
     else
       over = null;
     return new Chord(note, modifiers, over, alternate);
   }
 
+  /**
+   * @param {Cell[]} cells
+   * @returns {Cell}
+   */
   newCell(cells) {
-    var obj = new Cell;
+    const obj = new Cell;
     cells.push(obj);
     return obj;
   }
 }
 
-// Unscrambling hints from https://github.com/ironss/accompaniser/blob/master/irealb_parser.lua
-// Strings are broken up in 50 character segments. each segment undergoes character substitution addressed by obfusc50()
-// Note that a final part of length 50 or 51 is not scrambled.
-// Finally need to substitute for Kcl, LZ and XyQ.
+
+/**
+ * Unscrambling hints from https://github.com/ironss/accompaniser/blob/master/irealb_parser.lua
+ * Strings are broken up in 50 character segments. each segment undergoes character substitution addressed by obfusc50()
+ * Note that a final part of length 50 or 51 is not scrambled.
+ * Finally need to substitute for Kcl, LZ and XyQ.
+ * @param {string} s
+ * @returns {string}
+ */
 function unscramble(s) {
   let r = '', p;
 
@@ -316,6 +349,10 @@ function unscramble(s) {
   return r;
 }
 
+/**
+ * @param {string} s
+ * @returns {string}
+ */
 function obfusc50(s) {
   // the first 5 characters are switched with the last 5
   const newString = s.split('');
