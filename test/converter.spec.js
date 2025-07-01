@@ -12,6 +12,7 @@ let playlist = null;
 let strange = null;
 let blues = null;
 let pop = null;
+let country = null;
 
 before(() => {
   jazz = new Playlist(fs.readFileSync('test/data/jazz1460.txt', 'utf-8'));
@@ -19,6 +20,7 @@ before(() => {
   strange = new Playlist(fs.readFileSync('test/data/strange.html', 'utf-8'));
   blues = new Playlist(fs.readFileSync('test/data/blues50.txt', 'utf-8'));
   pop = new Playlist(fs.readFileSync('test/data/pop400.txt', 'utf-8'));
+  country = new Playlist(fs.readFileSync('test/data/country.txt', 'utf-8'));
 })
 
 describe('Converter', () => {
@@ -108,6 +110,52 @@ describe('Converter', () => {
     assert.strictEqual(ending.length, 4);
   });
 
+  it('should correctly handle endings', async () => {
+    // Find "Coal Miner's Daughter" which has multiple endings (N1 and N2)
+    const coalMinerSong = country.songs.find(song => song.title === 'Coal Miner\'s Daughter');
+    assert.notStrictEqual(coalMinerSong, undefined, 'Coal Miner\'s Daughter should be found in country playlist');
+
+    const musicXml = Converter.convert(coalMinerSong);
+    await validateXMLWithXSD(musicXml, 'test/data/musicxml.xsd');
+    fs.writeFileSync(`test/output/${coalMinerSong.title}.musicxml`, musicXml);
+
+    const doc = new DOMParser().parseFromString(musicXml);
+
+    // Check that the song has the correct structure
+    const measures = select(doc, '//measure');
+    assert.strictEqual(measures.length > 0, true, 'Should have at least one measure');
+
+    // Check that the song has endings (this song has N1 and N2)
+    const endings = select(doc, '//ending');
+    assert.strictEqual(endings.length > 0, true, 'Should have at least one ending');
+
+    // Check that the first ending (N1) has the correct types
+    const firstEnding = select(doc, '//ending[@number="1"]');
+    if (firstEnding.length > 0) {
+      // If there are multiple endings, check that the first ending has both 'start' and 'stop' types
+      const secondEnding = select(doc, '//ending[@number="2"]');
+      if (secondEnding.length > 0) {
+        // Multiple endings case - first ending should have both 'start' and 'stop' types
+        const firstEndingTypes = firstEnding.map(e => e.getAttribute('type'));
+        assert.strictEqual(firstEndingTypes.includes('start'), true, 'First ending should have start type');
+        assert.strictEqual(firstEndingTypes.includes('stop'), true, 'First ending should have stop type');
+
+        // Second ending should have both 'start' and 'discontinue' types
+        const secondEndingTypes = secondEnding.map(e => e.getAttribute('type'));
+        assert.strictEqual(secondEndingTypes.includes('start'), true, 'Second ending should have start type');
+        assert.strictEqual(secondEndingTypes.includes('discontinue'), true, 'Second ending should have discontinue type');
+      } else {
+        // Single ending case - should be 'discontinue'
+        assert.strictEqual(firstEnding[0].getAttribute('type'), 'discontinue', 'Single ending should be discontinue');
+      }
+    }
+
+    const workTitle = select(doc, '//work-title/text()');
+    assert.strictEqual(workTitle[0].toString(), 'Coal Miner\'s Daughter');
+    const creator = select(doc, '//creator[@type="composer"]/text()');
+    assert.strictEqual(creator[0].toString(), 'Loretta Lynn');
+  });
+
   it('should create a valid, complete and correct MusicXML for Song For My Father', async () => {
     const father = Converter.convert(playlist.songs[4]);
     await validateXMLWithXSD(father, 'test/data/musicxml.xsd');
@@ -135,8 +183,10 @@ describe('Converter', () => {
     await validateXMLWithXSD(musicXml, 'test/data/musicxml.xsd');
     fs.writeFileSync(`test/output/${song.title}.musicxml`, musicXml);
     const doc = new DOMParser().parseFromString(musicXml);
-    const ties = select(doc, '//note/notations/tied');
+    const ties = select(doc, '//note/notations/tied/@type');
     assert.strictEqual(ties.length, 2);
+    assert.strictEqual(ties[0].value, 'stop');
+    assert.strictEqual(ties[1].value, 'start');
   });
 
   it('should correctly handle timing edge cases', async () => {
@@ -154,8 +204,13 @@ describe('Converter', () => {
     const doc = new DOMParser().parseFromString(musicXml);
     const chordRoots = select(doc, '//measure/harmony/root/root-step/text()');
     assert.strictEqual(chordRoots[chordRoots.length-1].toString(), 'A');
-    const words = select(doc, '//measure/direction/direction-type/words');
-    assert.notStrictEqual(words.length, 0);
+    const words = select(doc, '//measure/direction/direction-type/words/text()');
+    assert.strictEqual(words.length, 9);
+    assert.strictEqual(words[0].toString(), 'Funk');
+    assert.strictEqual(words[1].toString(), 'half x feel throughout');
+    assert.strictEqual(words[2].toString(), '(4xs)');
+    assert.strictEqual(words[7].toString(), 'open');
+    assert.strictEqual(words[8].toString(), 'D.C. al Fine');
     const coda = select(doc, '//measure/direction/sound/@coda');
     assert.strictEqual(coda.length, 1);
     const tocoda = select(doc, '//measure/direction/sound/@tocoda');
@@ -170,6 +225,58 @@ describe('Converter', () => {
     assert.strictEqual(dacapo.length, 1);
     const dalsegno = select(doc, '//measure/direction/sound/@dalsegno');
     assert.strictEqual(dalsegno.length, 1);
+
+    const song2 = jazz.songs.find(song => song.title === 'Aisha');
+    assert.notStrictEqual(song2, undefined);
+    const musicXml2 = Converter.convert(song2, { notation: 'rhythmic' });
+    await validateXMLWithXSD(musicXml2, 'test/data/musicxml.xsd');
+    fs.writeFileSync(`test/output/${song2.title}.musicxml`, musicXml2);
+    const doc2 = new DOMParser().parseFromString(musicXml2);
+    const tocoda2 = select(doc2, '//measure/direction/sound/@tocoda');
+    assert.strictEqual(tocoda2.length, 1);
+    const chordRoots2 = select(doc2, '//measure/harmony/root/root-step/text()');
+    assert.strictEqual(chordRoots2[0].toString(), 'A');
+    assert.strictEqual(chordRoots2[1].toString(), 'G');
+    assert.strictEqual(chordRoots2[2].toString(), 'A');
+    const directionTypes2 = select(doc2, '//measure/direction/direction-type');
+    assert.strictEqual(directionTypes2.length, 7);
+    const rehearsal2 = select(doc2, '//measure/direction/direction-type/rehearsal');
+    assert.strictEqual(rehearsal2.length, 3);
+
+    const newSystem1 = select(doc2, '//measure[@number="9"]//print[@new-system="yes"]');
+    assert.strictEqual(newSystem1.length, 1);
+    const newSystem2 = select(doc2, '//measure[@number="10"]//print[@new-system="yes"]');
+    assert.strictEqual(newSystem2.length, 1);
+    const newSystem3 = select(doc2, '//measure[@number="11"]//print[@new-system="yes"]');
+    assert.strictEqual(newSystem3.length, 0);
+  });
+
+  it ('should correctly handle notes and alterations', async () => {
+    const song = jazz.songs.find(song => song.title === 'Butterfly');
+    assert.notStrictEqual(song, undefined);
+    const musicXml = Converter.convert(song);
+    await validateXMLWithXSD(musicXml, 'test/data/musicxml.xsd');
+    fs.writeFileSync(`test/output/${song.title}.musicxml`, musicXml);
+    const doc = new DOMParser().parseFromString(musicXml);
+    const chordRoots = select(doc, '//measure/harmony/root/root-step/text()');
+    assert.strictEqual(chordRoots[chordRoots.length-1].toString(), 'A');
+    const step1 = select(doc, '//measure[@number="1"]/note[1]/pitch/step/text()');
+    assert.strictEqual(step1[0].toString(), 'B');
+    const alter1 = select(doc, '//measure[@number="1"]/note[1]/pitch/alter/text()');
+    assert.strictEqual(alter1[0].toString(), '-1');
+
+    const song2 = jazz.songs.find(song => song.title === 'Aisha');
+    assert.notStrictEqual(song2, undefined);
+    const musicXml2 = Converter.convert(song2);
+    await validateXMLWithXSD(musicXml2, 'test/data/musicxml.xsd');
+    fs.writeFileSync(`test/output/${song2.title}.musicxml`, musicXml2);
+    const doc2 = new DOMParser().parseFromString(musicXml2);
+    const chordRoots2 = select(doc2, '//measure/harmony/root/root-step/text()');
+    assert.strictEqual(chordRoots2[chordRoots2.length-1].toString(), 'G');
+    const step2 = select(doc2, '//measure[@number="1"]/note[1]/pitch/step/text()');
+    assert.strictEqual(step2[0].toString(), 'B');
+    const alter2 = select(doc2, '//measure[@number="1"]/note[1]/pitch/alter/text()');
+    assert.strictEqual(alter2[0].toString(), '0');
   });
 
   it('should correctly distinguish between rhythmic notation and slash notation', async () => {
@@ -352,4 +459,56 @@ describe('Converter', () => {
     const measureDistance = select(doc3, '//measure[@number="38"]//measure-distance/text()');
     assert.notStrictEqual(measureDistance[0].toString(), '0.00');
   });
+});
+
+it('should extract work and identification information', async () => {
+  const song = jazz.songs.find(song => song.title === 'Am I Blue?');
+  assert.notStrictEqual(song, undefined);
+  const musicXml = Converter.convert(song);
+  await validateXMLWithXSD(musicXml, 'test/data/musicxml.xsd');
+  fs.writeFileSync(`test/output/${song.title}.musicxml`, musicXml);
+  const doc = new DOMParser().parseFromString(musicXml);
+  const workTitle = select(doc, '//work-title/text()');
+  assert.strictEqual(workTitle.length, 1);
+  assert.strictEqual(workTitle[0].toString(), "Am I Blue?");
+  const composer = select(doc, '//creator[@type="composer"]/text()');
+  assert.strictEqual(composer.length, 1);
+  assert.strictEqual(composer[0].toString(), "Harry Akst");
+
+  const song2 = jazz.songs.find(song => song.title === 'Always And Forever');
+  assert.notStrictEqual(song2, undefined);
+  const musicXml2 = Converter.convert(song2);
+  await validateXMLWithXSD(musicXml2, 'test/data/musicxml.xsd');
+  fs.writeFileSync(`test/output/${song2.title}.musicxml`, musicXml2);
+  const doc2 = new DOMParser().parseFromString(musicXml2);
+  const workTitle2 = select(doc2, '//work-title/text()');
+  assert.strictEqual(workTitle2.length, 1);
+  assert.strictEqual(workTitle2[0].toString(), "Always And Forever");
+  const composer2 = select(doc2, '//creator[@type="composer"]/text()');
+  assert.strictEqual(composer2.length, 1);
+  assert.strictEqual(composer2[0].toString(), "Pat Metheny");
+});
+
+it('should have the correct harmony', async () => {
+  const song = jazz.songs.find(song => song.title === 'Am I Blue?');
+  assert.notStrictEqual(song, undefined);
+  const musicXml = Converter.convert(song);
+  await validateXMLWithXSD(musicXml, 'test/data/musicxml.xsd');
+  fs.writeFileSync(`test/output/${song.title}.musicxml`, musicXml);
+  const doc = new DOMParser().parseFromString(musicXml);
+
+  const kind = select(doc, '//measure[@number="1"]//kind[@text="M7"]/text()');
+  assert.strictEqual(kind.length, 1);
+  assert.strictEqual(kind[0].toString(), 'major-seventh');
+  const rootStep = select(doc, '//measure[@number="2"]//root-step/text()');
+  assert.strictEqual(rootStep.length, 2);
+  assert.strictEqual(rootStep[0].toString(), 'A');
+  assert.strictEqual(rootStep[1].toString(), 'D');
+
+  const kind2 = select(doc, '//measure[@number="2"]//kind[@text="m7"]/text()');
+  assert.strictEqual(kind2.length, 1);
+  assert.strictEqual(kind2[0].toString(), 'minor-seventh');
+  const rootStep2 = select(doc, '//measure[@number="3"]//root-step/text()');
+  assert.strictEqual(rootStep2.length, 1);
+  assert.strictEqual(rootStep2[0].toString(), 'G');
 });
