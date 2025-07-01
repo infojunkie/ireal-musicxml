@@ -166,9 +166,6 @@ export class Converter {
     this.barRepeat = 0; // current bar number for single- and double-bar repeats
     this.codas = []; // list of measures containing codas
     this.repeats = 0; // repeat count for closing repeat barline
-    this.shortChord = false; // was 's' annotation encountered?
-    this.emptyCells = 0; // consecutive empty cells
-    this.emptyCellNewSystem = false; // did a new system occur in an empty cell?
 
     // In iRP, there are 16 cells per line.
     // The width in mm of a single cell depends on the page width and the margins.
@@ -347,6 +344,10 @@ export class Converter {
     // Are we starting a new system given the current cell index?
     const isNewSystem = cellIndex => cellIndex > 0 && cellIndex % 16 === 0;
 
+    let emptyCells = 0; // consecutive empty cells
+    let emptyCellNewSystem = false; // did a new system occur in an empty cell?
+    let shortChord = false; // was 's' annotation encountered?
+
     // Loop on cells.
     const measures = this.song.cells.reduce((measures, cell, cellIndex) => {
       // Start a new measure if needed.
@@ -394,7 +395,7 @@ export class Converter {
         }
 
         // Add starting barline.
-        this.measure.barlines.push(this.convertBarline(cell.bars, 'left', (isNewSystem(cellIndex) || this.emptyCellNewSystem) ? 'regular' : undefined));
+        this.measure.barlines.push(this.convertBarline(cell.bars, 'left', (isNewSystem(cellIndex) || emptyCellNewSystem) ? 'regular' : undefined));
 
         // If we're still repeating bars, copy the previous bar now.
         if (this.barRepeat) {
@@ -413,23 +414,23 @@ export class Converter {
         // This is an empty cell between measures.
         // Count the consecutive empty cells because they will be converted to margins.
         // Also remember that a new system has occurred.
-        this.emptyCells++;
+        emptyCells++;
         if (isNewSystem(cellIndex)) {
-          this.emptyCellNewSystem = true;
+          emptyCellNewSystem = true;
         }
 
         return measures;
       }
 
       // Start a new system every 16 cells.
-      if (isNewSystem(cellIndex) || this.emptyCellNewSystem) {
+      if (isNewSystem(cellIndex) || emptyCellNewSystem) {
         this.measure.body['_content'].splice(0, 0, {
           _name: 'print',
           _attrs: { 'new-system': 'yes' },
-          _content: { ...(this.emptyCellNewSystem && {
+          _content: { ...(emptyCellNewSystem && {
             'system-layout': {
               'system-margins': [{
-                'left-margin': Converter._mmToTenths(this.cellWidth * this.emptyCells)
+                'left-margin': Converter._mmToTenths(this.cellWidth * emptyCells)
               }, {
                 'right-margin': '0.00'
               }]
@@ -442,7 +443,7 @@ export class Converter {
       // There are 2 cases to handle:
       // - We're now in a fresh system: Add a right-margin to the previous measure.
       // - We're in the middle of a system: Add a measure-distance to the current measure.
-      if (!this.emptyCellNewSystem && this.emptyCells > 0) {
+      if (!emptyCellNewSystem && emptyCells > 0) {
         if (this.measure.body['_content'][0]?.['_name'] === 'print' && this.measure.body['_content'][0]['_attrs']?.['new-system'] === 'yes') {
           measures[measures.length-1].body['_content'].splice(0, 0, {
             _name: 'print',
@@ -451,7 +452,7 @@ export class Converter {
                 'system-margins': [{
                   'left-margin': '0.00'
                 }, {
-                  'right-margin': Converter._mmToTenths(this.cellWidth * this.emptyCells)
+                  'right-margin': Converter._mmToTenths(this.cellWidth * emptyCells)
                 }]
               }
             }
@@ -462,7 +463,7 @@ export class Converter {
             _name: 'print',
             _content: {
               'measure-layout': {
-                'measure-distance': Converter._mmToTenths(this.cellWidth * this.emptyCells)
+                'measure-distance': Converter._mmToTenths(this.cellWidth * emptyCells)
               }
             }
           });
@@ -470,8 +471,8 @@ export class Converter {
       }
 
       // Reset the empty cells.
-      this.emptyCellNewSystem = false;
-      this.emptyCells = 0;
+      emptyCellNewSystem = false;
+      emptyCells = 0;
 
       // Chords.
       if (cell.chord) {
@@ -525,7 +526,7 @@ export class Converter {
           default: {
             // Process new chord.
             this.measure.chords.push(this.convertChord(cell.chord));
-            this.measure.chords[this.measure.chords.length-1].short = this.shortChord;
+            this.measure.chords[this.measure.chords.length-1].short = shortChord;
           }
         }
       }
@@ -608,14 +609,14 @@ export class Converter {
             if (this.measure.chords.length) {
               this.measure.chords[this.measure.chords.length-1].short = false;
             }
-            this.shortChord = false;
+            shortChord = false;
             break;
           }
           case 's': {
             if (this.measure.chords.length) {
               this.measure.chords[this.measure.chords.length-1].short = true;
             }
-            this.shortChord = true;
+            shortChord = true;
             break;
           }
 
@@ -670,7 +671,7 @@ export class Converter {
     }, []);
 
     // Adjust final right margin if needed.
-    const remainingCells = this.song.cells.length % 16 - this.emptyCells;
+    const remainingCells = this.song.cells.length % 16 - emptyCells;
     if (remainingCells > 0 && measures.length > 0) {
       measures[measures.length-1].body['_content'].splice(0, 0, {
         _name: 'print',
