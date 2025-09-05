@@ -1,15 +1,13 @@
 # ireal-musicxml
 iReal Pro to MusicXML converter.
 
-[![npm version](https://badge.fury.io/js/ireal-musicxml.svg)](https://badge.fury.io/js/ireal-musicxml)
-![GitHub Build Status](https://github.com/infojunkie/ireal-musicxml/workflows/Test/badge.svg)
+[![npm](https://img.shields.io/npm/v/%40music-i18n%2Fireal-musicxml)](https://www.npmjs.com/package/@music-i18n/ireal-musicxml)
+[![build](https://github.com/infojunkie/ireal-musicxml/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/infojunkie/ireal-musicxml/actions/workflows/test.yml)
 
 # Demo
 [Check out the demo!](https://blog.karimratib.me/demos/chirp/) You can upload one of the [iReal Pro main playlists](https://www.irealpro.com/main-playlists/) as a test.
 
-# Installation
-**NPM PACKAGE MOVING to [@music-i18n/ireal-musicxml](https://www.npmjs.com/package/@music-i18n/ireal-musicxml)**
-
+# Getting started
 - Install `xmllint` (included in [libxml2](http://www.xmlsoft.org/) on most platforms) - only needed for validation
 - `npm install && npm run build`
 - `npm test`

@@ -8,7 +8,7 @@ import {
   convert,
   Playlist,
   Converter
-} from '../build/ireal-musicxml.js';
+} from '../build/ireal-musicxml.mjs';
 
 describe('ireal-musicxml using TypeScript', () => {
   it('accesses the library version', () => {
