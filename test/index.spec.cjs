@@ -12,7 +12,7 @@ const {
 
 describe('ireal-musicxml using CommonJS', () => {
   it('accesses the library version', () => {
-    assert.strictEqual(Version.name, 'ireal-musicxml');
+    assert.strictEqual(Version.name, '@music-i18n/ireal-musicxml');
   });
 
   it('converts an iReal Pro song to MusicXML synchronously', () => {
