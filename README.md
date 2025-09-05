@@ -8,6 +8,8 @@ iReal Pro to MusicXML converter.
 [Check out the demo!](https://blog.karimratib.me/demos/chirp/) You can upload one of the [iReal Pro main playlists](https://www.irealpro.com/main-playlists/) as a test.
 
 # Installation
+**NPM PACKAGE MOVING to [@music-i18n/ireal-musicxml](https://www.npmjs.com/package/@music-i18n/ireal-musicxml)**
+
 - Install `xmllint` (included in [libxml2](http://www.xmlsoft.org/) on most platforms) - only needed for validation
 - `npm install && npm run build`
 - `npm test`
